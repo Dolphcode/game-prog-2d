@@ -3,6 +3,8 @@
 
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
+#include "entity.h"
+#include "player.h"
 
 int main(int argc, char * argv[])
 {
@@ -29,11 +31,13 @@ int main(int argc, char * argv[])
         0);
     gf2d_graphics_set_frame_delay(16);
     gf2d_sprite_init(1024);
+    entity_system_init(1024); // Code addition: Initialize entity system
     SDL_ShowCursor(SDL_DISABLE);
     
     /*demo setup*/
     sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
+    Entity* player = player_new_entity(gfc_vector2d(20, 20));
     slog("press [escape] to quit");
     /*main game loop*/
     while(!done)
@@ -50,6 +54,9 @@ int main(int argc, char * argv[])
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
             
+	// draw entities now
+	entity_system_draw_all();
+
             //UI elements last
             gf2d_sprite_draw(
                 mouse,
