@@ -8,6 +8,7 @@
 
 #include "entity.h"
 #include "player.h"
+#include "bug.h"
 
 int main(int argc, char * argv[])
 {
@@ -44,6 +45,7 @@ int main(int argc, char * argv[])
     gfc_input_init("config/input.cfg");
 
     Entity* player = player_new_entity(gfc_vector2d(20, 20));
+    Entity* bug = bug_new_entity(gfc_vector2d(80, 100));
     slog("press [escape] to quit");
     /*main game loop*/
     while(!done)
