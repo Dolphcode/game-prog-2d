@@ -1,8 +1,11 @@
 #include <SDL.h>
 #include "simple_logger.h"
 
+#include "gfc_input.h"
+
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
+
 #include "entity.h"
 #include "player.h"
 
@@ -37,12 +40,15 @@ int main(int argc, char * argv[])
     /*demo setup*/
     sprite = gf2d_sprite_load_image("images/backgrounds/bg_new.png");
     mouse = gf2d_sprite_load_all("images/pointer2.png",32,32,16,0);
+	
+    gfc_input_init("config/input.cfg");
+
     Entity* player = player_new_entity(gfc_vector2d(20, 20));
     slog("press [escape] to quit");
     /*main game loop*/
     while(!done)
     {
-        SDL_PumpEvents();   // update SDL's internal event structures
+        gfc_input_update();   // update SDL's internal event structures (called internally)
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         /*update things here*/
         SDL_GetMouseState(&mx,&my);
@@ -56,6 +62,8 @@ int main(int argc, char * argv[])
             
 	// draw entities now
 	entity_system_draw_all();
+	
+	entity_system_think_all();
 
             //UI elements last
             gf2d_sprite_draw(

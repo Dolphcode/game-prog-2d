@@ -18,6 +18,9 @@ typedef struct Entity_S
 	// Physics quantities
 	GFC_Vector2D	position;	/**<entity position*/
 	GFC_Vector2D	velocity;	/**<entity velocity vector*/
+
+	// Function
+	void		(*think)(struct Entity_S *self);	/**<pointer to a think function*/
 }Entity;
 
 /**
@@ -35,6 +38,11 @@ void entity_system_free_all();
  * @brief draw all entities
  */
 void entity_system_draw_all();
+
+/**
+ * @brief make all entities think
+ */
+void entity_system_think_all();
 
 /**
  * @brief get a new empty entity to work with
