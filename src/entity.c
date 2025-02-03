@@ -84,6 +84,8 @@ void entity_free(Entity *ent) {
 	if (ent->sprite) {
 		gf2d_sprite_free(ent->sprite);
 	}
+
+	ent->_inuse = 0;
 }
 
 void entity_draw(Entity *self){
