@@ -1,7 +1,10 @@
 #ifndef __ENTITY_H__
 #define __ENTITY_H__
 
+#include "simple_json.h"
+
 #include "gfc_text.h"
+#include "gfc_list.h"
 #include "gfc_vector.h"
 #include "gf2d_sprite.h"
 
@@ -40,6 +43,12 @@ void entity_system_free_all();
 void entity_system_draw_all();
 
 /**
+ * @brief draw all entities in the provided list
+ * @param entities a GFC_List of entity pointers
+ */
+void entity_system_draw_list(GFC_List *entities);
+
+/**
  * @brief make all entities think
  */
 void entity_system_think_all();
@@ -53,6 +62,19 @@ Entity* entity_new();
 /**
  * @brief free a previously created entity
  */
-
 void entity_free(Entity *);
+
+/**
+ * @brief configures an entity from a def file given a filenamei
+ * @param self the entity pointer
+ * @param filename the path to the def file being loaded
+ */
+void entity_configure_from_file(Entity *self, const char *filename);
+
+/**
+ * @brief configures an entity from a def file
+ * @param self the entity pointer
+ * @param json the json object containing the data to be loaded
+ */
+void entity_configure(Entity *self, SJson *json);
 #endif
