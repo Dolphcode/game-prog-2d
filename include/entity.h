@@ -13,6 +13,7 @@ typedef struct Entity_S
 	// Entity Metadata
 	GFC_TextLine	name;		// <The name of the entity object for debugging purposes
 	Uint8		_inuse;		// <Whether the entity is in use or not (for managing memory)
+	float		lifetime;	// <How long the entity has been alive for
 
 	// Entity Graphical Information
 	Sprite		*sprite;	// <The entity's corresponding sprite/graphical representation

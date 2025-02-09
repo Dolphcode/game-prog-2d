@@ -5,6 +5,7 @@
 #include "gf2d_sprite.h"
 
 #include "player.h"
+#include "bug.h"
 
 void player_update(Entity *self) {
 	if (!self) return;
@@ -18,6 +19,16 @@ void player_update(Entity *self) {
 	}
 	if (gfc_input_command_down("right")) {
 		self->velocity.x += 1;
+	}
+	if (gfc_input_command_down("up")) {
+		self->velocity.y -= 1;
+	}
+	if (gfc_input_command_down("down")) {
+		self->velocity.y += 1;
+	}
+
+	if (gfc_input_command_pressed("shoot")) {
+		Entity *bug = bug_new_entity(self->position);
 	}
 	
 	gfc_vector2d_add(self->position, self->position, self->velocity);
