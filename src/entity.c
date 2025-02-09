@@ -9,6 +9,7 @@
 typedef struct
 {
 	Uint32	entity_max;
+	Uint32	active_entities;
 	Entity	*entity_list;
 }EntitySystem;
 
@@ -76,6 +77,7 @@ void entity_system_update_all() {
 			entity_system.entity_list[i].update(&entity_system.entity_list[i]);
 		}
 	}
+	slog("Active entities: %i", entity_system.active_entities);
 }
 
 void entity_system_draw_all() {
@@ -96,6 +98,7 @@ Entity* entity_new() {
 		if (entity_system.entity_list[i]._inuse) continue; // Skip active entities
 		memset(&entity_system.entity_list[i], 0, sizeof(Entity));
 		entity_system.entity_list[i]._inuse = 1;
+		entity_system.active_entities++;
 		return &entity_system.entity_list[i];
 	}
 	// Fail if no slot could be found
@@ -111,6 +114,7 @@ void entity_free(Entity *ent) {
 
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
+	entity_system.active_entities--;
 }
 
 void entity_configure_from_file(Entity *self, const char *filename) {
