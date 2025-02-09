@@ -54,6 +54,28 @@ void entity_system_free_all() {
 	}
 }
 
+void entity_system_think_all() {
+	int i;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		// Check if the entity slot we're looking at is inuse and has a think function
+		if (entity_system.entity_list[i]._inuse 
+				&& entity_system.entity_list[i].think) {
+			entity_system.entity_list[i].think(&entity_system.entity_list[i]);
+		}
+	}
+}
+
+void entity_system_update_all() {
+	int i;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		// Check if the entity slot we're looking at is inuse and has an update function
+		if (entity_system.entity_list[i]._inuse 
+				&& entity_system.entity_list[i].update) {
+			entity_system.entity_list[i].update(&entity_system.entity_list[i]);
+		}
+	}
+}
+
 void entity_system_draw_all() {
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++) {

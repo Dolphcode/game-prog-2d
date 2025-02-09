@@ -4,6 +4,8 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "gfc_input.h"
+
 #include "entity.h"
 #include "player.h"
 
@@ -34,6 +36,7 @@ int main(int argc, char * argv[])
     gf2d_sprite_init(1024);
 
     // inserting code to initialize systems
+    gfc_input_init("./config/input.cfg");
     entity_system_init(1024);
 
     SDL_ShowCursor(SDL_DISABLE);
@@ -49,7 +52,9 @@ int main(int argc, char * argv[])
     /*main game loop*/
     while(!done)
     {
-        SDL_PumpEvents();   // update SDL's internal event structures
+        // Poll input
+	gfc_input_update();
+
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         /*update things here*/
         SDL_GetMouseState(&mx,&my);
@@ -62,6 +67,7 @@ int main(int argc, char * argv[])
             gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
             
 	    // Then draw entities
+	    entity_system_update_all();
 	    entity_system_draw_all();
 
             //UI elements last

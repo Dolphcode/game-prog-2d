@@ -1,11 +1,26 @@
 #include "simple_logger.h"
 
+#include "gfc_input.h"
+
 #include "gf2d_sprite.h"
 
 #include "player.h"
 
-void player_think(Entity *self) {
+void player_update(Entity *self) {
 	if (!self) return;
+	
+	// zero velocity
+	self->velocity = gfc_vector2d(0, 0);
+	
+	// check input
+	if (gfc_input_command_down("left")) {
+		self->velocity.x -= 1;
+	}
+	if (gfc_input_command_down("right")) {
+		self->velocity.x += 1;
+	}
+	
+	gfc_vector2d_add(self->position, self->position, self->velocity);
 }
 
 void player_draw(Entity *self) {
@@ -49,7 +64,7 @@ Entity *player_new_entity(GFC_Vector2D position) {
 			0);
 	
 	// Assign player functions
-	self->think = player_think;
+	self->update = player_update;
 	self->draw = player_draw;
 
 	return self;
