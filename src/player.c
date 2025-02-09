@@ -52,7 +52,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 
 	// Copy position data into player
 	gfc_vector2d_copy(self->position,position);
-	
+
+	/**
 	// Initialize and assign its sprite
 	self->sprite = gf2d_sprite_load_all(
 		"images/ed210.png",
@@ -62,6 +63,9 @@ Entity *player_new_entity(GFC_Vector2D position) {
 		0);
 
 	// Assign the think function
+	*/
+	entity_configure_from_file(self, "./def/player.def");
+
 	self->think = player_think;
 
 	return self;
