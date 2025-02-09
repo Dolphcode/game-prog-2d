@@ -5,6 +5,7 @@
 #include "gf2d_sprite.h"
 
 #include "entity.h"
+#include "player.h"
 
 int main(int argc, char * argv[])
 {
@@ -41,6 +42,10 @@ int main(int argc, char * argv[])
     sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     slog("press [escape] to quit");
+
+    // Making a simple world and player
+    player_new_entity(gfc_vector2d(30, 30));
+    
     /*main game loop*/
     while(!done)
     {
@@ -56,6 +61,9 @@ int main(int argc, char * argv[])
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
             
+	    // Then draw entities
+	    entity_system_draw_all();
+
             //UI elements last
             gf2d_sprite_draw(
                 mouse,
