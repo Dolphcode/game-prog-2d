@@ -30,10 +30,10 @@ void bug_update(Entity *self) {
 		return;
 	}
 
-	self->position.x += 2;
+	gfc_vector2d_add(self->position, self->position, self->velocity);
 }
 
-Entity *bug_new_entity(GFC_Vector2D position) {
+Entity *bug_new_entity(GFC_Vector2D position, const char *filename) {
 	Entity *self;
 	self = entity_new();
 	if (!self) {
@@ -45,12 +45,7 @@ Entity *bug_new_entity(GFC_Vector2D position) {
 	gfc_vector2d_copy(self->position, position);
 
 	// Initialize and assign sprite
-	self->sprite = gf2d_sprite_load_all(
-		"images/space_bug.png",
-		128,
-		128,
-		16,
-		0);
+	entity_configure_from_file(self, filename);
 
 	// Assign functions
 	self->draw = bug_draw;

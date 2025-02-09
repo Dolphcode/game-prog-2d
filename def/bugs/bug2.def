@@ -1,0 +1,6 @@
+{
+	"name":"bug2",
+	"sprite":"./images/space_bug_top.png",
+	"spriteFPL":16,
+	"spriteSize":[128,128]
+}

@@ -1,6 +1,8 @@
 #include "simple_logger.h"
+#include "simple_json.h"
 
 #include "gfc_list.h"
+#include "gfc_config.h"
 
 #include "entity.h"
 
@@ -109,4 +111,35 @@ void entity_free(Entity *ent) {
 
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
+}
+
+void entity_configure_from_file(Entity *self, const char *filename) {
+	if (!filename) return;
+	SJson *json = sj_load(filename);
+	entity_configure(self, json);
+	sj_free(json);
+}
+
+void entity_configure(Entity *self, SJson *json) {
+	const char *sprite = NULL;
+	if ((!self)||(!json)) return;
+
+	sprite = sj_object_get_string(json, "sprite");
+	if (sprite) {
+		GFC_Vector2D frame_size = {0};
+		Uint32 fpl = 0;
+		sj_object_get_vector2d(json, "spriteSize", &frame_size);
+		sj_object_get_uint32(json, "spriteFPL", &fpl);
+		self->sprite = gf2d_sprite_load_all(
+			sprite,
+			(Uint32)frame_size.x,
+			(Uint32)frame_size.y,
+			fpl,
+			0);
+	}
+
+	// Load the entity name
+	const char *name = NULL;
+	name = sj_object_get_string(json, "name");
+	if (sprite) gfc_line_cpy(self->name, name);
 }

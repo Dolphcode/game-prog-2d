@@ -6,8 +6,9 @@
 /**
  * @brief spawn a new bug entity
  * @param position where to spawn it
+ * @param filename path to def file for creating bug
  * @return NULL on error
  */
-Entity *bug_new_entity(GFC_Vector2D position);
+Entity *bug_new_entity(GFC_Vector2D position, const char *filename);
 
 #endif

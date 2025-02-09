@@ -1,4 +1,5 @@
 #include "simple_logger.h"
+#include "simple_json.h"
 
 #include "gfc_input.h"
 
@@ -6,6 +7,9 @@
 
 #include "player.h"
 #include "bug.h"
+
+static float projv1 = 5;
+static float projv2 = 3;
 
 void player_update(Entity *self) {
 	if (!self) return;
@@ -27,10 +31,19 @@ void player_update(Entity *self) {
 		self->velocity.y += 1;
 	}
 
-	if (gfc_input_command_pressed("shoot")) {
-		Entity *bug = bug_new_entity(self->position);
+	if (gfc_input_command_pressed("shoot1")) {
+		Entity *bug = bug_new_entity(self->position, "./def/bugs/bug1.def");
+		bug->velocity = gfc_vector2d(projv1, 0);
+	}
+
+	if (gfc_input_command_pressed("shoot2")) {
+		Entity *bug = bug_new_entity(self->position, "./def/bugs/bug2.def");
+		bug->velocity = gfc_vector2d(0, projv2);
 	}
 	
+	gfc_vector2d_normalize(&self->velocity);
+	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(5, 5));
+
 	gfc_vector2d_add(self->position, self->position, self->velocity);
 }
 
@@ -66,13 +79,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	// Copy position date into player
 	gfc_vector2d_copy(self->position, position);
 
-	// Initialize and assign sprite
-	self->sprite = gf2d_sprite_load_all(
-			"images/ed210.png",
-			128,
-			128,
-			16,
-			0);
+	// Initialize player entity from config
+	entity_configure_from_file(self, "./def/player.def");
 	
 	// Assign player functions
 	self->update = player_update;
