@@ -64,6 +64,9 @@ void camera_update(Camera *self) {
 		slog("out");
 	}
 
+	// Lower bound zoom
+	if (self->zoom < 0.1) self->zoom = 0.1;
+
 	// Get screen resolution
 	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
 
