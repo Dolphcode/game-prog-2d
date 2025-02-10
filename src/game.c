@@ -74,6 +74,7 @@ int main(int argc, char * argv[])
             gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
 
 	    // Then draw entities
+	    entity_system_think_all();
 	    entity_system_update_all();
 	    entity_system_draw_all();
 

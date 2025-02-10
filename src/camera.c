@@ -1,5 +1,7 @@
 #include "simple_logger.h"
 
+#include "gfc_input.h"
+
 #include "gf2d_graphics.h"
 
 #include "camera.h"
@@ -18,6 +20,9 @@ Camera *camera_new(Uint8 set_main) {
 	// Check if we should set main
 	if (set_main) main_camera = ptr;
 
+	// Initialize zoom
+	ptr->zoom = 1.0;
+
 	// Temporary
 	atexit(camera_free_main);
 
@@ -34,6 +39,7 @@ void camera_free(Camera *self) {
 void camera_free_main() {
 	if (!main_camera) return;
 	camera_free(main_camera);
+	slog("main camera freed");
 }
 
 Camera* camera_get_main() {
@@ -48,12 +54,21 @@ void camera_update(Camera *self) {
 	// Check if we have a target
 	if (!self->target) return;
 	
+	// check input and configure zoom
+	if (gfc_input_command_down("zoom_in")) {
+		self->zoom += 0.1;
+		slog("in");
+	}
+	if (gfc_input_command_down("zoom_out")) {
+		self->zoom -= 0.1;
+		slog("out");
+	}
+
+	// Get screen resolution
 	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
 
 	// Update position
 	self->position = self->target->position;
-	self->position.x -= screen_res.x / 2.0;
-	self->position.y -= screen_res.y / 2.0;
 
 	// Update the rect
 	self->bounds.x = self->position.x - screen_res.x / 2.0;
