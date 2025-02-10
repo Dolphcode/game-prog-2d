@@ -76,7 +76,6 @@ Entity *bug_new_entity(GFC_Vector2D position, const char *filename) {
 	entity_configure_from_file(self, filename);
 
 	// Assign functions
-	self->draw = bug_draw;
 	self->think = bug_think;
 	self->update = bug_update;
 

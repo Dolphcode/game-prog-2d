@@ -105,7 +105,6 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	
 	// Assign player functions
 	self->update = player_update;
-	self->draw = player_draw;
 
 	return self;
 }

@@ -27,8 +27,8 @@ int main(int argc, char * argv[])
     slog("---==== BEGIN ====---");
     gf2d_graphics_initialize(
         "gf2d",
-        600,
-        360,
+        1200,
+        720,
         1200,
         720,
         gfc_vector4d(0,0,0,255),

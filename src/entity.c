@@ -4,7 +4,10 @@
 #include "gfc_list.h"
 #include "gfc_config.h"
 
+#include "gf2d_graphics.h"
+
 #include "entity.h"
+#include "camera.h"
 
 typedef struct
 {
@@ -84,9 +87,12 @@ void entity_system_draw_all() {
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++) {
 		// Check if the entity slot we're looking at is inuse and has a draw function
-		if (entity_system.entity_list[i]._inuse 
-				&& entity_system.entity_list[i].draw) {
-			entity_system.entity_list[i].draw(&entity_system.entity_list[i]);
+		if (entity_system.entity_list[i]._inuse) { 
+			if ( entity_system.entity_list[i].draw) {
+				entity_system.entity_list[i].draw(&entity_system.entity_list[i]);
+			} else {
+				entity_draw(&entity_system.entity_list[i]);
+			}
 		}
 	}
 }
@@ -116,6 +122,39 @@ void entity_free(Entity *ent) {
 	ent->_inuse = 0;
 	entity_system.active_entities--;
 }
+
+void entity_draw(Entity *self) {
+	// Verify pointers
+	if (!self || !self->sprite) return;
+
+	// Get a pointer to the main camera
+	Camera* main_camera = camera_get_main();
+
+	// Calculate draw position and scale
+	GFC_Vector2D scale = gfc_vector2d(main_camera->zoom, main_camera->zoom);
+
+	GFC_Vector2D draw_pos = {0};
+	gfc_vector2d_sub(draw_pos, self->position, main_camera->position);
+	gfc_vector2d_sub(draw_pos, draw_pos, gfc_vector2d(self->sprite->frame_w / 2.0,
+				self->sprite->frame_h / 2.0));
+	gfc_vector2d_scale_by(draw_pos, draw_pos, scale);
+
+	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
+	gfc_vector2d_scale_by(screen_res, screen_res, gfc_vector2d(0.5, 0.5));
+
+	gfc_vector2d_add(draw_pos, draw_pos, screen_res);
+
+	// Draw the sprite
+	gf2d_sprite_draw(
+		self->sprite,
+		draw_pos,
+		&scale,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		(Uint32)self->frame);
+}	
 
 void entity_configure_from_file(Entity *self, const char *filename) {
 	if (!filename) return;
