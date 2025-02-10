@@ -67,7 +67,6 @@ int main(int argc, char * argv[])
         gf2d_graphics_clear_screen();// clears drawing buffers
 	
 	// Update camera
-	camera_update(cam);
 
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
@@ -76,6 +75,10 @@ int main(int argc, char * argv[])
 	    // Then draw entities
 	    entity_system_think_all();
 	    entity_system_update_all();
+		
+	    // Update camera before drawing
+	    camera_update(cam);
+
 	    entity_system_draw_all();
 
             //UI elements last
