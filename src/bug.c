@@ -3,12 +3,16 @@
 #include "gf2d_sprite.h"
 
 #include "bug.h"
+#include "camera.h"
 
 void bug_draw(Entity *self) {
+	GFC_Vector2D drawpos = {0};
+	gfc_vector2d_sub(drawpos, self->position, camera_get_main()->position);
+
 	if (!self || !self->sprite) return;
 	gf2d_sprite_draw(
 		self->sprite,
-		self->position,
+		drawpos,
 		NULL,
 		NULL,
 		NULL,

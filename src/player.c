@@ -7,6 +7,7 @@
 
 #include "player.h"
 #include "bug.h"
+#include "camera.h"
 
 static float projv1 = 5;
 static float projv2 = 3;
@@ -48,12 +49,16 @@ void player_update(Entity *self) {
 }
 
 void player_draw(Entity *self) {
+	// Calculate drawpos
+	GFC_Vector2D drawpos = {0};
+	gfc_vector2d_sub(drawpos, self->position, camera_get_main()->position);
+
 	// Draw the player sprite
 	if (!self) return;
 	if (!self->sprite) return;
 	gf2d_sprite_draw(
 		self->sprite,
-		self->position,
+		drawpos,
 		NULL,
 		NULL,
 		NULL,

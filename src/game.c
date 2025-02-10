@@ -8,6 +8,7 @@
 
 #include "entity.h"
 #include "player.h"
+#include "camera.h"
 
 int main(int argc, char * argv[])
 {
@@ -26,8 +27,8 @@ int main(int argc, char * argv[])
     slog("---==== BEGIN ====---");
     gf2d_graphics_initialize(
         "gf2d",
-        1200,
-        720,
+        600,
+        360,
         1200,
         720,
         gfc_vector4d(0,0,0,255),
@@ -47,7 +48,9 @@ int main(int argc, char * argv[])
     slog("press [escape] to quit");
 
     // Making a simple world and player
-    player_new_entity(gfc_vector2d(30, 30));
+    Entity* player = player_new_entity(gfc_vector2d(30, 30));
+    Camera* cam = camera_new(1);
+    cam->target = player;
     
     /*main game loop*/
     while(!done)
@@ -62,10 +65,14 @@ int main(int argc, char * argv[])
         if (mf >= 16.0)mf = 0;
         
         gf2d_graphics_clear_screen();// clears drawing buffers
+	
+	// Update camera
+	camera_update(cam);
+
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
-            
+
 	    // Then draw entities
 	    entity_system_update_all();
 	    entity_system_draw_all();
