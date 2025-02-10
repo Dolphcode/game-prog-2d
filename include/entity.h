@@ -65,8 +65,15 @@ Entity* entity_new();
 
 /**
  * @brief free a previously created entity
+ * @param self the reference to the entity object
  */
 void entity_free(Entity *);
+
+/**
+ * @brief the default draw function for entities (called if an entity doesn't have a specified draw function)
+ * @param self the reference to the entity object
+ */
+void entity_draw(Entity *);
 
 /**
  * @brief configures an entity from a def file (given via filepath)
