@@ -1,0 +1,27 @@
+{
+	"world":
+	{
+		"background":"images/backgrounds/bg_flat.png",
+		"foreground":"images/backgrounds/fg_flat.png",
+		"parallaxFactor":0.1,
+		"tileSet":"images/tiles.png",
+		"frameSize":[32,32],
+		"framesPerLine":1,
+		"tileCount":3,
+		"tileData":"def/tiledata.def",
+		"worldSize":[10,10],
+		"tileMap":
+		[
+			[3,3,3,3,3,3,3,3,3,3],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,0,0,0,0,0,0,0,0,0],
+			[3,3,3,3,3,3,3,3,3,3]
+		]
+	}
+}

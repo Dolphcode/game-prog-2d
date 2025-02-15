@@ -5,6 +5,7 @@
 
 #include "gfc_text.h"
 #include "gfc_vector.h"
+#include "gfc_list.h"
 
 #include "gf2d_sprite.h"
 
@@ -46,6 +47,12 @@ void entity_system_init(Uint32 maxEnts);
  * @brief free all entities in the entity system
  */
 void entity_system_free_all();
+
+/**
+ * @brief free entities in the entity system from a list
+ * @param entity_list the list of data to be freed
+ */
+void entity_system_free_list(GFC_List *entity_list);
 
 /**
  * @brief draw all entities

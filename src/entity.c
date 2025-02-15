@@ -64,6 +64,17 @@ void entity_system_free_all() {
 	}
 }
 
+void entity_system_free_list(GFC_List *entity_list) {
+	int i, c = gfc_list_count(entity_list);
+
+	// Mark entities in this list as no longer in use
+	for (i = 0; i < c; i++) {
+		if (((Entity*)gfc_list_get_nth(entity_list, i))->_inuse) {
+			entity_free((Entity*)gfc_list_get_nth(entity_list, i));
+		}
+	}
+}
+
 void entity_system_think_all() {
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++) {

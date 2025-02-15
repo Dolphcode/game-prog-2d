@@ -10,6 +10,7 @@
 #include "entity.h"
 #include "player.h"
 #include "camera.h"
+#include "world.h"
 
 int parse_args(int argc, char * argv[]) {
 	if (argc < 2) return 0;
@@ -73,6 +74,9 @@ int main(int argc, char * argv[])
     Entity* player = player_new_entity(gfc_vector2d(30, 30));
     Camera* cam = camera_new(1);
     cam->target = player;
+
+    World* world = world_load("def/world.def");
+    world_make_active(world);
     
     /*main game loop*/
     while(!done)
@@ -119,6 +123,10 @@ int main(int argc, char * argv[])
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
+
+    slog("got to the end here");
+    world_free(world);
+
     slog("---==== END ====---");
     return 0;
 }
