@@ -30,6 +30,9 @@ typedef struct
 	Uint32		tile_count;	// <The number of tiles in the tileset
 	TileData*	tile_data;	// <An array of tile data, reserve 0 for air tiles
 	Uint32*		tile_map;	// <The map of tiles in the level
+	
+	// Tile layer(s)
+	Sprite		*tile_layer;	// <The sprite which tiles will be drawn onto
 
 	// Entities and the main camera
 	Camera		*main_camera;	// <The camera object corresponding with this world

@@ -1,3 +1,5 @@
+#include <SDL_surface.h>
+
 #include "simple_logger.h"
 #include "simple_json.h"
 
@@ -99,6 +101,74 @@ World *world_new(Uint32 width, Uint32 height, Uint32 tile_count) {
 	return world;
 }
 
+void world_build_tile_layer(World *world) {
+	if (!world) return;
+
+	// Initialize variables
+	GFC_Vector2D position = {0};
+	Uint32 frame;
+	int i, j, index;
+
+	// Create the blank surface
+	world->tile_layer = gf2d_sprite_new();
+	if (!world->tile_layer) {
+		slog("failed to allocate memory for tile layer");
+		return;
+	}
+	/*
+	world->tile_layer->surface = SDL_CreateRGBSurface(
+		0, // Flags not used???
+		world->world_size.x * world->tile_size,
+		world->world_size.y * world->tile_size,
+		32,
+		0, // No R mask
+		0, // No G mask
+		0, // No B mask
+		0  // No A mask
+	);*/
+	world->tile_layer->surface = gf2d_graphics_create_surface(world->world_size.x * world->tile_size, world->world_size.y * world->tile_size);
+	slog("printing the world size %f %f %i", world->world_size.x, world->world_size.y, world->tile_size);
+	if (!world->tile_layer->surface) {
+		slog("failed to create surface");
+		return;
+	}
+	
+	// Iterate over tilemap and draw tiles
+	for (i = 0; i < world->world_size.y; i++) {
+		for (j = 0; j < world->world_size.x; j++) {
+			index = i * world->world_size.x + j;
+
+			position.x = j * world->tile_size;
+			position.y = i * world->tile_size;
+			frame = world->tile_map[index] - 1;
+			if (frame < 0) continue;
+
+			gf2d_sprite_draw_to_surface(
+				world->tile_set,
+				position,
+				NULL,
+				NULL,
+				frame,
+				world->tile_layer->surface
+			);
+		}
+	}
+
+	// Render the texture
+	world->tile_layer->texture = SDL_CreateTextureFromSurface(
+		gf2d_graphics_get_renderer(),
+		world->tile_layer->surface
+	);
+	if (!world->tile_layer->texture) {
+		slog("failed to convert texture to surface");
+		return;
+	}
+
+	// Set frame_w and frame_h for ease of access
+	world->tile_layer->frame_w = world->world_size.x * world->tile_size;
+	world->tile_layer->frame_h = world->world_size.y * world->tile_size;
+}
+
 /**
  * @brief loads a world object from a filename
  * @param filename the path to the def file for the world we are loading
@@ -177,16 +247,18 @@ World *world_load(const char *filename) {
 		slog("missing 'tileSet' path");
 		return NULL;
 	}
-	GFC_Vector2D tileset_framesize = {0};
+	Uint32 tileset_framesize = 0;
 	Uint32 tileset_fpl = 0;
-	sj_object_get_vector2d(world_json, "frameSize", &tileset_framesize);
+	sj_object_get_uint32(world_json, "frameSize", &tileset_framesize);
 	sj_object_get_uint32(world_json, "framesPerLine", &tileset_fpl);
 	world->tile_set = gf2d_sprite_load_all(
 		tileset,
-		(Uint32)tileset_framesize.x,
-		(Uint32)tileset_framesize.y,
+		tileset_framesize,
+		tileset_framesize,
 		tileset_fpl,
-		0);
+		1);
+
+	world->tile_size = tileset_framesize;
 	
 	// Load the tiledata
 	int i;
@@ -228,9 +300,13 @@ World *world_load(const char *filename) {
 			item = sj_array_get_nth(horizontal, col);
 			if (!item) continue;
 			sj_get_integer_value(item, &tile_value);
+			slog("%i", tile_value);
 			world->tile_map[row * (int)world_size.x + col] = tile_value;
 		}
 	}
+
+	// Build the tile layer
+	world_build_tile_layer(world);
 
 	// Create the entity list
 	world->entity_list = gfc_list_new();
@@ -279,8 +355,7 @@ void world_draw(World *world) {
 	gfc_vector2d_scale_by(fg_draw_pos, fg_draw_pos, fg_pos_scale);
 	gfc_vector2d_add(fg_draw_pos, fg_draw_pos, screen_res_offset);
 
-	//slog("background size %i %i", world->background->frame_w, world->background->frame_h);
-
+	// Draw the background and foreground
 	gf2d_sprite_draw(world->background,
 			bg_draw_pos,
 			&scale,
@@ -294,6 +369,22 @@ void world_draw(World *world) {
 			fg_draw_pos,
 			&scale,
 			&fg_center,
+			NULL,
+			NULL,
+			NULL,
+			0);
+	
+	// For drawing the tiles themselves we will not change the center
+	// (0,0) is where the player spawns right now, as well as the top left bound of the map
+	GFC_Vector2D tile_layer_draw_pos = {0};
+	gfc_vector2d_sub(tile_layer_draw_pos, tile_layer_draw_pos, camera->position);
+	gfc_vector2d_scale_by(tile_layer_draw_pos, tile_layer_draw_pos, scale);
+	gfc_vector2d_add(tile_layer_draw_pos, tile_layer_draw_pos, screen_res_offset);
+
+	gf2d_sprite_draw(world->tile_layer,
+			tile_layer_draw_pos,
+			&scale,
+			NULL,
 			NULL,
 			NULL,
 			NULL,
