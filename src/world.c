@@ -3,6 +3,8 @@
 
 #include "gfc_config.h"
 
+#include "gf2d_graphics.h"
+
 #include "world.h"
 /*
 typedef struct
@@ -166,6 +168,9 @@ World *world_load(const char *filename) {
 	}
 	world->foreground = gf2d_sprite_load_image(foreground);
 
+	// Get the parallax scale factor
+	sj_object_get_float(world_json, "parallaxFactor", &world->bg_factor);
+
 	// Load the tileset
 	const char * tileset = sj_object_get_string(world_json, "tileSet");
 	if (!tileset) {
@@ -246,7 +251,53 @@ World *world_load(const char *filename) {
  * @param world the world object to be drawn
  */
 void world_draw(World *world) {
-	return;
+	// Get the camera object
+	Camera* camera = camera_get_main();
+
+	// Calculate scale
+	GFC_Vector2D scale = camera_get_zoom(camera);
+
+	// Get centers
+	GFC_Vector2D bg_center = gfc_vector2d(world->background->frame_w * 0.5, world->background->frame_h * 0.5);
+	GFC_Vector2D fg_center = gfc_vector2d(world->foreground->frame_w * 0.5, world->foreground->frame_h * 0.5);
+
+	// Get half the screen res for repositioning
+	GFC_Vector2D screen_res_offset = gf2d_graphics_get_resolution();
+	gfc_vector2d_scale_by(screen_res_offset, screen_res_offset, gfc_vector2d(0.5, 0.5));
+
+	// Calculate draw position of the background
+	GFC_Vector2D bg_pos_scale = gfc_vector2d(scale.x * world->bg_factor, scale.y * world->bg_factor);
+	GFC_Vector2D bg_draw_pos = {0};
+	gfc_vector2d_sub(bg_draw_pos, bg_draw_pos, camera->position);
+	gfc_vector2d_scale_by(bg_draw_pos, bg_draw_pos, bg_pos_scale);
+	gfc_vector2d_add(bg_draw_pos, bg_draw_pos, screen_res_offset);
+	
+	// Calculate draw position of the foreground
+	GFC_Vector2D fg_pos_scale = gfc_vector2d(scale.x * 2.0 * world->bg_factor, scale.y * 2.0 * world->bg_factor);
+	GFC_Vector2D fg_draw_pos = {0};
+	gfc_vector2d_sub(fg_draw_pos, fg_draw_pos, camera->position);
+	gfc_vector2d_scale_by(fg_draw_pos, fg_draw_pos, fg_pos_scale);
+	gfc_vector2d_add(fg_draw_pos, fg_draw_pos, screen_res_offset);
+
+	//slog("background size %i %i", world->background->frame_w, world->background->frame_h);
+
+	gf2d_sprite_draw(world->background,
+			bg_draw_pos,
+			&scale,
+			&bg_center,
+			NULL,
+			NULL,
+			NULL,
+			0);
+
+	gf2d_sprite_draw(world->foreground,
+			fg_draw_pos,
+			&scale,
+			&fg_center,
+			NULL,
+			NULL,
+			NULL,
+			0);
 }
 
 
