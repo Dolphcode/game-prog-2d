@@ -5,10 +5,28 @@
 #include "gf2d_sprite.h"
 
 #include "gfc_input.h"
+#include "gfc_string.h"
 
 #include "entity.h"
 #include "player.h"
 #include "camera.h"
+
+int parse_args(int argc, char * argv[]) {
+	if (argc < 2) return 0;
+
+	for (int i = 1; i < argc; i++) {
+		if (gfc_string_l_strcmp(gfc_string(argv[i]), "-h") == 0) {
+			slog("The following command line options are valid options for this executable\n\t-h, --help\t\tShow help menu\n\t-c, --draw-center\t\tDraw entity center points\n\t-b, --draw-bounds\t\tDraw entity bounds\n");
+			return 1;
+		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-c") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-center") == 0) {
+			DRAW_CENTER = 1;
+		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-b") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-bounds") == 0) {
+			DRAW_BOUNDS = 1;
+		}
+	}
+
+	return 0;
+}
 
 int main(int argc, char * argv[])
 {
@@ -35,6 +53,10 @@ int main(int argc, char * argv[])
         0);
     gf2d_graphics_set_frame_delay(16);
     gf2d_sprite_init(1024);
+	
+    // Parse Args
+    int parse_status = parse_args(argc, argv);
+    if (parse_status) return 0;
 
     // inserting code to initialize systems
     gfc_input_init("./config/input.cfg");

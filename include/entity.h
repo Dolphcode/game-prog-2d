@@ -8,6 +8,10 @@
 
 #include "gf2d_sprite.h"
 
+// Debug constants
+extern Uint8 	DRAW_CENTER; // <Draw the center points of entities
+extern Uint8	DRAW_BOUNDS; // <Draw the bounds of entities
+
 typedef struct Entity_S
 {
 	// Entity Metadata
@@ -17,6 +21,7 @@ typedef struct Entity_S
 
 	// Entity Graphical Information
 	Sprite		*sprite;	// <The entity's corresponding sprite/graphical representation
+	GFC_Vector2D	sprite_offset;	// <Where the entity point is relative to the top left corner of the sprite
 	float		frame;		// <The current frame of the entity's sprite animation
 
 	// Physics Quantities

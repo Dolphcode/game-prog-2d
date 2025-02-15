@@ -2,5 +2,6 @@
 	"name":"player",
 	"sprite":"./images/ed210.png",
 	"spriteFPL":16,
-	"spriteSize":[128,128]
+	"spriteSize":[128,128],
+	"spriteOffset":[64,96]
 }

@@ -5,9 +5,13 @@
 #include "gfc_config.h"
 
 #include "gf2d_graphics.h"
+#include "gf2d_draw.h"
 
 #include "entity.h"
 #include "camera.h"
+
+Uint8	DRAW_CENTER = 0;
+Uint8	DRAW_BOUNDS = 0;
 
 typedef struct
 {
@@ -80,7 +84,7 @@ void entity_system_update_all() {
 			entity_system.entity_list[i].update(&entity_system.entity_list[i]);
 		}
 	}
-	slog("Active entities: %i", entity_system.active_entities);
+	// slog("Active entities: %i", entity_system.active_entities); TODO: Make this a UI option later
 }
 
 void entity_system_draw_all() {
@@ -135,25 +139,28 @@ void entity_draw(Entity *self) {
 
 	GFC_Vector2D draw_pos = {0};
 	gfc_vector2d_sub(draw_pos, self->position, main_camera->position);
-	gfc_vector2d_sub(draw_pos, draw_pos, gfc_vector2d(self->sprite->frame_w / 2.0,
-				self->sprite->frame_h / 2.0));
+
 	gfc_vector2d_scale_by(draw_pos, draw_pos, scale);
 
 	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
 	gfc_vector2d_scale_by(screen_res, screen_res, gfc_vector2d(0.5, 0.5));
-
 	gfc_vector2d_add(draw_pos, draw_pos, screen_res);
+
+	GFC_Vector2D center = self->sprite_offset;
 
 	// Draw the sprite
 	gf2d_sprite_draw(
 		self->sprite,
 		draw_pos,
 		&scale,
-		NULL,
+		&center,
 		NULL,
 		NULL,
 		NULL,
 		(Uint32)self->frame);
+
+	// Draw the point
+	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
 }	
 
 void entity_configure_from_file(Entity *self, const char *filename) {
@@ -179,6 +186,10 @@ void entity_configure(Entity *self, SJson *json) {
 			(Uint32)frame_size.y,
 			fpl,
 			0);
+
+		GFC_Vector2D sprite_offset = {0};
+		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
+		self->sprite_offset = sprite_offset;
 	}
 
 	// Load the entity name

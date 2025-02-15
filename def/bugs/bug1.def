@@ -2,5 +2,6 @@
 	"name":"bug1",
 	"sprite":"./images/space_bug.png",
 	"spriteFPL":16,
-	"spriteSize":[128,128]
+	"spriteSize":[128,128],
+	"spriteOffset":[64,64]
 }
