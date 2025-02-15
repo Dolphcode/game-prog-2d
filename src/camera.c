@@ -6,45 +6,10 @@
 
 #include "camera.h"
 
-static Camera* main_camera; // May be temporary, might assign main camera to world instead
-
-/**
- * @brief frees the main camera if it exists
- */
-void camera_free_main();
-
-Camera *camera_new(Uint8 set_main) {
-	// Allocate memory
-	Camera* ptr = (Camera*) malloc(sizeof(Camera));
-
-	// Check if we should set main
-	if (set_main) main_camera = ptr;
-
-	// Initialize zoom
-	ptr->zoom = 1.0;
-
-	// Temporary
-	atexit(camera_free_main);
-
-	return ptr;
-}
-
-void camera_free(Camera *self) {
-	// Check the pointer
-	if (!self) return;
-
-	free(self);
-}
-
-void camera_free_main() {
-	if (!main_camera) return;
-	camera_free(main_camera);
-	slog("main camera freed");
-}
+static Camera main_camera = {0}; // May be temporary, might assign main camera to world instead
 
 Camera* camera_get_main() {
-	if (!main_camera) return NULL;
-	return main_camera;
+	return &main_camera;
 }
 
 void camera_update(Camera *self) {

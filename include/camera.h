@@ -18,19 +18,6 @@ typedef struct Camera_S {
 }Camera;
 
 /**
- * @brief allocates memory for a new camera object
- * @param sets this camera instance to the main camera instance if set to true
- * @return NULL if failed to allocate memory
- */
-Camera *camera_new(Uint8 set_main);
-
-/**
- * @brief frees the camera from memory
- * @param self the camera instance being freed
- */
-void camera_free(Camera *self);
-
-/**
  * @brief updates the camera's position based on the target position
  * @param self the camera being updated
  */
