@@ -22,11 +22,9 @@ void camera_update(Camera *self) {
 	// check input and configure zoom
 	if (gfc_input_command_down("zoom_in")) {
 		self->zoom += 0.02;
-		slog("in");
 	}
 	if (gfc_input_command_down("zoom_out")) {
 		self->zoom -= 0.02;
-		slog("out");
 	}
 
 	// Lower bound zoom
@@ -47,6 +45,10 @@ void camera_update(Camera *self) {
 
 GFC_Vector2D camera_get_zoom(Camera *self) {
 	return gfc_vector2d(self->zoom, self->zoom);
+}
+
+GFC_Vector2D camera_get_offset(Camera *self) {
+	return gfc_vector2d(-self->position.x, -self->position.y);
 }
 
 

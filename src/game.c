@@ -71,7 +71,7 @@ int main(int argc, char * argv[])
     slog("press [escape] to quit");
 
     // Making a simple world and player
-    Entity* player = player_new_entity(gfc_vector2d(0, 0));
+    Entity* player = player_new_entity(gfc_vector2d(-40, -40));
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;
