@@ -8,6 +8,45 @@
 
 static Camera main_camera = {0}; // May be temporary, might assign main camera to world instead
 
+/**
+ * @brief Update's the main camera (Camera has built in targeting similar to Unity cinemachine
+ */
+void main_camera_update() {
+	camera_update(&main_camera);
+}
+
+/**
+ * @brief Returns the main camera's zoom value as a 2D vector
+ * @return A GFC_Vector2D of the form (zoom, zoom) since zoom is a float value
+ */
+GFC_Vector2D main_camera_get_zoom() {
+	return gfc_vector2d(main_camera.zoom, main_camera.zoom);
+}
+
+/**
+ * @brief Returns the main camera's zoom value as the raw zoom float value
+ * @return A float copy of the main camera's zoom
+ */
+float main_camera_get_zoomf() {
+	return main_camera.zoom;
+}
+
+/**
+ * @brief Set the camera's zoom value. Lower bounded at 0.1f
+ * @param zoom the new zoom value of the camera
+ */
+void main_camera_set_zoom(float zoom) {
+	main_camera.zoom = zoom;
+}
+
+/**
+ * @brief returns the offset vector of the main camera
+ * @return GFC_Vector2D of the camera's offset vector (-position, -position)
+ */
+GFC_Vector2D main_camera_get_offset() {
+	return gfc_vector2d(-main_camera.position.x, -main_camera.position.y);
+}
+
 Camera* camera_get_main() {
 	return &main_camera;
 }

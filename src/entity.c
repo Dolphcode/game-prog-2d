@@ -146,10 +146,10 @@ void entity_draw(Entity *self) {
 	Camera* main_camera = camera_get_main();
 
 	// Calculate draw position and scale
-	GFC_Vector2D scale = gfc_vector2d(main_camera->zoom, main_camera->zoom);
+	GFC_Vector2D scale = main_camera_get_zoom();
 
 	GFC_Vector2D draw_pos = {0};
-	gfc_vector2d_sub(draw_pos, self->position, main_camera->position);
+	gfc_vector2d_add(draw_pos, self->position, main_camera_get_offset());
 
 	gfc_vector2d_scale_by(draw_pos, draw_pos, scale);
 

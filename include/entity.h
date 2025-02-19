@@ -13,6 +13,38 @@
 extern Uint8 	DRAW_CENTER; // <Draw the center points of entities
 extern Uint8	DRAW_BOUNDS; // <Draw the bounds of entities
 
+/** A description of how the entity will fit into the overall gameplay loop.
+ *  The entity object is both a data container and a driver for how the entity behaves
+ *  The gameplay loop will always consist of two states
+ *  1. The current frame
+ *  2. The next physics state
+ *
+ *  The entity object is designed to be an interface between the player and game logic, and the physics engine
+ *
+ *  The think() function is responsible for modifying the game state based on the current frame. It will always
+ *  happen before the physics engine processes the future state as the physics engine will determine the next frame based
+ *  on modifications to the game state between think() and update(). think() serves as a hook for modifications we want
+ *  to make to the game state before the physics engine executes its time step
+ *   - think() is useful for driving the entity based on the current game state (modifying velocity and acceleration)
+ *   - any operations that are dependent on the state of other entities should occur in think()
+ *   - think() should not be used for modifying state that could affect the think() function of other entities
+ *   	- position should not be modified in think
+ *   	- collider info should not be modified in think?
+ *  	- timers should not be updated in think() for best practice, as timers timing out can affect game state?
+ *   - in general other entities don't care about what an entity *wants* to do, only what it *is* doing. If you refrain
+ *     from modifying what an entity is currently doing in think() you'll be generally okay
+ *
+ *  The update() function is responsible for a few things
+ *  1. Interpolating between the current frame and the next fully processed frame processed by the physics engine in order
+ *     to *advance* the current frame. After update() the current frame will have been shifted into the next frame for
+ *     think() to read.
+ *  2. Updating the entity's own game state for the current frame before the next think() call
+ *
+ *  Just remember that the call order is always
+ *  1. think() - modify state based on the current frame
+ *  2. physics_update() - Sync think() modifications with physics body, time step and resolve collisions, then produce next position for entity
+ *  3. update() - advance the current frame to the next one/advance towards the current state calculated by the physics engine
+ */
 typedef struct Entity_S
 {
 	// Entity Metadata

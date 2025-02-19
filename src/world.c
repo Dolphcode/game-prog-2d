@@ -331,7 +331,7 @@ void world_draw(World *world) {
 	Camera* camera = camera_get_main();
 
 	// Calculate scale
-	GFC_Vector2D scale = camera_get_zoom(camera);
+	GFC_Vector2D scale = main_camera_get_zoom(camera);
 
 	// Get centers
 	GFC_Vector2D bg_center = gfc_vector2d(world->background->frame_w * 0.5, world->background->frame_h * 0.5);
@@ -344,14 +344,14 @@ void world_draw(World *world) {
 	// Calculate draw position of the background
 	GFC_Vector2D bg_pos_scale = gfc_vector2d(scale.x * world->bg_factor, scale.y * world->bg_factor);
 	GFC_Vector2D bg_draw_pos = {0};
-	gfc_vector2d_sub(bg_draw_pos, bg_draw_pos, camera->position);
+	gfc_vector2d_add(bg_draw_pos, bg_draw_pos, main_camera_get_offset());
 	gfc_vector2d_scale_by(bg_draw_pos, bg_draw_pos, bg_pos_scale);
 	gfc_vector2d_add(bg_draw_pos, bg_draw_pos, screen_res_offset);
 	
 	// Calculate draw position of the foreground
 	GFC_Vector2D fg_pos_scale = gfc_vector2d(scale.x * 2.0 * world->bg_factor, scale.y * 2.0 * world->bg_factor);
 	GFC_Vector2D fg_draw_pos = {0};
-	gfc_vector2d_sub(fg_draw_pos, fg_draw_pos, camera->position);
+	gfc_vector2d_add(fg_draw_pos, fg_draw_pos, main_camera_get_offset());
 	gfc_vector2d_scale_by(fg_draw_pos, fg_draw_pos, fg_pos_scale);
 	gfc_vector2d_add(fg_draw_pos, fg_draw_pos, screen_res_offset);
 
@@ -377,7 +377,7 @@ void world_draw(World *world) {
 	// For drawing the tiles themselves we will not change the center
 	// (0,0) is where the player spawns right now, as well as the top left bound of the map
 	GFC_Vector2D tile_layer_draw_pos = {0};
-	gfc_vector2d_sub(tile_layer_draw_pos, tile_layer_draw_pos, camera->position);
+	gfc_vector2d_add(tile_layer_draw_pos, tile_layer_draw_pos, main_camera_get_offset());
 	gfc_vector2d_scale_by(tile_layer_draw_pos, tile_layer_draw_pos, scale);
 	gfc_vector2d_add(tile_layer_draw_pos, tile_layer_draw_pos, screen_res_offset);
 
