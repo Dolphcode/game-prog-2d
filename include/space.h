@@ -5,6 +5,7 @@
 #include "gfc_list.h"
 #include "gfc_shape.h"
 
+#include "body.h"
 #include "entity.h"
 
 typedef struct {
@@ -14,6 +15,7 @@ typedef struct {
 	
 	// Physics bodies in the space
 	GFC_List	*static_shapes;	//<List of all static shapes in the physics space
+	GFC_List	*bodies;	//<List of all dynamic physics bodies in the physics space
 
 }Space;
 
@@ -38,9 +40,31 @@ void space_free(Space *self);
 void space_add_static_shape(Space *self, GFC_Shape shape);
 
 /**
+ * @brief add an entity body to the list of bodies in the world
+ * @param self the space object to be modified
+ * @param ent the entity object to be added
+ */
+void space_add_entity(Space *self, Entity *ent);
+
+/**
  * @brief for debugging purposes, draws all static shapes in the space
  */
 void space_draw(Space *self);
+
+// Simulation calls
+
+/**
+ * @brief take a simulation step
+ * @param self the space object to be stepped
+ * @param delta_time the time that passes in a single step
+ */
+void space_step(Space *self, float delta_time);
+
+/**
+ * @brief update the physics space
+ * @param self the space object to be updated
+ */
+void space_update(Space *self);
 
 // Collision/overlap checking
 

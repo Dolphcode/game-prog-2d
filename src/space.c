@@ -34,6 +34,9 @@ Space* space_new() {
 	// Create the static shape list
 	space->static_shapes = gfc_list_new();
 
+	// Create the body shape list
+	space->bodies = gfc_list_new();
+
 	return space;
 }
 
@@ -45,8 +48,14 @@ void space_free(Space *self) {
 		free(gfc_list_get_nth(self->static_shapes, i));
 	}
 
-	gfc_list_delete(self->static_shapes);
+	// Free the list of bodies
+	list_count = gfc_list_get_count(self->bodies);
+	for (i = 0; i < list_count; ++i) {
+		body_free(gfc_list_get_nth(self->bodies, i));
+	}
 
+	gfc_list_delete(self->static_shapes);
+	gfc_list_delete(self->bodies);
 	free(self);	
 }
 
@@ -135,4 +144,61 @@ GFC_List *space_overlap_entity_static_shape(Space *self, Entity *entity) {
 		return collision_list;
 	}
 }
+
+void space_add_entity(Space *self, Entity *ent) {
+	slog("entering the function");
+	if (!ent || !ent->body || !self || !self->bodies) return;
+	slog("succ2?");
+	// Append the entity's body to the space
+	gfc_list_append(self->bodies, ent->body);
+}
+
+/**
+ * @brief take a simulation step
+ * @param self the space object to be stepped
+ * @param delta_time the time that passes in a single step
+ */
+void space_step(Space *self, float delta_time) {
+	int i, c;
+	Body *curr;
+	GFC_Vector2D dx, dv;
+	slog("step");
+
+	c = gfc_list_count(self->bodies);
+	for (i = 0; i < c; ++i) {
+		// Get and verify ptr
+		curr = gfc_list_get_nth(self->bodies, i);
+		if (!curr) continue;
+
+		// Integrate forces (for now just add net_acceleration to acceleration)
+		curr->net_acceleration = gfc_vector2d(0, 0); // Reset net acceleration
+		gfc_vector2d_copy(curr->net_acceleration, curr->acceleration); // Copy applied acceleration into net acceleration
+									       // Apply other forces (joints, e.t.c.)
+
+		// Semi implicit euler method
+		// Integrate velocity
+		gfc_vector2d_copy(dv, curr->net_acceleration);
+		gfc_vector2d_scale_by(dv, dv, gfc_vector2d(delta_time, delta_time));
+		gfc_vector2d_add(curr->velocity, curr->velocity, dv);
+		slog("%f, %f", curr->velocity.x, curr->velocity.y);
+		
+		// Then integrate position
+		gfc_vector2d_copy(dx, curr->velocity);
+		gfc_vector2d_scale_by(dx, dx, gfc_vector2d(delta_time, delta_time));
+		gfc_vector2d_add(curr->position, curr->position, dx);
+	}
+}
+
+/**
+ * @brief update the physics space
+ * @param self the space object to be updated
+ */
+void space_update(Space *self) {
+	if (!self) return;
+
+	for (int i = 0; i < 10; i++) {
+		space_step(self, 0.1);
+	}
+}
+
 

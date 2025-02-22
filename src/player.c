@@ -54,9 +54,8 @@ void player_update(Entity *self) {
 	gfc_vector2d_normalize(&self->velocity);
 	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(1, 1));
 
-	GFC_Vector2D newpos;
 
-	gfc_vector2d_add(self->position, self->position, self->velocity);
+	//gfc_vector2d_add(self->position, self->position, self->velocity);
 
 	GFC_List *collision_list = space_overlap_entity_static_shape(world_get_active()->space, self);
 	if (collision_list) {
@@ -75,7 +74,7 @@ void player_update(Entity *self) {
 				float correction = self->collider.r - distance;
 				gfc_vector2d_copy(scaled_normal, curr->normal);
 				gfc_vector2d_scale_by(scaled_normal, scaled_normal, gfc_vector2d(correction, correction));
-				gfc_vector2d_add(self->position, self->position, scaled_normal);
+				//gfc_vector2d_add(self->position, self->position, scaled_normal);
 			}
 		}
 
@@ -85,6 +84,8 @@ void player_update(Entity *self) {
 			player_collision_list = collision_list;
 		}
 	}
+
+	slog("player think");
 }
 
 void player_draw(Entity *self) {
@@ -131,9 +132,13 @@ Entity *player_new_entity(GFC_Vector2D position) {
 
 	// Initialize player entity from config
 	entity_configure_from_file(self, "./def/player.def");
+
+	// Add the player body to the world space
+	slog("succ?");
+	space_add_entity(world_get_active()->space, self);
 	
 	// Assign player functions
-	self->update = player_update;
+	self->think = player_update;
 	self->draw = player_draw;
 
 	return self;

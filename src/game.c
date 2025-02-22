@@ -11,6 +11,7 @@
 #include "player.h"
 #include "camera.h"
 #include "world.h"
+#include "space.h"
 
 int parse_args(int argc, char * argv[]) {
 	if (argc < 2) return 0;
@@ -73,14 +74,15 @@ int main(int argc, char * argv[])
     slog("press [escape] to quit");
 
     // Making a simple world and player
+    
+    World* world = world_load("def/world.def");
+    world_make_active(world);
+
     Entity* player = player_new_entity(gfc_vector2d(-40, -40));
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;
 
-    World* world = world_load("def/world.def");
-    world_make_active(world);
-    
     /*main game loop*/
     while(!done)
     {
@@ -104,6 +106,11 @@ int main(int argc, char * argv[])
 
 	    // Then draw entities
 	    entity_system_think_all();
+
+	    entity_system_presync_all();
+	    space_update(world_get_active()->space);
+	    entity_system_postsync_all();
+
 	    entity_system_update_all();
 		
 	    // Update camera before drawing

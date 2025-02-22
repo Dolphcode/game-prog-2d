@@ -87,6 +87,46 @@ void entity_system_think_all() {
 	}
 }
 
+/**
+ * @brief sync any changes to position, velocity, and acceleration by the player entity to its body object
+ */
+void entity_system_presync_all() {
+	int i;
+	Entity *ent;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		// Check if the entity slot we're looking at is inuse and has an update function
+		ent = &entity_system.entity_list[i];
+		if (ent->_inuse && ent->body) {
+			slog("entity body updated");
+			gfc_vector2d_copy(ent->body->position, ent->position);
+			gfc_vector2d_copy(ent->body->velocity, ent->velocity);
+			gfc_vector2d_copy(ent->body->acceleration, ent->acceleration);
+			slog("%f %f", ent->body->velocity.x, ent->body->velocity.y);		
+		}
+	}
+
+}
+
+/**
+ * @brief sync physics body calculations to the entity object
+ */
+void entity_system_postsync_all() {
+	int i;
+	Entity *ent;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		// Check if the entity slot we're looking at is inuse and has an update function
+		ent = &entity_system.entity_list[i];
+		if (ent->_inuse && ent->body) {
+			slog("entity state updated");
+			gfc_vector2d_copy(ent->position, ent->body->position);
+			gfc_vector2d_copy(ent->velocity, ent->body->velocity);
+			gfc_vector2d_copy(ent->velocity, ent->body->acceleration);		
+		}
+	}
+
+}
+
+
 void entity_system_update_all() {
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++) {
@@ -123,6 +163,7 @@ Entity* entity_new() {
 		entity_system.active_entities++;
 		return &entity_system.entity_list[i];
 	}
+
 	// Fail if no slot could be found
 	return NULL;
 }
@@ -133,6 +174,9 @@ void entity_free(Entity *ent) {
 
 	// Free the sprite if need be
 	if (ent->sprite) gf2d_sprite_free(ent->sprite);
+
+	// Free the body if need be
+	if (ent->body) body_free(ent->body);
 
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
@@ -191,7 +235,8 @@ void entity_configure_from_file(Entity *self, const char *filename) {
 void entity_configure(Entity *self, SJson *json) {
 	const char *sprite = NULL;
 	if ((!self)||(!json)) return;
-
+	
+	// Load the sprite
 	sprite = sj_object_get_string(json, "sprite");
 	if (sprite) {
 		GFC_Vector2D frame_size = {0};
@@ -215,6 +260,10 @@ void entity_configure(Entity *self, SJson *json) {
 	sj_object_get_float(json, "colliderRadius", &radius);
 	sj_object_get_vector2d(json, "colliderCenter", &center);
 	self->collider=gfc_circle(center.x, center.y, radius);
+
+	// Load the physics body
+	Body *body = body_new();
+	self->body = body;
 
 	// Load the entity name
 	const char *name = NULL;

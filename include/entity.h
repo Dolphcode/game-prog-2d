@@ -10,6 +10,8 @@
 
 #include "gf2d_sprite.h"
 
+#include "body.h"
+
 // Debug constants
 extern Uint8 	DRAW_CENTER; 	// <Draw the center points of entities
 extern Uint8	DRAW_BOUNDS; 	// <Draw the bounds of entities
@@ -65,6 +67,9 @@ typedef struct Entity_S
 	GFC_Vector2D	acceleration;	// <The entity's acceleration for physics calculations
 	GFC_Circle	collider;	// <The entity's collider in space
 
+	// The corresponding physics body
+	Body		*body;		// <This entity's body object
+
 	// Functions
 	void		(*think)(struct Entity_S *self);	// <Called before update(), used to determine entity actions
 	void		(*update)(struct Entity_S *self);	// <Called after think(), used to update entity state
@@ -103,6 +108,16 @@ void entity_system_think_all();
  * @brief call the update() function of all entities
  */
 void entity_system_update_all();
+
+/**
+ * @brief sync all entity physics quantities to entity bodies
+ */
+void entity_system_presync_all();
+
+/**
+ * @brief sync all body updates to entity physics quantities
+ */
+void entity_system_postsync_all();
 
 /**
  * @brief get a new empty entity object
