@@ -17,12 +17,14 @@ int parse_args(int argc, char * argv[]) {
 
 	for (int i = 1; i < argc; i++) {
 		if (gfc_string_l_strcmp(gfc_string(argv[i]), "-h") == 0) {
-			slog("The following command line options are valid options for this executable\n\t-h, --help\t\tShow help menu\n\t-c, --draw-center\t\tDraw entity center points\n\t-b, --draw-bounds\t\tDraw entity bounds\n");
+			slog("The following command line options are valid options for this executable\n\t-h, --help\t\tShow help menu\n\t-p, --draw-center\t\tDraw entity center points\n\t-b, --draw-bounds\t\tDraw entity bounds\n-c, --draw-collisions\t\tDraw collision points\n");
 			return 1;
-		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-c") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-center") == 0) {
+		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-p") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-center") == 0) {
 			DRAW_CENTER = 1;
 		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-b") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-bounds") == 0) {
-			DRAW_BOUNDS = 1;
+			DRAW_BOUNDS = 1;	
+		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-c") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-collisions") == 0) {
+			DRAW_COLLISIONS = 1;
 		}
 	}
 

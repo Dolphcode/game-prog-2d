@@ -7,6 +7,7 @@
 
 #include "camera.h"
 #include "space.h"
+#include "collision.h"
 
 /*
 typedef struct {
@@ -103,6 +104,8 @@ void space_draw(Space *self) {
 GFC_List *space_overlap_entity_static_shape(Space *self, Entity *entity) {
 	Uint32 i, c;
 	GFC_Shape *curr;
+	GFC_Vector2D poc;
+	GFC_Vector2D normal;
 
 	// Create the collision list
 	GFC_List *collision_list = gfc_list_new();
@@ -113,16 +116,15 @@ GFC_List *space_overlap_entity_static_shape(Space *self, Entity *entity) {
 	// Entity world space collider
 	GFC_Circle world_space_collider = gfc_circle(entity->collider.x + entity->position.x, entity->collider.y + entity->position.y, entity->collider.r);
 
+	// For each static body do the overlap test
 	for (i = 0; i < c; ++i) {
-		GFC_Vector2D *poc = gfc_allocate_array(sizeof(GFC_Vector2D), 1);
-		
 		curr = gfc_list_get_nth(self->static_shapes, i);
 
-			
-		if (gfc_shape_overlap_poc(*curr, gfc_shape_from_circle(world_space_collider), poc, NULL)) {
-			gfc_list_append(collision_list, poc);
-		} else {
-			free(poc);
+		if (gfc_shape_overlap_poc(*curr, gfc_shape_from_circle(world_space_collider), &poc, &normal)) {
+			Collision *coll = collision_new();
+			gfc_vector2d_copy(coll->poc, poc);
+			gfc_vector2d_copy(coll->normal, normal);
+			gfc_list_append(collision_list, coll);
 		}
 	}
 

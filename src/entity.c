@@ -12,6 +12,7 @@
 
 Uint8	DRAW_CENTER = 0;
 Uint8	DRAW_BOUNDS = 0;
+Uint8	DRAW_COLLISIONS = 0;
 
 typedef struct
 {

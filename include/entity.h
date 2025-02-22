@@ -11,8 +11,9 @@
 #include "gf2d_sprite.h"
 
 // Debug constants
-extern Uint8 	DRAW_CENTER; // <Draw the center points of entities
-extern Uint8	DRAW_BOUNDS; // <Draw the bounds of entities
+extern Uint8 	DRAW_CENTER; 	// <Draw the center points of entities
+extern Uint8	DRAW_BOUNDS; 	// <Draw the bounds of entities
+extern Uint8	DRAW_COLLISIONS;// <Draw collision points
 
 /** A description of how the entity will fit into the overall gameplay loop.
  *  The entity object is both a data container and a driver for how the entity behaves
