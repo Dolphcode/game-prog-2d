@@ -8,6 +8,7 @@
 #include "gf2d_graphics.h"
 
 #include "world.h"
+#include "space.h"
 /*
 typedef struct
 {
@@ -170,6 +171,40 @@ void world_build_tile_layer(World *world) {
 }
 
 /**
+ * @brief build's the world physics space by adding all the static shapes in the world
+ * @param world the world object whose space should be loaded
+ */
+void world_build_space(World *world) {
+	// Verify the pointer
+	if (!world || !world->tile_map || !world->tile_data) return;
+
+	// Variables
+	int i, c;
+
+	// Create the space
+	world->space = space_new();
+
+	// Add static shapes to the world
+	c = world->world_size.x * world->world_size.y;
+	for (i = 0; i < c; i++) {
+		if (world->tile_map[i] != 0 && world->tile_data[world->tile_map[i]].collision_type != TCT_NONE) {
+			// Get the tiledata to get info about the tile's bounding box
+			TileData dat = world->tile_data[world->tile_map[i] - 1];
+			
+			// Compute the tile's position in space
+			int y_pos = (i / (int)world->world_size.x) * world->tile_size;
+			int x_pos = (i % (int)world->world_size.x) * world->tile_size;
+
+			// Create the static shape for the tile's bounding box
+			GFC_Rect rect = gfc_rect((float)x_pos, (float)y_pos, dat.collision_box.x, dat.collision_box.y);
+			
+			// Add the static shape
+			space_add_static_shape(world->space, gfc_shape_from_rect(rect));
+		}
+	}
+}
+
+/**
  * @brief loads a world object from a filename
  * @param filename the path to the def file for the world we are loading
  * @return NULL if fail, otherwise the world object being loaded
@@ -308,6 +343,9 @@ World *world_load(const char *filename) {
 	// Build the tile layer
 	world_build_tile_layer(world);
 
+	// Build the space
+	world_build_space(world);
+
 	// Create the entity list
 	world->entity_list = gfc_list_new();
 	if (!world->entity_list) {
@@ -389,6 +427,10 @@ void world_draw(World *world) {
 			NULL,
 			NULL,
 			0);
+
+
+	// Draw the world's space
+	space_draw(world->space);
 }
 
 
