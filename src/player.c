@@ -52,7 +52,9 @@ void player_update(Entity *self) {
 	}
 	
 	gfc_vector2d_normalize(&self->velocity);
-	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(5, 5));
+	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(1, 1));
+
+	GFC_Vector2D newpos;
 
 	gfc_vector2d_add(self->position, self->position, self->velocity);
 
@@ -61,9 +63,22 @@ void player_update(Entity *self) {
 		int i, c;
 		c = gfc_list_count(collision_list);
 		for (i = 0; i < c; ++i) {
-			Collision *c = ((Collision*)gfc_list_get_nth(collision_list, i));
-			slog("Point of collision %i: (%f, %f)", i, c->poc.x, c->poc.y);
+			Collision *curr = ((Collision*)gfc_list_get_nth(collision_list, i));
+			slog("Point of collision %i: (%f, %f)", i, curr->poc.x, curr->poc.y);
+			
+			//
+			GFC_Vector2D center_worldspace;
+			gfc_vector2d_add(center_worldspace, self->position, gfc_vector2d(self->collider.x, self->collider.y));
+			if (gfc_vector2d_distance_between_less_than(center_worldspace, curr->poc, self->collider.r)) {
+				GFC_Vector2D scaled_normal, distance_vector;
+				float distance = gfc_vector2d_magnitude_between(curr->poc, center_worldspace);
+				float correction = self->collider.r - distance;
+				gfc_vector2d_copy(scaled_normal, curr->normal);
+				gfc_vector2d_scale_by(scaled_normal, scaled_normal, gfc_vector2d(correction, correction));
+				gfc_vector2d_add(self->position, self->position, scaled_normal);
+			}
 		}
+
 		
 		// Reassign for draw call
 		if (DRAW_COLLISIONS) {
