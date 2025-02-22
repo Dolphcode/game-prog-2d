@@ -6,6 +6,7 @@
 #include "gfc_text.h"
 #include "gfc_vector.h"
 #include "gfc_list.h"
+#include "gfc_shape.h"
 
 #include "gf2d_sprite.h"
 
@@ -61,7 +62,7 @@ typedef struct Entity_S
 	GFC_Vector2D	position;	// <The entity's position in global space
 	GFC_Vector2D	velocity;	// <The entity's velocity for physics calculations
 	GFC_Vector2D	acceleration;	// <The entity's acceleration for physics calculations
-	GFC_Vector2D	bounds;		// <The entity's bounds in space
+	GFC_Circle	collider;	// <The entity's collider in space
 
 	// Functions
 	void		(*think)(struct Entity_S *self);	// <Called before update(), used to determine entity actions

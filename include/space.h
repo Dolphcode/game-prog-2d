@@ -5,6 +5,8 @@
 #include "gfc_list.h"
 #include "gfc_shape.h"
 
+#include "entity.h"
+
 typedef struct {
 
 	// Debug stuff
@@ -39,5 +41,15 @@ void space_add_static_shape(Space *self, GFC_Shape shape);
  * @brief for debugging purposes, draws all static shapes in the space
  */
 void space_draw(Space *self);
+
+// Collision/overlap checking
+
+/**
+ * @brief check if an entity is overlapping with any static shape in the space
+ * @param entity the entity whose bounds are being checked with static shapes in the world
+ * @return a list of shape overlaps as Vector2Ds
+ * @note this list is not freed on its own, and must be freed by the function caller
+ */
+GFC_List *space_overlap_entity_static_shape(Space *self, Entity *entity);
 
 #endif

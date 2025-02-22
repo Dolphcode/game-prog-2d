@@ -4,5 +4,6 @@
 	"spriteFPL":16,
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
-	"bounds":[64,64]
+	"colliderCenter":[32,0],
+	"colliderRadius":32
 }

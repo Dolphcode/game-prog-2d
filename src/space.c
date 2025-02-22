@@ -93,3 +93,44 @@ void space_draw(Space *self) {
 
 	}
 }
+
+/**
+ * @brief check if an entity is overlapping with any static shape in the space
+ * @param entity the entity whose bounds are being checked with static shapes in the world
+ * @return a list of shape overlaps as Vector2Ds
+ * @note this list is not freed on its own, and must be freed by the function caller
+ */
+GFC_List *space_overlap_entity_static_shape(Space *self, Entity *entity) {
+	Uint32 i, c;
+	GFC_Shape *curr;
+
+	// Create the collision list
+	GFC_List *collision_list = gfc_list_new();
+
+	// Iterate through all shapes in the space
+	c = gfc_list_count(self->static_shapes);
+
+	// Entity world space collider
+	GFC_Circle world_space_collider = gfc_circle(entity->collider.x + entity->position.x, entity->collider.y + entity->position.y, entity->collider.r);
+
+	for (i = 0; i < c; ++i) {
+		GFC_Vector2D *poc = gfc_allocate_array(sizeof(GFC_Vector2D), 1);
+		
+		curr = gfc_list_get_nth(self->static_shapes, i);
+
+			
+		if (gfc_shape_overlap_poc(*curr, gfc_shape_from_circle(world_space_collider), poc, NULL)) {
+			gfc_list_append(collision_list, poc);
+		} else {
+			free(poc);
+		}
+	}
+
+	if (!gfc_list_count(collision_list)) {
+		gfc_list_delete(collision_list);
+		return NULL;
+	} else {
+		return collision_list;
+	}
+}
+

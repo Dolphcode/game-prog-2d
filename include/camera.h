@@ -47,6 +47,13 @@ void main_camera_set_zoom(float zoom);
  */
 GFC_Vector2D main_camera_get_offset();
 
+/**
+ * @brief converts a position in world space to the corresponding position in camera space
+ * @param position the position in world space
+ * @return a vector2d for the position in camera space
+ */
+GFC_Vector2D main_camera_calc_drawpos(GFC_Vector2D position);
+
 // DEPRECATED FUNCTIONS
 
 /**

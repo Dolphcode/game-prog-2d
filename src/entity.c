@@ -172,6 +172,12 @@ void entity_draw(Entity *self) {
 
 	// Draw the point
 	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
+
+	if (DRAW_BOUNDS) {
+		GFC_Vector2D circle_center = gfc_vector2d(self->collider.x + self->position.x, self->collider.y + self->position.y);
+		GFC_Vector2D collider_drawpos = main_camera_calc_drawpos(circle_center);
+		gf2d_draw_circle(collider_drawpos, self->collider.r * scale.x, GFC_COLOR_RED);
+	}
 }	
 
 void entity_configure_from_file(Entity *self, const char *filename) {
@@ -202,8 +208,12 @@ void entity_configure(Entity *self, SJson *json) {
 		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
 	}
-
-	sj_object_get_vector2d(json, "bounds", &self->bounds);
+	
+	float radius;
+	GFC_Vector2D center;
+	sj_object_get_float(json, "colliderRadius", &radius);
+	sj_object_get_vector2d(json, "colliderCenter", &center);
+	self->collider=gfc_circle(center.x, center.y, radius);
 
 	// Load the entity name
 	const char *name = NULL;
