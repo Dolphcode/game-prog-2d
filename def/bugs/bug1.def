@@ -3,5 +3,7 @@
 	"sprite":"./images/space_bug.png",
 	"spriteFPL":16,
 	"spriteSize":[128,128],
-	"spriteOffset":[64,64]
+	"spriteOffset":[64,64],
+
+	"bounds":[64,64]
 }

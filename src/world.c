@@ -187,7 +187,7 @@ void world_build_space(World *world) {
 	// Add static shapes to the world
 	c = world->world_size.x * world->world_size.y;
 	for (i = 0; i < c; i++) {
-		if (world->tile_map[i] != 0 && world->tile_data[world->tile_map[i]].collision_type != TCT_NONE) {
+		if (world->tile_map[i] != 0 && world->tile_data[world->tile_map[i] - 1].collision_type != TCT_NONE) {
 			// Get the tiledata to get info about the tile's bounding box
 			TileData dat = world->tile_data[world->tile_map[i] - 1];
 			
@@ -335,7 +335,6 @@ World *world_load(const char *filename) {
 			item = sj_array_get_nth(horizontal, col);
 			if (!item) continue;
 			sj_get_integer_value(item, &tile_value);
-			slog("%i", tile_value);
 			world->tile_map[row * (int)world_size.x + col] = tile_value;
 		}
 	}

@@ -203,6 +203,8 @@ void entity_configure(Entity *self, SJson *json) {
 		self->sprite_offset = sprite_offset;
 	}
 
+	sj_object_get_vector2d(json, "bounds", &self->bounds);
+
 	// Load the entity name
 	const char *name = NULL;
 	name = sj_object_get_string(json, "name");

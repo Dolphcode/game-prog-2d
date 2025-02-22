@@ -10,13 +10,13 @@
 		{
 			"name":"T2",
 			"frame":2,
-			"collisionType":1,
+			"collisionType":0,
 			"collisionBox":[64,64]
 		},
 		{
 			"name":"T3",
 			"frame":3,
-			"collisionType":0,
+			"collisionType":1,
 			"collisionBox":[64,64]
 		}
 	]

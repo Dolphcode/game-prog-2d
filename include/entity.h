@@ -61,6 +61,7 @@ typedef struct Entity_S
 	GFC_Vector2D	position;	// <The entity's position in global space
 	GFC_Vector2D	velocity;	// <The entity's velocity for physics calculations
 	GFC_Vector2D	acceleration;	// <The entity's acceleration for physics calculations
+	GFC_Vector2D	bounds;		// <The entity's bounds in space
 
 	// Functions
 	void		(*think)(struct Entity_S *self);	// <Called before update(), used to determine entity actions
