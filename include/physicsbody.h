@@ -7,6 +7,9 @@
 #include "collision.h"
 
 typedef struct {
+	// Management
+	Uint8		_inuse;
+
 	// Quantities
 	GFC_Vector2D	position;           //<The body's position in space
 	GFC_Vector2D	velocity;           //<The body's velocity
@@ -17,7 +20,7 @@ typedef struct {
 	GFC_Rect	collider;		//<The collision box for the physics body
 	Uint32		max_collisions;         //<The maximum number of collisions that this body can register, 0 if cannot collide
 	Uint32		unresolved_collisions;  //<The number of unresolved collisions from a call of the world collision test
-	Collision	*collision_list;        //<The list of collisions, sized max_collisions
+	Collision	collision_list[8];        //<The list of collisions, sized max_collisions
 }PhysicsBody;
 
 /**
@@ -33,17 +36,6 @@ PhysicsBody *physics_body_new(Uint32 max_collisions);
  */
 void physics_body_free(PhysicsBody *self);
 
-/**
- * @brief applies a force to a physics body
- * @param self the body which a force should be applied to
- * @param force the force to be applied
- */
 void physics_body_apply_force(PhysicsBody *self, GFC_Vector2D force);
 
-/**
- * @brief applies an impulse (impulse is converted to acceleration via p/t = F)
- * @param self the body which an impulse should be applied to
- * @parma impulse the impulse vector to be applied
- */
-void physics_body_apply_impulse(PhysicsBody *self, GFC_Vector2D impulse);
 #endif

@@ -100,7 +100,13 @@ void space_add_static_rect(Space *self, GFC_Rect shape) {
 
 void space_add_entity(Space *self, Entity *ent) {
 	if (!self || !self->physics_bodies || !ent || !ent->body) return;
+	slog("appending?");
 	gfc_list_append(self->physics_bodies, ent->body);
+	slog("Appended!");
+}
+
+void space_remove_entity(Space *self, Entity *ent) {
+	gfc_list_delete_data(self->physics_bodies, ent->body);
 }
 
 void space_step(Space *self, float delta_time) {
@@ -148,6 +154,7 @@ void space_update(Space *self) {
 		count = gfc_list_count(self->physics_bodies);
 		for (i = 0; i < count; ++i) {
 			curr = gfc_list_get_nth(self->physics_bodies, i);
+			if (!curr) continue;
 			curr->acceleration = gfc_vector2d(0, 0);
 		}
 	}	
@@ -215,7 +222,7 @@ void space_body_resolve_overlaps(Space *self, PhysicsBody *body) {
 	while (body->unresolved_collisions && i < 5) { // Perform collision resolved 5x max
 		// Find the collision with the maximum overlap and resolve that one first
 		count = body->unresolved_collisions;
-		for (j = 0; j < count; j++) {
+		for (j = 0; j < count && j < 8; j++) {
 			curr = &body->collision_list[j];
 			if (!curr) continue;
 
@@ -266,7 +273,7 @@ void space_body_static_overlaps(Space *self, PhysicsBody *body) {
 	
 	// Reset collisions
 	count = body->max_collisions;
-	memset(&body->collision_list[0], 0, count * sizeof(Collision));
+	//memset(body->collision_list, 0, count * sizeof(Collision));
 	body->unresolved_collisions = 0;
 
 	// Compute world body position

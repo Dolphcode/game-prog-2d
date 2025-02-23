@@ -39,6 +39,8 @@ void space_add_static_rect(Space *self, GFC_Rect shape);
  */
 void space_add_entity(Space *self, Entity *ent);
 
+void space_remove_entity(Space *self, Entity *ent);
+
 // Simulating the space
 
 /**

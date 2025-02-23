@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
 	    entity_system_postsync_all();
 
 	    entity_system_update_all();
-		
+		//slog("i'm updating everyone");		
 	    // Update camera before drawing
 	    camera_update(cam);
 	    entity_system_draw_all();
@@ -131,7 +131,7 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
 
-    world_free(world);
+    //world_free(world);
 
     slog("---==== END ====---");
     return 0;

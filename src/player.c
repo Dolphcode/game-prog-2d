@@ -15,23 +15,30 @@ static float projv2 = 1;
 
 void player_update(Entity *self) {
 	if (!self) return;
-	float ogy=self->velocity.y;	
+	//float ogy=self->velocity.y;	
 	
 	// zero velocity
-	self->velocity = gfc_vector2d(0, 0);
+	//self->velocity = gfc_vector2d(0, 0);
 	
 	// check input
-	if (gfc_input_command_down("left")) {
-		self->velocity.x -= 1;
+	if (gfc_input_command_down("dash")) {
+	if (gfc_input_command_pressed("left")) {
+		//self->velocity.x -= 1;
+		self->velocity.x -= 1000;
 	}
-	if (gfc_input_command_down("right")) {
-		self->velocity.x += 1;
+	if (gfc_input_command_pressed("right")) {
+		//self->velocity.x += 1;
+		self->velocity.x += 1000;
 	}
-	if (gfc_input_command_down("up")) {
-		self->velocity.y -= 1;
+
+	if (gfc_input_command_pressed("up")) {
+		//self->velocity.y -= 1;
+		self->velocity.y -= 1000;
 	}
-	if (gfc_input_command_down("down")) {
-		self->velocity.y += 1;
+	if (gfc_input_command_pressed("down")) {
+		//self->velocity.y += 1;
+		self->velocity.y += 1000;
+	}
 	}
 
 	if (gfc_input_command_pressed("shoot1")) {
@@ -44,12 +51,28 @@ void player_update(Entity *self) {
 		bug->velocity = gfc_vector2d(0, projv2);
 	}
 
-	gfc_vector2d_normalize(&self->velocity);
-	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(100, 100));
-	self->velocity.y += ogy;
-	self->acceleration.y = 20;
+	self->acceleration.y += 500;
 
-	//gfc_vector2d_add(self->position, self->position, self->velocity);
+	if (gfc_vector2d_magnitude(self->velocity) > 500) {
+		float mag = gfc_vector2d_magnitude(self->velocity);
+		GFC_Vector2D dir;
+		gfc_vector2d_negate(dir, self->velocity);
+		gfc_vector2d_normalize(&dir);
+		gfc_vector2d_scale_by(dir, dir, gfc_vector2d(mag * 5, mag * 5));
+		// Drag constant
+		gfc_vector2d_add(self->acceleration, self->acceleration, dir);
+
+	}
+	if (gfc_vector2d_magnitude(self->velocity) < 500) {
+		float mag = gfc_vector2d_magnitude(self->velocity);
+		GFC_Vector2D dir;
+		gfc_vector2d_negate(dir, self->velocity);
+		gfc_vector2d_normalize(&dir);
+		gfc_vector2d_scale_by(dir, dir, gfc_vector2d(mag * 2, mag * 2));
+		// Drag constant
+		gfc_vector2d_add(self->acceleration, self->acceleration, dir);
+
+	}
 }
 
 Entity *player_new_entity(GFC_Vector2D position) {

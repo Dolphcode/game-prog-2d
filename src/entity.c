@@ -138,6 +138,8 @@ void entity_system_draw_all() {
 			if ( entity_system.entity_list[i].draw) {
 				entity_system.entity_list[i].draw(&entity_system.entity_list[i]);
 			} else {
+				slog("Drawing %i", &entity_system.entity_list[i]);
+				slog("The body is at %i", (&entity_system.entity_list[i])->body);
 				entity_draw(&entity_system.entity_list[i]);
 			}
 		}
@@ -149,9 +151,13 @@ Entity* entity_new() {
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++) {
 		if (entity_system.entity_list[i]._inuse) continue; // Skip active entities
+		slog("got to a free slot %i", &entity_system.entity_list[i]);
 		memset(&entity_system.entity_list[i], 0, sizeof(Entity));
+
+		slog("and a memset");
 		entity_system.entity_list[i]._inuse = 1;
 		entity_system.active_entities++;
+		slog("ready to return the slot!");
 		return &entity_system.entity_list[i];
 	}
 	// Fail if no slot could be found
@@ -166,10 +172,18 @@ void entity_free(Entity *ent) {
 	if (ent->sprite) gf2d_sprite_free(ent->sprite);
 
 	// Free the physics body if we have one
-	if (ent->body) physics_body_free(ent->body);
+	slog("body %i", ent->body);
+	if (ent->body) {
+		slog("a body was freed");
+		space_remove_entity(world_get_active()->space, ent);
+		slog("entity removed");
+		physics_body_free(ent->body);
+		ent->body = NULL;
+	}
 
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
+	slog("entity is no longer usable");
 	entity_system.active_entities--;
 }
 
@@ -226,18 +240,22 @@ void entity_configure_body(Entity *self, SJson *json) {
        	sj_object_get_vector2d(json, "colliderOffset", &offset);
 	sj_object_get_vector2d(json, "colliderSize", &bounds);
 	sj_object_get_uint32(json, "maxCollisions", &max_colls);
+	slog("loaded the json");
 
 	// Create the physics body
 	self->body = physics_body_new(max_colls);
+	slog("made the body");
 
 	// Validate the pointer
 	if (!self->body) return;
+	slog("the pointer has been validated");
 
 	// Assign collider info
 	self->body->collider.x = offset.x;
 	self->body->collider.y = offset.y;
 	self->body->collider.w = bounds.x;
 	self->body->collider.h = bounds.y;
+	slog("you reckon we're okay here?");
 }
 
 void entity_configure_from_file(Entity *self, const char *filename) {
@@ -268,16 +286,20 @@ void entity_configure(Entity *self, SJson *json) {
 		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
 	}
-
+	slog("made me a sprite");
 	// Get the collider
 	SJson *coll_info = sj_object_get_value(json, "collider");
 	if (coll_info) {
+		slog("about to make that body");
 		entity_configure_body(self, coll_info);
+		slog("body has been made");
 		space_add_entity(world_get_active()->space, self);	
 	}
+	slog("made me a collider");
 
 	// Load the entity name
 	const char *name = NULL;
 	name = sj_object_get_string(json, "name");
 	if (sprite) gfc_line_cpy(self->name, name);
+	slog("made me a name");
 }
