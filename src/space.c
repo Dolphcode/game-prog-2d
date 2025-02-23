@@ -226,6 +226,16 @@ void space_body_resolve_overlaps(Space *self, PhysicsBody *body) {
 			body->position.y = max->shape.y + max->shape.h - body->collider.y;
 		}
 
+		if (max->normal.x != 0) {
+			body->velocity.x = 0;
+			body->acceleration.x = 0;
+		}
+
+		if (max->normal.y != 0) {
+			body->velocity.y = 0;
+			body->acceleration.y = 0;
+		}
+
 		// Recalculate overlaps (maybe optimize later but probably fine for now)
 		space_body_static_overlaps(self, body);
 		++i;

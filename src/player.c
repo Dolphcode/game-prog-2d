@@ -47,7 +47,7 @@ void player_update(Entity *self) {
 	gfc_vector2d_normalize(&self->velocity);
 	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(100, 100));
 	self->velocity.y += ogy;
-	self->acceleration.y = 9.8;
+	self->acceleration.y = 20;
 
 	//gfc_vector2d_add(self->position, self->position, self->velocity);
 }
