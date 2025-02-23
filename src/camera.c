@@ -47,6 +47,28 @@ GFC_Vector2D main_camera_get_offset() {
 	return gfc_vector2d(-main_camera.position.x, -main_camera.position.y);
 }
 
+GFC_Vector2D main_camera_calc_drawpos(GFC_Vector2D position) {
+	// Copy into drawpos
+	GFC_Vector2D drawpos;
+	gfc_vector2d_copy(drawpos, position);
+
+	// Add main camera offset
+	gfc_vector2d_add(drawpos, drawpos, main_camera_get_offset());
+
+	// Scale by zoom
+	gfc_vector2d_scale_by(drawpos, drawpos, main_camera_get_zoom());
+
+	// Compute screen res offset
+	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
+	gfc_vector2d_scale_by(screen_res, screen_res, gfc_vector2d(0.5, 0.5));
+
+	// Add the screen res offset
+	gfc_vector2d_add(drawpos, drawpos, screen_res);
+
+	// Return
+	return drawpos;
+}
+
 Camera* camera_get_main() {
 	return &main_camera;
 }

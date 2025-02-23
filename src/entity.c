@@ -9,6 +9,8 @@
 
 #include "entity.h"
 #include "camera.h"
+#include "world.h"
+#include "physicsbody.h"
 
 Uint8	DRAW_CENTER = 0;
 Uint8	DRAW_BOUNDS = 0;
@@ -98,6 +100,36 @@ void entity_system_update_all() {
 	// slog("Active entities: %i", entity_system.active_entities); TODO: Make this a UI option later
 }
 
+void entity_system_presync_all() {
+	int i;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		// Check if the entity slot we're looking at is inuse and has a physics body
+		if (entity_system.entity_list[i]._inuse 
+				&& entity_system.entity_list[i].body) {
+			gfc_vector2d_copy((&entity_system.entity_list[i])->body->position, (&entity_system.entity_list[i])->position);
+			gfc_vector2d_copy((&entity_system.entity_list[i])->body->velocity, (&entity_system.entity_list[i])->velocity);
+			gfc_vector2d_copy((&entity_system.entity_list[i])->body->acceleration, (&entity_system.entity_list[i])->acceleration);
+
+		}
+	}
+	// slog("Active entities: %i", entity_system.active_entities); TODO: Make this a UI option later
+}
+
+void entity_system_postsync_all() {
+	int i;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		// Check if the entity slot we're looking at is inuse and has a physics body
+		if (entity_system.entity_list[i]._inuse 
+				&& entity_system.entity_list[i].body) {
+			gfc_vector2d_copy((&entity_system.entity_list[i])->position, (&entity_system.entity_list[i])->body->position);
+			gfc_vector2d_copy((&entity_system.entity_list[i])->velocity, (&entity_system.entity_list[i])->body->velocity);
+			gfc_vector2d_copy((&entity_system.entity_list[i])->acceleration, (&entity_system.entity_list[i])->body->acceleration);
+
+		}
+	}
+	// slog("Active entities: %i", entity_system.active_entities); TODO: Make this a UI option later
+}
+
 void entity_system_draw_all() {
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++) {
@@ -133,6 +165,9 @@ void entity_free(Entity *ent) {
 	// Free the sprite if need be
 	if (ent->sprite) gf2d_sprite_free(ent->sprite);
 
+	// Free the physics body if we have one
+	if (ent->body) physics_body_free(ent->body);
+
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
 	entity_system.active_entities--;
@@ -147,7 +182,8 @@ void entity_draw(Entity *self) {
 
 	// Calculate draw position and scale
 	GFC_Vector2D scale = main_camera_get_zoom();
-
+	
+	/*
 	GFC_Vector2D draw_pos = {0};
 	gfc_vector2d_add(draw_pos, self->position, main_camera_get_offset());
 
@@ -156,6 +192,8 @@ void entity_draw(Entity *self) {
 	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
 	gfc_vector2d_scale_by(screen_res, screen_res, gfc_vector2d(0.5, 0.5));
 	gfc_vector2d_add(draw_pos, draw_pos, screen_res);
+	*/
+	GFC_Vector2D draw_pos = main_camera_calc_drawpos(self->position);
 
 	GFC_Vector2D center = self->sprite_offset;
 
@@ -173,6 +211,34 @@ void entity_draw(Entity *self) {
 	// Draw the point
 	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
 }	
+
+/**
+ * @brief load the entity body configuration from a def file
+ * @param self the entity being configured
+ * @param json the json object which data is being loaded from
+ */
+void entity_configure_body(Entity *self, SJson *json) {
+	if (!self || !json) return;
+
+	// Load the collider information
+	GFC_Vector2D offset, bounds;
+	Uint32 max_colls;
+       	sj_object_get_vector2d(json, "colliderOffset", &offset);
+	sj_object_get_vector2d(json, "colliderSize", &bounds);
+	sj_object_get_uint32(json, "maxCollisions", &max_colls);
+
+	// Create the physics body
+	self->body = physics_body_new(max_colls);
+
+	// Validate the pointer
+	if (!self->body) return;
+
+	// Assign collider info
+	self->body->collider.x = offset.x;
+	self->body->collider.y = offset.y;
+	self->body->collider.w = bounds.x;
+	self->body->collider.h = bounds.y;
+}
 
 void entity_configure_from_file(Entity *self, const char *filename) {
 	if (!filename) return;
@@ -201,6 +267,13 @@ void entity_configure(Entity *self, SJson *json) {
 		GFC_Vector2D sprite_offset = {0};
 		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
+	}
+
+	// Get the collider
+	SJson *coll_info = sj_object_get_value(json, "collider");
+	if (coll_info) {
+		entity_configure_body(self, coll_info);
+		space_add_entity(world_get_active()->space, self);	
 	}
 
 	// Load the entity name

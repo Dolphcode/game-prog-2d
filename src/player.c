@@ -46,7 +46,7 @@ void player_update(Entity *self) {
 	gfc_vector2d_normalize(&self->velocity);
 	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(5, 5));
 
-	gfc_vector2d_add(self->position, self->position, self->velocity);
+	//gfc_vector2d_add(self->position, self->position, self->velocity);
 }
 
 Entity *player_new_entity(GFC_Vector2D position) {
@@ -64,7 +64,7 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	entity_configure_from_file(self, "./def/player.def");
 	
 	// Assign player functions
-	self->update = player_update;
+	self->think = player_update;
 
 	return self;
 }

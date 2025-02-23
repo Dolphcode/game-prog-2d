@@ -47,6 +47,13 @@ void main_camera_set_zoom(float zoom);
  */
 GFC_Vector2D main_camera_get_offset();
 
+/**
+ * @brief returns the screen space draw position given a world space point
+ * @param position the point to be converted in world space
+ * @return the corresponding point as a GFC_Vector2D in screen space
+ */
+GFC_Vector2D main_camera_calc_drawpos(GFC_Vector2D position);
+
 // DEPRECATED FUNCTIONS
 
 /**

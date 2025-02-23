@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "entity.h"
 #include "tiledata.h"
+#include "space.h"
 
 typedef struct
 {
@@ -33,6 +34,9 @@ typedef struct
 	
 	// Tile layer(s)
 	Sprite		*tile_layer;	// <The sprite which tiles will be drawn onto
+
+	// The physics space
+	Space		*space;		// <The physics space of the world
 
 	// Entities and the main camera
 	Camera		*main_camera;	// <The camera object corresponding with this world

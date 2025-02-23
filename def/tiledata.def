@@ -16,7 +16,7 @@
 		{
 			"name":"T3",
 			"frame":3,
-			"collisionType":1,
+			"collisionType":0,
 			"collisionBox":[32,32]
 		}
 	]

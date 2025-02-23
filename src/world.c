@@ -67,6 +67,12 @@ void world_free(World *world) {
 		gfc_list_delete(world->entity_list);
 	}
 
+	// Free the space
+	if (world->space) {
+		slog("freeing this world's space");
+		space_free(world->space);
+	}
+
 	// Free the world
 	free(world);
 	slog("freed the world object");
@@ -97,6 +103,13 @@ World *world_new(Uint32 width, Uint32 height, Uint32 tile_count) {
 	// Allocate memory for the tiledata
 	world->tile_data = gfc_allocate_array(sizeof(TileData), tile_count);
 	world->tile_count = tile_count;
+
+	// Create the space object
+	world->space = space_new();
+	if (!world->space) {
+		slog("failed to create physics space");
+		return NULL;
+	}
 
 	return world;
 }
@@ -302,6 +315,13 @@ World *world_load(const char *filename) {
 			sj_get_integer_value(item, &tile_value);
 			slog("%i", tile_value);
 			world->tile_map[row * (int)world_size.x + col] = tile_value;
+
+
+			// Append the tile to the world's space
+			if (world->space && tile_value && world->tile_data[tile_value - 1].collision_type) {
+				slog("Adding collider");
+				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size));
+			}
 		}
 	}
 
@@ -314,6 +334,8 @@ World *world_load(const char *filename) {
 		slog("failed to create entity list");
 		return NULL;
 	}
+
+
 	
 	// Free the json objects
 	sj_free(json);
@@ -389,6 +411,8 @@ void world_draw(World *world) {
 			NULL,
 			NULL,
 			0);
+
+	if (DRAW_BOUNDS) space_draw(world->space);
 }
 
 

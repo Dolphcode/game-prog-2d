@@ -4,9 +4,9 @@
 #include "gfc_vector.h"
 
 typedef enum {
-	NONE = 0,	// <No collision, player will pass through block
-	FULL = 1,	// <Full collision, block will stop player
-	ONE_WAY = 2	// <One-way collision, will only collide with player if player is colliding from above
+	TCT_NONE = 0,	// <No collision, player will pass through block
+	TCT_FULL = 1,	// <Full collision, block will stop player
+	TCT_ONE_WAY = 2	// <One-way collision, will only collide with player if player is colliding from above
 }TileCollisionType;
 
 typedef struct {
