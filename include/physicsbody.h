@@ -32,4 +32,18 @@ PhysicsBody *physics_body_new(Uint32 max_collisions);
  * @param self the object to be freed
  */
 void physics_body_free(PhysicsBody *self);
+
+/**
+ * @brief applies a force to a physics body
+ * @param self the body which a force should be applied to
+ * @param force the force to be applied
+ */
+void physics_body_apply_force(PhysicsBody *self, GFC_Vector2D force);
+
+/**
+ * @brief applies an impulse (impulse is converted to acceleration via p/t = F)
+ * @param self the body which an impulse should be applied to
+ * @parma impulse the impulse vector to be applied
+ */
+void physics_body_apply_impulse(PhysicsBody *self, GFC_Vector2D impulse);
 #endif

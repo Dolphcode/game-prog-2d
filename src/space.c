@@ -135,10 +135,22 @@ void space_step(Space *self, float delta_time) {
 }
 
 void space_update(Space *self) {
-	int i;
+	if (!self) return;
+
+	int i, count;
 	for (i = 0; i < 10; ++i) {
 	       space_step(self, 0.1 * (1.0/60.0));
-	}	       
+	}
+
+	// Reset accelerations
+	if (self->physics_bodies) {
+		PhysicsBody *curr;
+		count = gfc_list_count(self->physics_bodies);
+		for (i = 0; i < count; ++i) {
+			curr = gfc_list_get_nth(self->physics_bodies, i);
+			curr->acceleration = gfc_vector2d(0, 0);
+		}
+	}	
 }
 
 void space_draw(Space *self) {

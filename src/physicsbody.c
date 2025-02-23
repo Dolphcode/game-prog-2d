@@ -32,3 +32,9 @@ void physics_body_free(PhysicsBody *self) {
     // Free the physics body
     free(self);
 }
+
+
+void physics_body_apply_force(PhysicsBody *self, GFC_Vector2D force) {
+	if (!self) return;
+	gfc_vector2d_add(self->acceleration, self->acceleration, force);
+}
