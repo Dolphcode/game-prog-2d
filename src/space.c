@@ -8,6 +8,20 @@
 #include "physicsbody.h"
 #include "space.h"
 
+/**
+ * @brief evaluate overlaps in the space
+ * @param self the space we're testing overlaps for
+ * @param body the body that's being tested
+ */
+void space_body_static_overlaps(Space *self, PhysicsBody *body);
+
+/**
+ * @brief resolve collisions
+ * @param self the space we're resolving overlaps for
+ * @param body the body whose overlaps are being resolved
+ */
+void space_body_resolve_overlaps(Space *self, PhysicsBody *body);
+
 Space *space_new() {
     // First create the space object
     Space* space = gfc_allocate_array(sizeof(Space), 1);
@@ -89,7 +103,6 @@ void space_add_entity(Space *self, Entity *ent) {
 	gfc_list_append(self->physics_bodies, ent->body);
 }
 
-
 void space_step(Space *self, float delta_time) {
 	int i, count;
 	PhysicsBody *curr;
@@ -115,13 +128,16 @@ void space_step(Space *self, float delta_time) {
 		gfc_vector2d_copy(dx, curr->velocity);
 		gfc_vector2d_scale_by(dx, dx, gfc_vector2d(delta_time, delta_time));
 		gfc_vector2d_add(curr->position, curr->position, dx);
+
+		// Resolve overlaps
+		space_body_resolve_overlaps(self, curr);
 	}
 }
 
 void space_update(Space *self) {
 	int i;
 	for (i = 0; i < 10; ++i) {
-	       space_step(self, 0.1);
+	       space_step(self, 0.1 * (1.0/60.0));
 	}	       
 }
 
@@ -172,6 +188,150 @@ void space_draw(Space *self) {
 
 			// Draw the rect in orange
 			gf2d_draw_rect(drawable, GFC_COLOR_RED);
+		}
+	}
+}
+
+// Collision testing and resolution
+
+void space_body_resolve_overlaps(Space *self, PhysicsBody *body) {
+	if (!self || !self->static_bodies || !body || !body->max_collisions) return;
+	Collision *curr, *max = NULL;
+	int j, count;
+	int i = 0;
+	space_body_static_overlaps(self, body);
+	while (body->unresolved_collisions && i < 5) { // Perform collision resolved 5x max
+		// Find the collision with the maximum overlap and resolve that one first
+		count = body->unresolved_collisions;
+		for (j = 0; j < count; j++) {
+			curr = &body->collision_list[j];
+			if (!curr) continue;
+
+			if (!max || max->overlap < curr->overlap) {
+				max = curr;
+			}
+		}
+
+
+		// Now resolve the collision based on normal
+		if (max->normal.x < 0) {
+			body->position.x = max->shape.x - body->collider.w - body->collider.x;
+		} else if (max->normal.x > 0)  {
+			body->position.x = max->shape.x + max->shape.w - body->collider.x;
+		}
+
+		if (max->normal.y < 0) {
+			body->position.y = max->shape.y - body->collider.h - body->collider.y;
+		} else if (max->normal.y > 0) {
+			body->position.y = max->shape.y + max->shape.h - body->collider.y;
+		}
+
+		// Recalculate overlaps (maybe optimize later but probably fine for now)
+		space_body_static_overlaps(self, body);
+		++i;
+	}
+
+}
+
+void space_body_static_overlaps(Space *self, PhysicsBody *body) {
+	if (!self || !self->static_bodies || !body || !body->max_collisions) return;
+	int i, count;
+	GFC_Rect *curr;
+	GFC_Rect world_body;
+	Collision *coll;
+	float min_edge, max_edge, x_overlap, y_overlap;
+	float lower_corr, upper_corr, x_corr, y_corr, x_norm, y_norm;
+	
+	// Reset collisions
+	count = body->max_collisions;
+	memset(&body->collision_list[0], 0, count * sizeof(Collision));
+	body->unresolved_collisions = 0;
+
+	// Compute world body position
+	world_body = gfc_rect(body->collider.x + body->position.x, body->collider.y + body->position.y, body->collider.w, body->collider.h);
+
+	// Evaluate collisions
+	count = gfc_list_count(self->static_bodies);
+	for (i = 0; i < count; ++i) {
+		curr = gfc_list_get_nth(self->static_bodies, i);
+		if (!curr) continue;
+		
+		if (gfc_rect_overlap(*curr, world_body)) {
+			// Get the collision object
+			coll = &body->collision_list[body->unresolved_collisions];
+
+			// Increment unresolved collisions if possible
+			if (!coll) continue;
+			body->unresolved_collisions++;
+			
+			// Now set compute overlaps
+			if (world_body.x > curr->x) {
+				min_edge = world_body.x;
+			} else {
+				min_edge = curr->x;
+			}
+
+			if (world_body.x + world_body.w < curr->x + curr->w) {
+				max_edge = world_body.x + world_body.w;
+			} else {
+				max_edge = curr->x + curr->w;
+			}
+			x_overlap = max_edge - min_edge;
+
+			if (world_body.y > curr->y) {
+				min_edge = world_body.y;
+			} else {
+				min_edge = curr->y;
+			}
+
+			if (world_body.y + world_body.h < curr->y + curr->h) {
+				max_edge = world_body.y + world_body.h;
+			} else {
+				max_edge = curr->y + curr->h;
+			}
+			y_overlap = max_edge - min_edge;
+
+			coll->overlap = x_overlap * y_overlap;
+
+			// Now compute normals
+			lower_corr = world_body.x - (curr->x - world_body.w);
+			upper_corr = (curr->x + curr->w) - world_body.x;
+			if (lower_corr < upper_corr) {
+				x_norm = -1;
+				x_corr = lower_corr;
+			} else {
+				x_norm = 1;
+				x_corr = upper_corr;
+			}
+			
+			lower_corr = world_body.y - (curr->y - world_body.h);
+			upper_corr = (curr->y + curr->h) - world_body.y;
+			if (lower_corr < upper_corr) {
+				y_norm = -1;
+				y_corr = lower_corr;
+			} else {
+				y_norm = 1;
+				y_corr = upper_corr;
+			}
+
+			// Determine which way is easier to correct
+			if (x_corr < y_corr) {
+				coll->normal.x = x_norm;
+				coll->normal.y = 0;
+			} else if (x_corr > y_corr) {
+				coll->normal.y = y_norm;
+				coll->normal.x = 0;
+			} else { // Equivalent case, collide corner
+				coll->normal.x = x_norm;
+				coll->normal.y = y_norm;
+				gfc_vector2d_normalize(&coll->normal);
+			}
+
+			// And copy shape information
+			coll->shape.x = curr->x;
+			coll->shape.y = curr->y;
+			coll->shape.w = curr->w;
+			coll->shape.h = curr->h;
 		}
 	}
 }

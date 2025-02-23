@@ -15,6 +15,7 @@ static float projv2 = 1;
 
 void player_update(Entity *self) {
 	if (!self) return;
+	float ogy=self->velocity.y;	
 	
 	// zero velocity
 	self->velocity = gfc_vector2d(0, 0);
@@ -42,9 +43,11 @@ void player_update(Entity *self) {
 		Entity *bug = bug_new_entity(self->position, "./def/bugs/bug2.def");
 		bug->velocity = gfc_vector2d(0, projv2);
 	}
-	
+
 	gfc_vector2d_normalize(&self->velocity);
-	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(5, 5));
+	gfc_vector2d_scale_by(self->velocity, self->velocity, gfc_vector2d(100, 100));
+	self->velocity.y += ogy;
+	self->acceleration.y = 9.8;
 
 	//gfc_vector2d_add(self->position, self->position, self->velocity);
 }
