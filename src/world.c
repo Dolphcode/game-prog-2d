@@ -320,7 +320,8 @@ World *world_load(const char *filename) {
 			// Append the tile to the world's space
 			if (world->space && tile_value && world->tile_data[tile_value - 1].collision_type) {
 				slog("Adding collider");
-				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size));
+				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size), 
+						world->tile_data[tile_value - 1].collision_type);
 			}
 		}
 	}

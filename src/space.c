@@ -7,6 +7,13 @@
 #include "camera.h"
 #include "physicsbody.h"
 #include "space.h"
+#include "tiledata.h"
+
+
+typedef struct {
+	GFC_Rect		rect;
+	TileCollisionType	collision_type;
+}StaticBody;
 
 /**
  * @brief evaluate overlaps in the space
@@ -77,25 +84,27 @@ void space_free(Space *self) {
     free(self);
 }
 
-void space_add_static_rect(Space *self, GFC_Rect shape) {
+void space_add_static_rect(Space *self, GFC_Rect shape, TileCollisionType type) {
 	// Validate pointer
 	if (!self || !self->static_bodies) return;
 
 	// Create the rect memory slot
-	GFC_Rect *rect = gfc_allocate_array(sizeof(GFC_Rect), 1);
-	if (!rect) {
+	StaticBody *body = gfc_allocate_array(sizeof(StaticBody), 1);
+	if (!body) {
 		slog("failed to create memory slot for static shape");
 		return;
 	}
 
 	// Copy data into the rect
-	rect->x = shape.x;
-	rect->y = shape.y;
-	rect->w = shape.w;
-	rect->h = shape.h;
+	body->rect.x = shape.x;
+	body->rect.y = shape.y;
+	body->rect.w = shape.w;
+	body->rect.h = shape.h;
+
+	body->collision_type = type;
 
 	// Append it to the list of static bodies
-	gfc_list_append(self->static_bodies, rect);
+	gfc_list_append(self->static_bodies, body);
 }
 
 void space_add_entity(Space *self, Entity *ent) {
@@ -163,7 +172,7 @@ void space_update(Space *self) {
 void space_draw(Space *self) {
 	if (!self) return;
 	int i, count;
-	GFC_Rect *curr;
+	StaticBody *curr;
 	PhysicsBody *curr_body;
 	GFC_Rect drawable;
 	GFC_Vector2D drawpos;
@@ -176,13 +185,13 @@ void space_draw(Space *self) {
 			if (!curr) continue;
 
 			// Generate the drawable rect
-			drawpos.x = curr->x;
-			drawpos.y = curr->y;
+			drawpos.x = curr->rect.x;
+			drawpos.y = curr->rect.y;
 			drawpos = main_camera_calc_drawpos(drawpos);
 			drawable.x = drawpos.x;
 			drawable.y = drawpos.y;
-			drawable.w = curr->w;
-			drawable.h = curr->h;
+			drawable.w = curr->rect.w;
+			drawable.h = curr->rect.h;
 
 			// Draw the rect in orange
 			gf2d_draw_rect(drawable, GFC_COLOR_ORANGE);
@@ -266,6 +275,7 @@ void space_body_resolve_overlaps(Space *self, PhysicsBody *body) {
 void space_body_static_overlaps(Space *self, PhysicsBody *body) {
 	if (!self || !self->static_bodies || !body || !body->max_collisions) return;
 	int i, count;
+	StaticBody *curr_body;
 	GFC_Rect *curr;
 	GFC_Rect world_body;
 	Collision *coll;
@@ -283,17 +293,17 @@ void space_body_static_overlaps(Space *self, PhysicsBody *body) {
 	// Evaluate collisions
 	count = gfc_list_count(self->static_bodies);
 	for (i = 0; i < count; ++i) {
-		curr = gfc_list_get_nth(self->static_bodies, i);
-		if (!curr) continue;
-		
+		curr_body = gfc_list_get_nth(self->static_bodies, i);
+		if (!curr_body) continue;
+		curr = &(curr_body->rect);
+
 		if (gfc_rect_overlap(*curr, world_body)) {
 			// Get the collision object
 			coll = &body->collision_list[body->unresolved_collisions];
 
 			// Increment unresolved collisions if possible
 			if (!coll) continue;
-			body->unresolved_collisions++;
-			
+						
 			// Now set compute overlaps
 			if (world_body.x > curr->x) {
 				min_edge = world_body.x;
@@ -362,6 +372,20 @@ void space_body_static_overlaps(Space *self, PhysicsBody *body) {
 			coll->shape.y = curr->y;
 			coll->shape.w = curr->w;
 			coll->shape.h = curr->h;
+
+			// Temporary but check static body type and collision normal to determine if we should do the thing or not
+			if (curr_body->collision_type != TCT_ONE_WAY) {
+				body->unresolved_collisions++; // This is what registers the collision
+			} else {
+				// Check if we can do the thing
+				slog("checking one way collision");
+				slog("y_norm %f; world_body.y %f; topside %f; velocity %f", y_norm, world_body.y, curr->y - world_body.h, body->velocity.y);
+				if ((y_norm <= -1 && world_body.y <= curr->y - world_body.h + 10 && body->velocity.y >= 0)) {
+					slog("this is a collision");
+					body->unresolved_collisions++;
+				}
+			}
+
 		}
 	}
 }

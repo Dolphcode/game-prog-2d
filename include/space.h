@@ -3,6 +3,8 @@
 
 #include "gfc_list.h"
 
+#include "tiledata.h"
+
 typedef struct {
 	// Bodies in the space
 	GFC_List	*static_bodies;	 	// <The static bodies in the space (tiles so all rects)
@@ -29,8 +31,9 @@ void space_free(Space *self);
  * @brief adds a rect to the list of static bodies in the sapce
  * @param self the space object to be added to
  * @param shape the rect to be added
+ * @param type the collision type for this tile
  */
-void space_add_static_rect(Space *self, GFC_Rect shape);
+void space_add_static_rect(Space *self, GFC_Rect shape, TileCollisionType type);
 
 /**
  * @brief appends the entity's physics body to the list of physics bodies in the space

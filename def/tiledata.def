@@ -4,19 +4,19 @@
 		{
 			"name":"T1",
 			"frame":1,
-			"collisionType":1,
+			"collisionType":2,
 			"collisionBox":[32,32]
 		},
 		{
 			"name":"T2",
 			"frame":2,
-			"collisionType":1,
+			"collisionType":0,
 			"collisionBox":[32,32]
 		},
 		{
 			"name":"T3",
 			"frame":3,
-			"collisionType":0,
+			"collisionType":1,
 			"collisionBox":[32,32]
 		}
 	]
