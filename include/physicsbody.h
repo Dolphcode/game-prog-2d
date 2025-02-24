@@ -6,6 +6,8 @@
 
 #include "collision.h"
 
+#define GLOBAL_MAX_COLLISIONS 8
+
 typedef struct {
 	// Management
 	Uint8		_inuse;
@@ -18,9 +20,11 @@ typedef struct {
 
 	// Collisions
 	GFC_Rect	collider;		//<The collision box for the physics body
-	Uint32		max_collisions;         //<The maximum number of collisions that this body can register, 0 if cannot collide
+	Uint8		can_collide;		//<Whether the physics body can collide with thigns or not
+	Uint32		max_collisions;         //<The maximum number of collisions that this body can register, 0 if cannot collide (DEPRECATED)
 	Uint32		unresolved_collisions;  //<The number of unresolved collisions from a call of the world collision test
-	Collision	collision_list[8];        //<The list of collisions, sized max_collisions
+	Collision	collision_list[GLOBAL_MAX_COLLISIONS];        //<The list of collisions, sized max_collisions
+	Uint8		grounded;		//<Whether the entity is on the ground or not
 }PhysicsBody;
 
 /**

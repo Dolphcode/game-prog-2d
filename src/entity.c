@@ -109,6 +109,7 @@ void entity_system_presync_all() {
 			gfc_vector2d_copy((&entity_system.entity_list[i])->body->position, (&entity_system.entity_list[i])->position);
 			gfc_vector2d_copy((&entity_system.entity_list[i])->body->velocity, (&entity_system.entity_list[i])->velocity);
 			gfc_vector2d_copy((&entity_system.entity_list[i])->body->acceleration, (&entity_system.entity_list[i])->acceleration);
+			(&entity_system.entity_list[i])->body->grounded = 0; // Reset grounded state, redetermine if entity is grounded
 
 		}
 	}

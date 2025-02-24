@@ -39,6 +39,16 @@ void player_update(Entity *self) {
 		//self->velocity.y += 1;
 		self->velocity.y += 1000;
 	}
+	} else if (self->body->grounded) {
+		
+		float net_vel = 0;
+		if (gfc_input_command_down("left")) {
+			net_vel += -40;
+		}
+		if (gfc_input_command_down("right")) {
+			net_vel += 40;
+		}
+		self->velocity.x = net_vel;
 	}
 
 	if (gfc_input_command_pressed("shoot1")) {

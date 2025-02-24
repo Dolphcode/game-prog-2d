@@ -241,6 +241,7 @@ void space_body_resolve_overlaps(Space *self, PhysicsBody *body) {
 
 		if (max->normal.y < 0) {
 			body->position.y = max->shape.y - body->collider.h - body->collider.y;
+			body->grounded = 1;
 		} else if (max->normal.y > 0) {
 			body->position.y = max->shape.y + max->shape.h - body->collider.y;
 		}
