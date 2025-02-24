@@ -7,6 +7,11 @@
 	"collider": {
 		"colliderOffset":[-32,-32],
 		"colliderSize":[64,64],
-		"maxCollisions":8
+		"maxCollisions":8,
+		"canCollide":1
+	},
+	"hitbox": {
+		"hitboxOffset":[0,0],
+		"hitboxRadius":32
 	}
 }

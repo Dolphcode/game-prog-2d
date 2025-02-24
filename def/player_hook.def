@@ -1,17 +1,18 @@
 {
-	"name":"bug1",
-	"sprite":"./images/space_bug.png",
+	"name":"hook",
+	"sprite":"./images/ed210.png",
 	"spriteFPL":16,
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
 	"collider": {
 		"colliderOffset":[-32,-32],
 		"colliderSize":[64,64],
-		"maxCollisions":0,
-		"canCollide":1
+		"maxCollisions":8,
+		"canCollide":0
 	},
-	"hitbox": {
+    "hitbox": {
 		"hitboxOffset":[0,0],
-		"hitboxRadius":32
+		"hitboxRadius":4
 	}
+
 }

@@ -9,7 +9,9 @@
 #include "space.h"
 #include "tiledata.h"
 
-
+/**
+ * The StaticBody type represents tile static bodies in the world
+ */
 typedef struct {
 	GFC_Rect		rect;
 	TileCollisionType	collision_type;
@@ -120,6 +122,7 @@ void space_remove_entity(Space *self, Entity *ent) {
 
 void space_step(Space *self, float delta_time) {
 	int i, count;
+	int j, static_count;
 	PhysicsBody *curr;
 	GFC_Vector2D dv, dx;
 
@@ -144,8 +147,35 @@ void space_step(Space *self, float delta_time) {
 		gfc_vector2d_scale_by(dx, dx, gfc_vector2d(delta_time, delta_time));
 		gfc_vector2d_add(curr->position, curr->position, dx);
 
-		// Resolve overlaps
-		space_body_resolve_overlaps(self, curr);
+		// Resolve overlaps if the body can collide
+		if (curr->can_collide) space_body_resolve_overlaps(self, curr);
+	}
+	
+	// After force integration and static collision testing, check for hitbox static overlaps
+	StaticBody *curr_static;
+	static_count = gfc_list_count(self->static_bodies);
+	GFC_Shape world_shape;
+	for (i = 0; i < count; ++i) {
+		// Get the current reference and validate
+		curr = gfc_list_get_nth(self->physics_bodies, i);
+		if (!curr) continue;
+			
+		if (!curr->ent->static_touch) continue;
+		slog(curr->ent->name);
+
+		gfc_shape_copy(&world_shape, curr->hitbox);
+		gfc_shape_move(&world_shape, curr->position);
+		slog("circle %f %f r %f", world_shape.s.c.x, world_shape.s.c.y, world_shape.s.c.r);
+		for (j = 0; j < static_count; ++j) {
+			curr_static = gfc_list_get_nth(self->static_bodies, j);
+			if (!curr_static) continue;
+
+			if (gfc_shape_overlap(world_shape, gfc_shape_from_rect(curr_static->rect))) {
+				curr->ent->static_touch(curr->ent);
+				continue;
+			}
+		}
+		
 	}
 }
 
@@ -378,10 +408,7 @@ void space_body_static_overlaps(Space *self, PhysicsBody *body) {
 				body->unresolved_collisions++; // This is what registers the collision
 			} else {
 				// Check if we can do the thing
-				slog("checking one way collision");
-				slog("y_norm %f; world_body.y %f; topside %f; velocity %f", y_norm, world_body.y, curr->y - world_body.h, body->velocity.y);
 				if ((y_norm <= -1 && world_body.y <= curr->y - world_body.h + 10 && body->velocity.y >= 0)) {
-					slog("this is a collision");
 					body->unresolved_collisions++;
 				}
 			}

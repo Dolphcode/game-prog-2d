@@ -5,10 +5,11 @@
 #include "gfc_shape.h"
 
 #include "collision.h"
+#include "entity.h"
 
 #define GLOBAL_MAX_COLLISIONS 8
 
-typedef struct {
+typedef struct PhysicsBody_S {
 	// Management
 	Uint8		_inuse;
 
@@ -25,6 +26,13 @@ typedef struct {
 	Uint32		unresolved_collisions;  //<The number of unresolved collisions from a call of the world collision test
 	Collision	collision_list[GLOBAL_MAX_COLLISIONS];        //<The list of collisions, sized max_collisions
 	Uint8		grounded;		//<Whether the entity is on the ground or not
+	
+	// Hitbox/Overlap detection
+	Uint8		layer;			//<The hitbox layer (not in use atm)
+	GFC_Shape	hitbox;			//<The hitbox shape
+
+	// A pointer to the entity object
+	struct Entity_S		*ent;			//<For calling touch and static_touch
 }PhysicsBody;
 
 /**

@@ -37,6 +37,8 @@ void physics_body_free(PhysicsBody *self) {
 	self->collision_list = NULL;
     }*/
     //free(self->collision_list);
+    // Remove this pointer just in case
+    self->ent = NULL;
 
     // Free the physics body
     free(self);

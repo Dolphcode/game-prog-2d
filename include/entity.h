@@ -64,12 +64,19 @@ typedef struct Entity_S
 	GFC_Vector2D	velocity;	// <The entity's velocity for physics calculations
 	GFC_Vector2D	acceleration;	// <The entity's acceleration for physics calculations
 
-	PhysicsBody		*body;		// <The entity's physics body
+	struct PhysicsBody_S		*body;		// <The entity's physics body
 
 	// Functions
 	void		(*think)(struct Entity_S *self);	// <Called before update(), used to determine entity actions
 	void		(*update)(struct Entity_S *self);	// <Called after think(), used to update entity state
 	void		(*draw)(struct Entity_S *self);		// <Called after update(), draw the entity (along with any other necessary draw calls)
+	
+	// Contact monitoring
+	void		(*touch)(struct Entity_S *self, struct Entity_S *other);	// <Called every physics step this entity is overlapping with another entity
+	void		(*static_touch)(struct Entity_S *self);				// <Called if monitor static overlaps is true for every physics step this entity is overlapping with a static shape
+										
+	// Entity data
+	void		*data; 	// <This entity's data object
 
 }Entity;
 
