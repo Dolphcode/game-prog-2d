@@ -111,9 +111,7 @@ void space_add_static_rect(Space *self, GFC_Rect shape, TileCollisionType type) 
 
 void space_add_entity(Space *self, Entity *ent) {
 	if (!self || !self->physics_bodies || !ent || !ent->body) return;
-	slog("appending?");
 	gfc_list_append(self->physics_bodies, ent->body);
-	slog("Appended!");
 }
 
 void space_remove_entity(Space *self, Entity *ent) {
@@ -161,11 +159,9 @@ void space_step(Space *self, float delta_time) {
 		if (!curr) continue;
 			
 		if (!curr->ent->static_touch) continue;
-		slog(curr->ent->name);
 
 		gfc_shape_copy(&world_shape, curr->hitbox);
 		gfc_shape_move(&world_shape, curr->position);
-		slog("circle %f %f r %f", world_shape.s.c.x, world_shape.s.c.y, world_shape.s.c.r);
 		for (j = 0; j < static_count; ++j) {
 			curr_static = gfc_list_get_nth(self->static_bodies, j);
 			if (!curr_static) continue;

@@ -20,11 +20,38 @@ static float grapple_length = 0;
 static Entity *hook = NULL;
 
 static Entity *player = NULL;
+static Uint8 boosting = 0;
+static GFC_Vector2D boost_dir;
 
+/**
+ * Represents information that is unique to the player's grappling hook
+ */
+typedef struct {
+	Uint8	grappled;	// Whether the hook is attached to something
+	Uint8	grapple_out;	// Whether the hook is out or not
+	float	grapple_length;	// The length of the hook;
+	float	max_grapple;	// The maximum length of the grappling hook
+}PlayerHookData;
 
+/**
+ * Represents information that is unique to the player
+ */
+typedef struct {
+	Uint8	boosting; 	// Whether the player is currently boosting or not
+	float	boost_time;	// How long before boost ends
+
+	Uint8	max_dashes;	// The maximum number of dashes a player can have
+	Uint8	dash_counter;	// Number of dashes the player has available
+	float	dash_cooldown;	// Time to next dash refill
+	
+	Entity	*hook;		// A reference to the player's grappling hook
+}PlayerData;
+
+/**
+ * This function is called when the hook touches a static body
+ */
 void player_hook_static_touch(Entity *self) {
 	if (!self || grappled) return;
-	slog("touched");
 	self->body->velocity = gfc_vector2d(0, 0);
 	grappled = 1;
 	grapple_length = gfc_vector2d_magnitude_between(self->body->position, player->body->position);
@@ -36,7 +63,41 @@ void player_update(Entity *self) {
 	
 	// zero velocity
 	//self->velocity = gfc_vector2d(0, 0);
-	
+	if (boosting) {
+		slog("boosting");
+		if (gfc_input_command_released("boost")) boosting = 0;
+		gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(600, 600));
+		return;
+	}
+
+	if (gfc_input_command_pressed("boost")) {
+		slog("boost");
+		if (gfc_input_command_down("left")) {
+			boost_dir.x = -1;
+			boosting = 1;
+		} else if (gfc_input_command_down("right")) {
+			boost_dir.x = 1;
+			boosting = 1;
+		} else {
+			boost_dir.x = 0;
+		}
+
+		if (gfc_input_command_down("up")) {
+			boost_dir.y = -1;
+			boosting = 1;
+		} else if (gfc_input_command_down("down")) {
+			boost_dir.y = 1;
+			boosting = 1;
+		} else {
+			boost_dir.y = 0;
+		}
+
+		if (boosting) {
+			gfc_vector2d_normalize(&boost_dir);
+			gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(600, 600));
+		}
+	}
+
 	// check input
 	if (gfc_input_command_down("dash")) {
 		if (gfc_input_command_pressed("left")) {
@@ -150,9 +211,6 @@ void player_draw(Entity *self) {
 	entity_draw(self);
 }
 
-void player_static_touch(Entity *self) {
-	slog("thunk");
-}
 
 Entity *player_new_entity(GFC_Vector2D position) {
 	Entity *self;
@@ -170,7 +228,6 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	
 	// Assign player functions
 	self->think = player_update;
-	self->static_touch = player_static_touch;
 	self->draw = player_draw;
 
 	// Now create the grappling hook

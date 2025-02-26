@@ -168,7 +168,6 @@ void entity_free(Entity *ent) {
 	if (ent->sprite) gf2d_sprite_free(ent->sprite);
 
 	// Free the physics body if we have one
-	slog("body %i", ent->body);
 	if (ent->body) {
 		space_remove_entity(world_get_active()->space, ent);
 		physics_body_free(ent->body);
@@ -237,11 +236,9 @@ void entity_configure_body(Entity *self, SJson *json, SJson *hitbox_json) {
 	if (json) {
 		// Load the collider information
 		GFC_Vector2D offset, bounds;
-		//Uint32 max_colls;
 		Uint8 can_collide;
        		sj_object_get_vector2d(json, "colliderOffset", &offset);
 		sj_object_get_vector2d(json, "colliderSize", &bounds);
-		//sj_object_get_uint32(json, "maxCollisions", &max_colls);
 		sj_object_get_uint8(json, "canCollide", &can_collide);
 
 		// Assign collider info

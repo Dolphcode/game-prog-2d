@@ -313,13 +313,11 @@ World *world_load(const char *filename) {
 			item = sj_array_get_nth(horizontal, col);
 			if (!item) continue;
 			sj_get_integer_value(item, &tile_value);
-			slog("%i", tile_value);
 			world->tile_map[row * (int)world_size.x + col] = tile_value;
 
 
 			// Append the tile to the world's space
 			if (world->space && tile_value && world->tile_data[tile_value - 1].collision_type) {
-				slog("Adding collider");
 				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size), 
 						world->tile_data[tile_value - 1].collision_type);
 			}
