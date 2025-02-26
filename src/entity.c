@@ -174,6 +174,11 @@ void entity_free(Entity *ent) {
 		ent->body = NULL;
 	}
 
+	// Free the data object if we have one
+	if (ent->data) {
+		free(ent->data);
+	}
+
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
 	entity_system.active_entities--;

@@ -13,5 +13,13 @@
 	"hitbox": {
 		"hitboxOffset":[0,0],
 		"hitboxRadius":32
+	},
+	"player": {
+		"maxAirSpeed":20,
+		"maxGroundSpeed":5,
+		"maxDashes":3,
+		"boostSpeed":200,
+		"boostTime": 3,
+		"dashCooldown":5
 	}
 }

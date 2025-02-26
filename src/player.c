@@ -31,20 +31,29 @@ typedef struct {
 	Uint8	grapple_out;	// Whether the hook is out or not
 	float	grapple_length;	// The length of the hook;
 	float	max_grapple;	// The maximum length of the grappling hook
+	
+	Entity	*player;	// The player reference (where the hook is being fired from)
+	Entity	*lock_target;	// The target which this hook is locked to
 }PlayerHookData;
 
 /**
  * Represents information that is unique to the player
  */
 typedef struct {
-	Uint8	boosting; 	// Whether the player is currently boosting or not
-	float	boost_time;	// How long before boost ends
+	Uint8	boosting; 		// Whether the player is currently boosting or not
+	float	boost_time;		// How long a boost can last
+	float	boost_timer;		// How long before the boost ends
+	float	boost_speed;		// The speed of a boost
 
-	Uint8	max_dashes;	// The maximum number of dashes a player can have
-	Uint8	dash_counter;	// Number of dashes the player has available
-	float	dash_cooldown;	// Time to next dash refill
+	Uint8	max_dashes;		// The maximum number of dashes a player can have
+	Uint8	dash_counter;		// Number of dashes the player has available
+	float	dash_cooldown;		// Total cooldown time for dash
+	float	dash_cooldown_timer;	// Time to next dash refill
+				
+	float	grounded_max_speed;	// The player's maximum speed while grounded
+	float	air_max_speed;		// The player's maximum speed while in the air
 	
-	Entity	*hook;		// A reference to the player's grappling hook
+	Entity	*hook;			// A reference to the player's grappling hook
 }PlayerData;
 
 /**
@@ -55,6 +64,27 @@ void player_hook_static_touch(Entity *self) {
 	self->body->velocity = gfc_vector2d(0, 0);
 	grappled = 1;
 	grapple_length = gfc_vector2d_magnitude_between(self->body->position, player->body->position);
+}
+
+/**
+ * This function is called every frame that the hook is touching a physics body
+ */
+void player_hook_touch(Entity *self, Entity *other) {
+
+}
+
+/**
+ * Handle tracking entities we grappled onto
+ */
+void player_hook_think(Entity *self) {
+
+}
+
+/**
+ * Handle drawing the hook itself
+ */
+void player_hook_draw(Entity *self) {
+
 }
 
 void player_update(Entity *self) {
@@ -205,6 +235,8 @@ void player_draw(Entity *self) {
 	if (!self) return;
 	GFC_Vector2D player_point = main_camera_calc_drawpos(self->position);
 	GFC_Vector2D hook_point = main_camera_calc_drawpos(hook->position);
+
+	// Draw the rope of the hook
 	if (grappled) {
 		gf2d_draw_line(player_point, hook_point, GFC_COLOR_BLACK);
 	}
@@ -223,12 +255,37 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	// Copy position date into player
 	gfc_vector2d_copy(self->position, position);
 
-	// Initialize player entity from config
-	entity_configure_from_file(self, "./def/player.def");
+	// Get the player config file and configure entity from the file
+	// We'll be reusing the player config file later
+	SJson *json = sj_load("./def/player.def");
+	if (!json) {
+		slog("failed to open def file");
+		return NULL;
+	}
+	entity_configure(self, json);
 	
 	// Assign player functions
 	self->think = player_update;
 	self->draw = player_draw;
+
+	// Create the player data object
+	PlayerData *player_data = (PlayerData*)malloc(sizeof(PlayerData));
+	if (!player_data) {
+		slog("failed to allocate memory for player data");
+		return NULL;
+	}
+	SJson *data_json = sj_object_get_value(json, "player");
+	if (!data_json) {
+		slog("player.def is missing a 'player' object");
+		return NULL;
+	}
+	sj_object_get_uint8(data_json, "maxDashes", &player_data->max_dashes);
+	sj_object_get_float(data_json, "maxAirSpeed", &player_data->air_max_speed);
+	sj_object_get_float(data_json, "maxGroundSpeed", &player_data->grounded_max_speed);
+	sj_object_get_float(data_json, "boostTime", &player_data->boost_time);
+	sj_object_get_float(data_json, "dashCooldown", &player_data->dash_cooldown);
+	sj_object_get_float(data_json, "boostSpeed", &player_data->boost_speed);
+	self->data = player_data; // Assign the player data object
 
 	// Now create the grappling hook
 	hook = entity_new();
@@ -236,7 +293,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 		slog("failed to spawn a new grappling hook");
 		return NULL;
 	}
-
+	
+	// Spawn the hook
 	gfc_vector2d_copy(hook->position, self->position);
 	entity_configure_from_file(hook, "./def/player_hook.def");
 	hook->static_touch = player_hook_static_touch;
