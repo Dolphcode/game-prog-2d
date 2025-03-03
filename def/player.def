@@ -15,11 +15,14 @@
 		"hitboxRadius":32
 	},
 	"player": {
-		"maxAirSpeed":20,
-		"maxGroundSpeed":5,
+		"maxAirSpeed":600,
+		"maxGroundSpeed":10,
 		"maxDashes":3,
-		"boostSpeed":200,
+		"dashSpeed":800,
+		"boostSpeed":600,
 		"boostTime": 3,
-		"dashCooldown":5
+		"dashCooldown":5,
+		"restorativeAccel": 800.0,
+		"groundAccel": 800.0
 	}
 }

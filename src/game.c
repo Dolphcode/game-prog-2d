@@ -75,7 +75,7 @@ int main(int argc, char * argv[])
     World* world = world_load("def/world.def");
     world_make_active(world);
 
-    Entity* player = player_new_entity(gfc_vector2d(-40, -40));
+    Entity* player = player_new_entity(gfc_vector2d(60, -40));
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;

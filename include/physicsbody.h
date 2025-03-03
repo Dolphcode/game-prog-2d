@@ -18,7 +18,7 @@ typedef struct PhysicsBody_S {
 	GFC_Vector2D	velocity;           //<The body's velocity
 	GFC_Vector2D	acceleration;       //<The internally applied acceleration of the physics body
 	GFC_Vector2D	net_acceleration;   //<The net acceleration used to integrate velocity
-
+	
 	// Collisions
 	GFC_Rect	collider;		//<The collision box for the physics body
 	Uint8		can_collide;		//<Whether the physics body can collide with thigns or not

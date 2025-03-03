@@ -47,11 +47,15 @@ typedef struct {
 
 	Uint8	max_dashes;		// The maximum number of dashes a player can have
 	Uint8	dash_counter;		// Number of dashes the player has available
+	float	dash_speed;
 	float	dash_cooldown;		// Total cooldown time for dash
 	float	dash_cooldown_timer;	// Time to next dash refill
 				
 	float	grounded_max_speed;	// The player's maximum speed while grounded
 	float	air_max_speed;		// The player's maximum speed while in the air
+	float	restorative_accel;	// The scaling factor for the restorative acceleration when accelerating over max velocity
+
+	float	ground_accel;		// The grounded acceleration value of the player
 	
 	Entity	*hook;			// A reference to the player's grappling hook
 }PlayerData;
@@ -87,21 +91,147 @@ void player_hook_draw(Entity *self) {
 
 }
 
+void player_think(Entity *self) {
+	// Verify the player pointer
+	if (!self || !self->data) return;
+	PlayerData *player_data = (PlayerData *)self->data;
+
+	// Verify the hook pointer
+	if (!player_data || !player_data->hook || !player_data->hook->data) return;
+	PlayerHookData *hook_data = (PlayerHookData *)player_data->hook->data;
+
+	// Dashing
+	if (gfc_input_command_down("dash") && player_data->dash_counter) {
+		slog("counter %d", player_data->dash_counter);
+		if (gfc_input_command_pressed("left")) {
+			slog("still pressing");
+			player_data->dash_counter--;
+			self->velocity.x = -800;
+		}
+
+		if (gfc_input_command_pressed("right")) {
+			player_data->dash_counter--;
+			self->velocity.x = 800;
+		}
+
+		if (gfc_input_command_pressed("up")) {
+			player_data->dash_counter--;
+			self->velocity.y = -800;
+		}
+
+		if (gfc_input_command_pressed("down")) {
+			player_data->dash_counter--;
+			self->velocity.y = 800;
+		}
+	}
+
+	
+	// Check if the player is grounded or not
+	// This will determine the drag force computation and what happens when pressing WASD
+	if (self->body->grounded) {
+		// Apply a motion force
+		float net_dir = 0;
+		Uint8 input = 0;
+		if (gfc_input_command_down("left")) {
+			net_dir -= 1;
+			input = 1;
+		}
+		if (gfc_input_command_down("right")) {
+			net_dir += 1;
+			input = 1;
+		}
+		GFC_Vector2D move_acceleration = gfc_vector2d(net_dir * player_data->ground_accel, 0); 
+		gfc_vector2d_add(self->acceleration, self->acceleration, move_acceleration);
+		
+		
+		// Check the current speed
+		float curr_speed = gfc_vector2d_magnitude(self->velocity);
+		float max_speed = (input) ? player_data->grounded_max_speed : 0;
+
+		// Apply a restorative force if we are over the maximum grounded speed
+		if (curr_speed > max_speed) {
+			if (curr_speed - max_speed < 20) {
+				gfc_vector2d_set_magnitude(&self->velocity, max_speed);	
+				slog("clamping");
+			} else {
+				slog("decelerating");
+				// Determine the direction of the drag force
+				GFC_Vector2D restore_direction;
+				gfc_vector2d_negate(restore_direction, self->velocity);
+				gfc_vector2d_normalize(&restore_direction);
+	
+				// Multiply it by the over speed
+				GFC_Vector2D restore_force, scale_factor;
+				scale_factor = gfc_vector2d(player_data->restorative_accel, player_data->restorative_accel);
+				gfc_vector2d_scale_by(restore_force, restore_direction, scale_factor);
+				slog("restorative force %f %f", restore_force.x, restore_force.y);
+	
+				// Apply the restorative force
+				self->acceleration.x += restore_force.x;
+				self->acceleration.y += restore_force.y;
+			}
+		}
+
+	} else {
+		// Check the current speed
+		float curr_speed = gfc_vector2d_magnitude(self->velocity);
+
+		// Apply a restorative force if we are over the maximum air speed
+		if (curr_speed > player_data->air_max_speed) {	
+			if (curr_speed - player_data->air_max_speed < 20) {
+				gfc_vector2d_set_magnitude(&self->velocity, player_data->air_max_speed);	
+			} else {
+				slog("decelerating");
+				// Determine the direction of the drag force
+				GFC_Vector2D restore_direction;
+				gfc_vector2d_negate(restore_direction, self->velocity);
+				gfc_vector2d_normalize(&restore_direction);
+	
+				// Multiply it by the over speed
+				GFC_Vector2D restore_force, scale_factor;
+				scale_factor = gfc_vector2d(player_data->restorative_accel, player_data->restorative_accel);
+				gfc_vector2d_scale_by(restore_force, restore_direction, scale_factor);
+	
+				// Apply the restorative force
+				gfc_vector2d_add(self->acceleration, self->acceleration, restore_force);
+			}
+		}
+
+		// Apply gravity
+		self->acceleration.y += 700;
+
+	}
+	// Gravity
+	slog("acceleration %f %f", self->acceleration.x, self->acceleration.y);
+	slog("velocity %f %f", self->velocity.x, self->velocity.y);
+	
+}
+
+/*
+ * boost command - "boost"
+ * "left"
+ * "right"
+ * "up"
+ * "down"
+ * "dash"
+ * "hook_up"
+ * "retract"
+ */
 void player_update(Entity *self) {
 	if (!self) return;
-	//float ogy=self->velocity.y;	
 	
-	// zero velocity
-	//self->velocity = gfc_vector2d(0, 0);
+	PlayerData *player_data = (PlayerData *)self->data;
+	if (!player_data) return;
+	
+
+
 	if (boosting) {
-		slog("boosting");
 		if (gfc_input_command_released("boost")) boosting = 0;
 		gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(600, 600));
 		return;
 	}
 
 	if (gfc_input_command_pressed("boost")) {
-		slog("boost");
 		if (gfc_input_command_down("left")) {
 			boost_dir.x = -1;
 			boosting = 1;
@@ -124,24 +254,24 @@ void player_update(Entity *self) {
 
 		if (boosting) {
 			gfc_vector2d_normalize(&boost_dir);
-			gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(600, 600));
+			gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(player_data->boost_speed, player_data->boost_speed));
 		}
 	}
 
 	// check input
 	if (gfc_input_command_down("dash")) {
 		if (gfc_input_command_pressed("left")) {
-			self->velocity.x -= 800;
+			self->velocity.x -= player_data->dash_speed;
 		}
 		if (gfc_input_command_pressed("right")) {
-			self->velocity.x += 800;
+			self->velocity.x += player_data->dash_speed;
 		}
 
 		if (gfc_input_command_pressed("up")) {
-			self->velocity.y -= 800;
+			self->velocity.y -= player_data->dash_speed;
 		}
 		if (gfc_input_command_pressed("down")) {
-			self->velocity.y += 800;
+			self->velocity.y += player_data->dash_speed;
 		}
 	} else if (self->body->grounded) {
 		
@@ -229,6 +359,16 @@ void player_update(Entity *self) {
 			//	gfc_vector2d_scale_by(dir, dir, gfc_vector2d(diff * 100, diff * 100));
 		//gfc_vector2d_add(self->acceleration, self->acceleration, dir);
 	}
+
+	// Determine what the player's max speed should be
+	float max_speed;
+	if (self->body->grounded) {
+		max_speed = player_data->grounded_max_speed;
+	} else {
+		max_speed = player_data->air_max_speed;
+	}
+
+	// If we are above the max speed apply a restorative force
 }
 
 void player_draw(Entity *self) {
@@ -245,6 +385,7 @@ void player_draw(Entity *self) {
 
 
 Entity *player_new_entity(GFC_Vector2D position) {
+	// INITIAL ENTITY INITIALIZATION
 	Entity *self;
 	self = entity_new();
 	if (!self) {
@@ -265,8 +406,9 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	entity_configure(self, json);
 	
 	// Assign player functions
-	self->think = player_update;
+	self->think = player_think;
 	self->draw = player_draw;
+
 
 	// Create the player data object
 	PlayerData *player_data = (PlayerData*)malloc(sizeof(PlayerData));
@@ -284,8 +426,13 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	sj_object_get_float(data_json, "maxGroundSpeed", &player_data->grounded_max_speed);
 	sj_object_get_float(data_json, "boostTime", &player_data->boost_time);
 	sj_object_get_float(data_json, "dashCooldown", &player_data->dash_cooldown);
+	sj_object_get_float(data_json, "dashSpeed", &player_data->dash_speed);
 	sj_object_get_float(data_json, "boostSpeed", &player_data->boost_speed);
+	sj_object_get_float(data_json, "restorativeAccel", &player_data->restorative_accel);
+	sj_object_get_float(data_json, "groundAccel", &player_data->ground_accel);
 	self->data = player_data; // Assign the player data object
+
+	// GRAPPLING HOOK INITIALIZATION
 
 	// Now create the grappling hook
 	hook = entity_new();
@@ -298,6 +445,18 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	gfc_vector2d_copy(hook->position, self->position);
 	entity_configure_from_file(hook, "./def/player_hook.def");
 	hook->static_touch = player_hook_static_touch;
+	
+	// Create the hook data
+	PlayerHookData *hook_data = (PlayerHookData *)malloc(sizeof(PlayerHookData));
+	if (!hook_data) {
+		slog("failed to allocate memory for hook data");
+		return NULL;
+	}
+	memset(hook_data, 0, sizeof(PlayerHookData));
+	hook_data->player = self;
+	hook->data = hook_data;
+
+	player_data->hook = hook;
 	player = self;
 	return self;
 }
