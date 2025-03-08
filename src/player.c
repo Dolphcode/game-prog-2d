@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "simple_logger.h"
 #include "simple_json.h"
 
@@ -11,6 +13,8 @@
 #include "player.h"
 #include "bug.h"
 #include "camera.h"
+
+#define GRAVITY 700
 
 static float projv1 = 2;
 static float projv2 = 1;
@@ -65,10 +69,12 @@ typedef struct {
  * This function is called when the hook touches a static body
  */
 void player_hook_static_touch(Entity *self) {
-	if (!self || grappled) return;
+	if (!self) return;
+	PlayerHookData *hook_data = (PlayerHookData*)self->data;
+	if (!hook_data || hook_data->grappled) return;
 	self->body->velocity = gfc_vector2d(0, 0);
-	grappled = 1;
-	grapple_length = gfc_vector2d_magnitude_between(self->body->position, player->body->position);
+	hook_data->grappled = 1;
+	hook_data->grapple_length = gfc_vector2d_magnitude_between(self->body->position, player->body->position);
 }
 
 /**
@@ -225,14 +231,153 @@ void player_think_ungrappled(Entity *self, PlayerData *player_data) {
 		}
 
 		// Apply gravity
-		self->acceleration.y += 700;
+		self->acceleration.y += GRAVITY;
 
 	}
 
 }
 
 void player_think_grappled(Entity *self, Entity *hook, PlayerData *player_data, PlayerHookData *hook_data) {
+	if (!self || !hook || !player_data || !hook_data) return;
 
+	// Compute secant and tangent vectors
+	GFC_Vector2D secant, tangent; // Secant is towards the center, Tangent is CW
+	gfc_vector2d_sub(secant, hook->position, self->position);
+	gfc_vector2d_normalize(&secant);
+	tangent = gfc_vector2d_rotate(secant, 0.5 * M_PI);
+
+	// Boosting
+	if (player_data->boosting) {
+		// Check if we have released and stop boosting at this point
+		if (gfc_input_command_released("boost")) {
+			player_data->boosting = 0;
+		} else {
+			if (player_data->boost_dir.x > 0) {
+				gfc_vector2d_scale_by(self->velocity, tangent, gfc_vector2d(player_data->boost_speed, player_data->boost_speed));
+			} else if (player_data->boost_dir.x < 0) {
+				gfc_vector2d_scale_by(self->velocity, tangent, gfc_vector2d(-player_data->boost_speed, -player_data->boost_speed));
+			} else if (player_data->boost_dir.y > 0) {			
+				self->velocity.x = 0; // Maintain velocity?
+				self->velocity.y = player_data->boost_dir.y * player_data->boost_speed; // Maintain velocity?
+			} else if (player_data->boost_dir.y < 0) {
+				self->velocity.x = 0; // Maintain velocity?
+				self->velocity.y = player_data->boost_dir.y * player_data->boost_speed; // Maintain velocity?
+			}
+
+		}
+
+	} else {
+		if (gfc_input_command_pressed("boost")) {
+			// Reset
+			player_data->boost_dir.x = 0;
+			player_data->boost_dir.y = 0;
+
+			if (gfc_input_command_down("left")) {
+				player_data->boost_dir.x -= 1;
+				player_data->boosting = 1;
+			}
+			if (gfc_input_command_down("right")) {
+				player_data->boost_dir.x += 1;
+				player_data->boosting = 1;
+			}
+			if (gfc_input_command_down("up")) {
+				player_data->boost_dir.y -= 1;
+				player_data->boosting = 1;
+			}
+			if (gfc_input_command_down("down")) {
+				player_data->boost_dir.y += 1;
+				player_data->boosting = 1;
+			}
+			
+			// Normalize the direction vector if possible
+			if (player_data->boosting) gfc_vector2d_normalize(&player_data->boost_dir);
+		}
+	}		
+	
+	// Dashing
+	GFC_Vector2D dash_impulse;
+	if (gfc_input_command_down("dash") && player_data->dash_counter && !player_data->boosting) {
+		if (gfc_input_command_pressed("left")) {
+			player_data->dash_counter--;
+			gfc_vector2d_scale_by(dash_impulse, tangent, gfc_vector2d(-800, -800));
+			gfc_vector2d_add(self->velocity, self->velocity, dash_impulse);
+		}
+
+		if (gfc_input_command_pressed("right")) {
+			player_data->dash_counter--;
+			gfc_vector2d_scale_by(dash_impulse, tangent, gfc_vector2d(800, 800));
+			gfc_vector2d_add(self->velocity, self->velocity, dash_impulse);
+		}
+
+		if (gfc_input_command_pressed("up")) {
+			player_data->dash_counter--;
+			self->velocity.y = -800;
+		}
+
+		if (gfc_input_command_pressed("down")) {
+			player_data->dash_counter--;
+			self->velocity.y = 800;
+		}
+	}
+
+	// ------------------------------------------------------------- MAY OMIT ---------------------------------------
+	// Apply an aerial restorative force
+	// Check the current speed
+	float curr_speed = gfc_vector2d_magnitude(self->velocity);
+	// Apply a restorative force if we are over the maximum air speed
+	if (curr_speed > player_data->air_max_speed) {	
+		if (curr_speed - player_data->air_max_speed < 20) {
+			gfc_vector2d_set_magnitude(&self->velocity, player_data->air_max_speed);	
+		} else {
+			// Determine the direction of the drag force
+			GFC_Vector2D restore_direction;
+			gfc_vector2d_negate(restore_direction, self->velocity);
+			gfc_vector2d_normalize(&restore_direction);
+	
+			// Multiply it by the over speed
+			GFC_Vector2D restore_force, scale_factor;
+			scale_factor = gfc_vector2d(player_data->restorative_accel, player_data->restorative_accel);
+			gfc_vector2d_scale_by(restore_force, restore_direction, scale_factor);
+	
+			// Apply the restorative force
+			gfc_vector2d_add(self->acceleration, self->acceleration, restore_force);
+		}
+	}
+	// ------------------------------------------------------------- MAY OMIT ---------------------------------------
+
+	// Hook Correction
+	GFC_Vector2D dir;
+	float magbetw = gfc_vector2d_magnitude_between(self->position, hook->position);
+	float diff = magbetw - hook_data->grapple_length;
+	gfc_vector2d_sub(dir, hook->position, self->position);
+	gfc_vector2d_normalize(&dir);
+
+	slog("%f magbetw %f diff %f", hook_data->grapple_length, magbetw, diff);
+	if (diff > 0) {
+		GFC_Vector2D correction;
+		gfc_vector2d_scale_by(correction, dir, gfc_vector2d(diff, diff));
+
+		gfc_vector2d_add(self->position, self->position, correction);
+
+		GFC_Vector2D velocity_corr;
+		float comp = gfc_vector2d_dot_product(self->velocity, dir);
+		if (comp < 0) {
+			gfc_vector2d_scale_by(velocity_corr, dir, gfc_vector2d(-comp, -comp));
+		} else {
+			gfc_vector2d_scale_by(velocity_corr, dir, gfc_vector2d(comp, comp));
+		}
+		gfc_vector2d_add(self->velocity, self->velocity, velocity_corr);
+	}
+
+	// Retract the hook
+	if (gfc_input_command_down("retract") && hook_data->grapple_length > 10) {
+		hook_data->grapple_length -= 10;
+	}
+
+	// Do not apply gravity if boosting
+	if (!player_data->boosting) {
+		self->acceleration.y += GRAVITY;
+	}
 }
 
 void player_think(Entity *self) {
@@ -245,7 +390,15 @@ void player_think(Entity *self) {
 	PlayerHookData *hook_data = (PlayerHookData *)player_data->hook->data;
 	
 	// Firing and retracting the grappling hook
-	
+	if (gfc_input_command_pressed("hook_up") && hook) {
+		if (!hook_data->grappled) {
+			player_data->hook->velocity = gfc_vector2d(0, -200);
+			gfc_vector2d_copy(hook->position, self->position);
+		} else {
+			hook_data->grappled = 0;
+			gfc_vector2d_copy(hook->position, self->position);
+		}
+	}
 
 	if (!hook_data->grappled) {
 		// Run ungrappled movement computations
@@ -275,7 +428,6 @@ void player_update(Entity *self) {
 	PlayerData *player_data = (PlayerData *)self->data;
 	if (!player_data) return;
 	
-
 
 	if (boosting) {
 		if (gfc_input_command_released("boost")) boosting = 0;
@@ -427,11 +579,18 @@ void player_update(Entity *self) {
 
 void player_draw(Entity *self) {
 	if (!self) return;
+	PlayerData *data = (PlayerData*)self->data;
+	if (!data) return;
+	Entity *hook = data->hook;
+	if (!hook) return;
+	PlayerHookData *hook_data = (PlayerHookData*)hook->data;
+	if (!hook_data) return;
+
 	GFC_Vector2D player_point = main_camera_calc_drawpos(self->position);
 	GFC_Vector2D hook_point = main_camera_calc_drawpos(hook->position);
 
 	// Draw the rope of the hook
-	if (grappled) {
+	if (hook_data->grappled) {
 		gf2d_draw_line(player_point, hook_point, GFC_COLOR_BLACK);
 	}
 	entity_draw(self);
