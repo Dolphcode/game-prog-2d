@@ -13,6 +13,9 @@ void bug_think(Entity *self) {
 void bug_touch(Entity *self, Entity *other) {
 	if (!self || !other) return;
 	slog("%s just touched %s", self->name, other->name);
+	if ((other->team & TEAM_PLAYER) && other->damage) {
+		other->damage(other, 2.0);
+	}
 }
 
 void bug_update(Entity *self) {

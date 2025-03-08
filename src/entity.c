@@ -295,6 +295,9 @@ void entity_configure(Entity *self, SJson *json) {
 	}
 
 	sj_object_get_uint8(json, "team", &self->team);
+	sj_object_get_float(json, "maxHealth", &self->max_health);
+	self->health = self->max_health;
+	sj_object_get_float(json, "immunity", &self->immunity);
 
 	// Get the collider
 	SJson *coll_info = sj_object_get_value(json, "collider");

@@ -40,7 +40,7 @@ static PlayerHUD player_hud = {0};
  */
 void player_hud_draw() {
 	for (int i = 0; i < player_hud.dashes; ++i) {
-		GFC_Vector2D drawpos = gfc_vector2d(10 * (i + 1) + 32 * i, 10);
+		GFC_Vector2D drawpos = gfc_vector2d(10 * (i + 1) + 32 * i, 52);
 		gf2d_sprite_draw(player_hud.dash_counter,
 				drawpos,
 				NULL,
@@ -50,6 +50,10 @@ void player_hud_draw() {
 				NULL,
 				0);
 	}
+
+
+	GFC_Rect healthbar = {0, 10, (int)(player_hud.health_frac * 400), 32};
+	gf2d_draw_rect(healthbar, GFC_COLOR_RED);
 }
 
 void player_hud_init() {
@@ -147,7 +151,7 @@ void player_think_ungrappled(Entity *self, PlayerData *player_data) {
 	// Boosting
 	if (player_data->boosting) {
 		// Check if we have released and stop boosting at this point
-		if (gfc_input_command_released("boost")) {
+		if (gfc_input_command_released("boost") || player_data->boost_timer <= 0) {
 			player_data->boosting = 0;
 		} else {
 			self->velocity.x = player_data->boost_dir.x * player_data->boost_speed; // Maintain velocity?
@@ -156,7 +160,7 @@ void player_think_ungrappled(Entity *self, PlayerData *player_data) {
 
 		return; // Do not worry about any other movement stuff
 	} else {
-		if (gfc_input_command_pressed("boost")) {
+		if (gfc_input_command_pressed("boost") && player_data->dash_counter >= player_data->max_dashes) {
 			// Reset
 			player_data->boost_dir.x = 0;
 			player_data->boost_dir.y = 0;
@@ -179,7 +183,11 @@ void player_think_ungrappled(Entity *self, PlayerData *player_data) {
 			}
 			
 			// Normalize the direction vector if possible
-			if (player_data->boosting) gfc_vector2d_normalize(&player_data->boost_dir);
+			if (player_data->boosting) {
+			       	gfc_vector2d_normalize(&player_data->boost_dir);
+				player_data->boost_timer = player_data->boost_time;
+				player_data->dash_counter = 0;
+			}
 		}
 	}
 
@@ -292,7 +300,7 @@ void player_think_grappled(Entity *self, Entity *hook, PlayerData *player_data, 
 	// Boosting
 	if (player_data->boosting) {
 		// Check if we have released and stop boosting at this point
-		if (gfc_input_command_released("boost")) {
+		if (gfc_input_command_released("boost") || player_data->boost_timer <= 0) {
 			player_data->boosting = 0;
 		} else {
 			if (player_data->boost_dir.x > 0) {
@@ -310,7 +318,7 @@ void player_think_grappled(Entity *self, Entity *hook, PlayerData *player_data, 
 		}
 
 	} else {
-		if (gfc_input_command_pressed("boost")) {
+		if (gfc_input_command_pressed("boost") && player_data->dash_counter >= player_data->max_dashes) {
 			// Reset
 			player_data->boost_dir.x = 0;
 			player_data->boost_dir.y = 0;
@@ -333,7 +341,11 @@ void player_think_grappled(Entity *self, Entity *hook, PlayerData *player_data, 
 			}
 			
 			// Normalize the direction vector if possible
-			if (player_data->boosting) gfc_vector2d_normalize(&player_data->boost_dir);
+			if (player_data->boosting) {
+				gfc_vector2d_normalize(&player_data->boost_dir);
+				player_data->boost_timer = player_data->boost_time;
+				player_data->dash_counter = 0;
+			}
 		}
 	}		
 	
@@ -428,6 +440,8 @@ void player_think(Entity *self) {
 	if (!self || !self->data) return;
 	PlayerData *player_data = (PlayerData *)self->data;
 
+	if (!self->alive) return;
+
 	// Verify the hook pointer
 	if (!player_data || !player_data->hook || !player_data->hook->data) return;
 	PlayerHookData *hook_data = (PlayerHookData *)player_data->hook->data;
@@ -471,9 +485,25 @@ void player_update(Entity *self) {
 	PlayerData *p_data = (PlayerData *)self->data;
 	
 	player_hud.dashes = p_data->dash_counter;
+	
+	if (p_data->dash_counter < p_data->max_dashes) {
+		p_data->dash_cooldown_timer += 0.1;
+		if (p_data->dash_cooldown_timer >= p_data->dash_cooldown) {
+			p_data->dash_cooldown_timer = 0;
+			p_data->dash_counter += 1;
+		}
+	}
 
+	if (p_data->boost_timer > 0) {
+		p_data->boost_timer -= 0.1;
+	}
 
-
+	if (self->i_time > 0) {
+		self->i_time -= 0.1;
+	} else {
+		self->i_time = 0;
+	}
+	player_hud.health_frac = self->health / self->max_health;
 }
 
 void player_draw(Entity *self) {
@@ -492,9 +522,15 @@ void player_draw(Entity *self) {
 	if (hook_data->grappled) {
 		gf2d_draw_line(player_point, hook_point, GFC_COLOR_BLACK);
 	}
-	entity_draw(self);
+	if (((int)self->i_time) % 2 == 0) entity_draw(self);
 }
 
+void player_damage(Entity *self, float amount) {
+	if (!self || self->i_time > 0) return;
+	self->i_time = self->immunity;
+	self->health -= amount;
+	if (self->health <= 0) self->alive = 0;
+}
 
 Entity *player_new_entity(GFC_Vector2D position) {
 	// INITIAL ENTITY INITIALIZATION
@@ -522,7 +558,10 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	self->draw = player_draw;
 	self->touch = player_touch;
 	self->update = player_update;
-
+	self->damage = player_damage;
+	
+	// Since this is a living thing, mark it as alive
+	self->alive = 1;
 
 	// Create the player data object
 	PlayerData *player_data = (PlayerData*)malloc(sizeof(PlayerData));
