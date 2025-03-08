@@ -10,15 +10,21 @@ void bug_think(Entity *self) {
 
 }
 
+void bug_touch(Entity *self, Entity *other) {
+	if (!self || !other) return;
+	slog("%s just touched %s", self->name, other->name);
+}
+
 void bug_update(Entity *self) {
 	if (!self) return;
+	/*
 	self->lifetime += 0.1;
 	if (self->lifetime > 15) {
 		entity_free(self);
 		return;
-	}
+	}*/
 
-	gfc_vector2d_add(self->position, self->position, self->velocity);
+	//gfc_vector2d_add(self->position, self->position, self->velocity);
 }
 
 Entity *bug_new_entity(GFC_Vector2D position, const char *filename) {
@@ -38,6 +44,7 @@ Entity *bug_new_entity(GFC_Vector2D position, const char *filename) {
 	// Assign functions
 	self->think = bug_think;
 	self->update = bug_update;
+	self->touch = bug_touch;
 
 	return self;
 }

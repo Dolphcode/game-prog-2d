@@ -11,6 +11,10 @@
 
 #include "physicsbody.h"
 
+#define TEAM_PLAYER 	0b00000001
+#define TEAM_HOSTILE  	0b00000010
+#define TEAM_HAZARD	0b00000100
+
 // Debug constants
 extern Uint8 	DRAW_CENTER; // <Draw the center points of entities
 extern Uint8	DRAW_BOUNDS; // <Draw the bounds of entities
@@ -72,9 +76,18 @@ typedef struct Entity_S
 	void		(*draw)(struct Entity_S *self);		// <Called after update(), draw the entity (along with any other necessary draw calls)
 	
 	// Contact monitoring
+	Uint8		team;								// <Used to determine if overlaps should be detected between two entities
 	void		(*touch)(struct Entity_S *self, struct Entity_S *other);	// <Called every physics step this entity is overlapping with another entity
 	void		(*static_touch)(struct Entity_S *self);				// <Called if monitor static overlaps is true for every physics step this entity is overlapping with a static shape
-										
+					
+	// Entity status
+	float		max_health;	// <This entity's maximum health
+	float		health;		// <This entity's health
+	float		immunity;	// <The total amount of time this entity should be invulnerable after a hit
+	float		i_time;		// <The amount of immunity time left
+	Uint8		alive;		// <Whether the entity is alive or not
+	void		(*damage)(struct Entity_S *self, float damage);	// <Attempt to deal damage to the entity
+
 	// Entity data
 	void		*data; 	// <This entity's data object
 

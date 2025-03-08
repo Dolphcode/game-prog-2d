@@ -173,6 +173,36 @@ void space_step(Space *self, float delta_time) {
 		}
 		
 	}
+
+	PhysicsBody *other;
+	GFC_Shape other_world_shape;
+	count = gfc_list_count(self->physics_bodies);
+	for (i = 0; i < count; ++i) {
+		// Get the current reference and validate
+		curr = gfc_list_get_nth(self->physics_bodies, i);
+		if (!curr) continue;
+			
+		if (!curr->ent->touch) continue;
+
+		gfc_shape_copy(&world_shape, curr->hitbox);
+		gfc_shape_move(&world_shape, curr->position);
+		for (j = i + 1; j < count; ++j) {
+			other = gfc_list_get_nth(self->physics_bodies, j);
+			if (!other) continue;
+			if (!other->ent->touch) continue;
+			if ((curr->ent->team & other->ent->team)) continue;
+
+			gfc_shape_copy(&other_world_shape, other->hitbox);
+			gfc_shape_move(&other_world_shape, other->position);
+			if (gfc_shape_overlap(world_shape, other_world_shape)) {
+				curr->ent->touch(curr->ent, other->ent);
+				other->ent->touch(other->ent, curr->ent);
+				continue;
+			}
+		}
+	}
+
+
 }
 
 void space_update(Space *self) {
@@ -202,6 +232,7 @@ void space_draw(Space *self) {
 	PhysicsBody *curr_body;
 	GFC_Rect drawable;
 	GFC_Vector2D drawpos;
+	GFC_Circle hitbox_drawable;
 
 	// Draw the static bodies
 	if (self->static_bodies) {
@@ -242,6 +273,16 @@ void space_draw(Space *self) {
 
 			// Draw the rect in orange
 			gf2d_draw_rect(drawable, GFC_COLOR_RED);
+
+			// Generate the drawable circle
+			drawpos.x = curr_body->hitbox.s.c.x + curr_body->position.x;
+			drawpos.y = curr_body->hitbox.s.c.y + curr_body->position.y;
+			drawpos = main_camera_calc_drawpos(drawpos);
+			hitbox_drawable.x = drawpos.x;
+			hitbox_drawable.y = drawpos.y;
+			hitbox_drawable.r = curr_body->hitbox.s.c.r;
+
+			gf2d_draw_circle(drawpos, curr_body->hitbox.s.c.r, GFC_COLOR_BLUE);
 		}
 	}
 }

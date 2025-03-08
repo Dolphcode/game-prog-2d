@@ -12,6 +12,8 @@
 #include "camera.h"
 #include "world.h"
 #include "space.h"
+#include "player.h"
+#include "spawn.h"
 
 int parse_args(int argc, char * argv[]) {
 	if (argc < 2) return 0;
@@ -75,7 +77,13 @@ int main(int argc, char * argv[])
     World* world = world_load("def/world.def");
     world_make_active(world);
 
-    Entity* player = player_new_entity(gfc_vector2d(60, -40));
+    Entity* player = spawn_entity("player", gfc_vector2d(60, -40), "");
+    spawn_entity("bug", gfc_vector2d(100, -300), "def/bugs/bug2.def");
+    spawn_entity("bug", gfc_vector2d(200, -500), "def/bugs/bug2.def");  
+    spawn_entity("bug", gfc_vector2d(300, -300), "def/bugs/bug2.def");
+	
+    player_hud_init();
+
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;
@@ -124,6 +132,8 @@ int main(int argc, char * argv[])
                 NULL,
                 &mouseGFC_Color,
                 (int)mf);
+
+	    player_hud_draw();
 
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
         

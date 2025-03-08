@@ -27,6 +27,45 @@ static Entity *player = NULL;
 static Uint8 boosting = 0;
 static GFC_Vector2D boost_dir;
 
+typedef struct {
+	int	dashes;		// The number of dashes in the dash counter
+	Sprite	*dash_counter;	// The sprite for the player's dash counter
+	float	health_frac;	// The proportion of player health left
+}PlayerHUD;
+
+static PlayerHUD player_hud = {0};
+
+/**
+ * @brief draws the player's hud
+ */
+void player_hud_draw() {
+	for (int i = 0; i < player_hud.dashes; ++i) {
+		GFC_Vector2D drawpos = gfc_vector2d(10 * (i + 1) + 32 * i, 10);
+		gf2d_sprite_draw(player_hud.dash_counter,
+				drawpos,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				0);
+	}
+}
+
+void player_hud_init() {
+	player_hud.dash_counter = gf2d_sprite_load_all(
+			"images/dash_count.png",
+			32,
+			32,
+			1,
+			0);
+	atexit(player_hud_close);
+}
+
+void player_hud_close() {
+	if (player_hud.dash_counter) gf2d_sprite_free(player_hud.dash_counter);
+}
+
 /**
  * Represents information that is unique to the player's grappling hook
  */
@@ -95,6 +134,10 @@ void player_hook_think(Entity *self) {
  * Handle drawing the hook itself
  */
 void player_hook_draw(Entity *self) {
+
+}
+
+void player_touch(Entity *self, Entity *other) {
 
 }
 
@@ -425,156 +468,12 @@ void player_think(Entity *self) {
 void player_update(Entity *self) {
 	if (!self) return;
 	
-	PlayerData *player_data = (PlayerData *)self->data;
-	if (!player_data) return;
+	PlayerData *p_data = (PlayerData *)self->data;
 	
-
-	if (boosting) {
-		if (gfc_input_command_released("boost")) boosting = 0;
-		gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(600, 600));
-		return;
-	}
-
-	if (gfc_input_command_pressed("boost")) {
-		if (gfc_input_command_down("left")) {
-			boost_dir.x = -1;
-			boosting = 1;
-		} else if (gfc_input_command_down("right")) {
-			boost_dir.x = 1;
-			boosting = 1;
-		} else {
-			boost_dir.x = 0;
-		}
-
-		if (gfc_input_command_down("up")) {
-			boost_dir.y = -1;
-			boosting = 1;
-		} else if (gfc_input_command_down("down")) {
-			boost_dir.y = 1;
-			boosting = 1;
-		} else {
-			boost_dir.y = 0;
-		}
-
-		if (boosting) {
-			gfc_vector2d_normalize(&boost_dir);
-			gfc_vector2d_scale_by(self->velocity, boost_dir, gfc_vector2d(player_data->boost_speed, player_data->boost_speed));
-		}
-	}
-
-	// check input
-	if (gfc_input_command_down("dash")) {
-		if (gfc_input_command_pressed("left")) {
-			self->velocity.x -= player_data->dash_speed;
-		}
-		if (gfc_input_command_pressed("right")) {
-			self->velocity.x += player_data->dash_speed;
-		}
-
-		if (gfc_input_command_pressed("up")) {
-			self->velocity.y -= player_data->dash_speed;
-		}
-		if (gfc_input_command_pressed("down")) {
-			self->velocity.y += player_data->dash_speed;
-		}
-	}
-	
-	if (self->body->grounded) {
-		
-		float net_vel = 0;
-		if (gfc_input_command_down("left")) {
-			net_vel += -40;
-		}
-		if (gfc_input_command_down("right")) {
-			net_vel += 40;
-		}
-		self->velocity.x = net_vel;
-	}
-
-	if (gfc_input_command_pressed("hook_up") && hook) {
-		if (!grappled) {
-			hook->velocity = gfc_vector2d(0, -200);
-			gfc_vector2d_copy(hook->position, self->position);
-		} else {
-			grappled = !grappled;
-			gfc_vector2d_copy(hook->position, self->position);
-		}
-	}
-
-	if (gfc_input_command_pressed("shoot1")) {
-		Entity *bug = bug_new_entity(self->position, "./def/bugs/bug1.def");
-		bug->velocity = gfc_vector2d(projv1, 0);
-	}
-
-	if (gfc_input_command_pressed("shoot2")) {
-		Entity *bug = bug_new_entity(self->position, "./def/bugs/bug2.def");
-		bug->velocity = gfc_vector2d(0, projv2);
-	}
-
-	if (gfc_input_command_down("retract") && grappled && grapple_length > 10) {
-		grapple_length -= 10;
-	}
-
-	self->acceleration.y += 500;
-	
-	if (gfc_vector2d_magnitude(self->velocity) > 500) {
-		float mag = gfc_vector2d_magnitude(self->velocity);
-		GFC_Vector2D dir;
-		gfc_vector2d_negate(dir, self->velocity);
-		gfc_vector2d_normalize(&dir);
-		gfc_vector2d_scale_by(dir, dir, gfc_vector2d(mag * 1, mag * 1));
-		// Drag constant
-		gfc_vector2d_add(self->acceleration, self->acceleration, dir);
-
-	}
-	if (gfc_vector2d_magnitude(self->velocity) < 500) {
-		float mag = gfc_vector2d_magnitude(self->velocity);
-		GFC_Vector2D dir;
-		gfc_vector2d_negate(dir, self->velocity);
-		gfc_vector2d_normalize(&dir);
-		gfc_vector2d_scale_by(dir, dir, gfc_vector2d(mag * 0.1, mag * 0.1));
-		// Drag constant
-		gfc_vector2d_add(self->acceleration, self->acceleration, dir);
+	player_hud.dashes = p_data->dash_counter;
 
 
-	}
-	if (grappled) {
-		GFC_Vector2D dir;
-		float magbetw = gfc_vector2d_magnitude_between(self->position, hook->position);
-		float diff = magbetw - grapple_length;
-		float speed = gfc_vector2d_magnitude(self->velocity);
-		gfc_vector2d_sub(dir, hook->position, self->position);
-		gfc_vector2d_normalize(&dir);
 
-		if (diff > 0) {
-			GFC_Vector2D correction;
-			gfc_vector2d_scale_by(correction, dir, gfc_vector2d(diff, diff));
-
-			gfc_vector2d_add(self->position, self->position, correction);
-
-			GFC_Vector2D velocity_corr;
-			float comp = gfc_vector2d_dot_product(self->velocity, dir);
-			if (comp < 0) {
-				gfc_vector2d_scale_by(velocity_corr, dir, gfc_vector2d(-comp, -comp));
-			} else {
-				gfc_vector2d_scale_by(velocity_corr, dir, gfc_vector2d(comp, comp));
-			}
-			gfc_vector2d_add(self->velocity, self->velocity, velocity_corr);
-		}
-
-			//	gfc_vector2d_scale_by(dir, dir, gfc_vector2d(diff * 100, diff * 100));
-		//gfc_vector2d_add(self->acceleration, self->acceleration, dir);
-	}
-
-	// Determine what the player's max speed should be
-	float max_speed;
-	if (self->body->grounded) {
-		max_speed = player_data->grounded_max_speed;
-	} else {
-		max_speed = player_data->air_max_speed;
-	}
-
-	// If we are above the max speed apply a restorative force
 }
 
 void player_draw(Entity *self) {
@@ -621,6 +520,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	// Assign player functions
 	self->think = player_think;
 	self->draw = player_draw;
+	self->touch = player_touch;
+	self->update = player_update;
 
 
 	// Create the player data object
@@ -676,4 +577,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	player_data->hook = hook;
 	player = self;
 	return self;
+}
+
+Entity *player_spawn(GFC_Vector2D position, const char * config) {
+	return player_new_entity(position);
 }

@@ -293,6 +293,9 @@ void entity_configure(Entity *self, SJson *json) {
 		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
 	}
+
+	sj_object_get_uint8(json, "team", &self->team);
+
 	// Get the collider
 	SJson *coll_info = sj_object_get_value(json, "collider");
 	SJson *hitbox_info = sj_object_get_value(json, "hitbox");
