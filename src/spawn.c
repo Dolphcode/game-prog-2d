@@ -20,6 +20,10 @@ static Spawn spawnList[] =
 		"temp_platform",
 		spawn_temp_platform
 	},
+	{
+		"buzzsaw",
+		spawn_buzzsaw
+	},
 	{0}
 };
 

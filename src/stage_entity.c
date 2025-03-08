@@ -3,6 +3,8 @@
 
 #include "stage_entity.h"
 
+// TEMPORARY PLATFORM STAGE HAZARD
+
 typedef struct {
 	float	lifetime;	// <How long this object can be grappled to before it collapses
 	float	cooldown;	// <How long this object takes to return to its grappleable state
@@ -104,11 +106,44 @@ Entity *spawn_temp_platform(GFC_Vector2D position, const char *config) {
 	return self;
 }
 
-/**
- * @brief spawns a buzzsaw in the world (stage hazard)
- * @param position the position of the top left corner of the buzzsaw
- * @config the configuration file of the buzzsaw
- */
-Entity* spawn_buzzsaw(GFC_Vector2D position, const char *config);
+// BUZZSAW STAGE HAZARD
+
+void buzzsaw_touch(Entity *self, Entity *other) {
+	if (!self || !other || !other->damage) return;
+	other->damage(other, 4.0);
+}
+
+void buzzsaw_update(Entity *self) {
+	self->frame += 0.1;
+	if (self->frame > 3) {
+		self->frame = 0;
+	}
+}
+
+Entity* spawn_buzzsaw(GFC_Vector2D position, const char *config) {
+	Entity *self;
+	self = entity_new();
+	if (!self) {
+		slog("failed to allocate memory for temporary platform");
+		return NULL;
+	}
+
+	gfc_vector2d_copy(self->position, position);
+
+	SJson *json = sj_load("./def/buzzsaw.def");
+	if (!json) {
+		slog("failed to open def file");
+		return NULL;
+	}
+	entity_configure(self, json);
+
+	self->touch = buzzsaw_touch;
+	self->update = buzzsaw_update;
+
+	return self;
+}
+
+// MOVING GRAPPLE STAGE HAZARD
 
 
+// TURRET STAGE HAZARD

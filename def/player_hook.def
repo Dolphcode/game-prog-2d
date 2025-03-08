@@ -6,8 +6,8 @@
 	"spriteOffset":[64,64],
 	"team": 1,
 	"collider": {
-		"colliderOffset":[-32,-32],
-		"colliderSize":[64,64],
+		"colliderOffset":[-4,-4],
+		"colliderSize":[8,8],
 		"maxCollisions":8,
 		"canCollide":0
 	},
