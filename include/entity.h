@@ -87,6 +87,9 @@ typedef struct Entity_S
 	float		i_time;		// <The amount of immunity time left
 	Uint8		alive;		// <Whether the entity is alive or not
 	void		(*damage)(struct Entity_S *self, float damage);	// <Attempt to deal damage to the entity
+	
+	// Grapple status
+	Uint8		can_grapple;	// <Whether this object can be hooked onto in the current frame or not
 
 	// Entity data
 	void		*data; 	// <This entity's data object

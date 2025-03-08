@@ -3,7 +3,7 @@
 #include "bug.h"
 #include "player.h"
 #include "entity.h"
-
+#include "stage_entity.h"
 #include "spawn.h"
 
 static Spawn spawnList[] = 
@@ -15,6 +15,10 @@ static Spawn spawnList[] =
 	{
 		"bug",
 		bug_new_entity
+	},
+	{
+		"temp_platform",
+		spawn_temp_platform
 	},
 	{0}
 };

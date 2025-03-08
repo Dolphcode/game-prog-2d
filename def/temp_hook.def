@@ -1,0 +1,22 @@
+{
+	"name":"temp_platform_1by1",
+	"sprite":"./images/temp_platform.png",
+	"spriteFPL":1,
+	"spriteSize":[64,64],
+	"spriteOffset":[64,64],
+	"team": 4,
+	"collider": {
+		"colliderOffset":[-64,-64],
+		"colliderSize":[64,64],
+		"maxCollisions":0,
+		"canCollide":0
+	},
+	"hitbox": {
+		"hitboxOffset":[-32,-32],
+		"hitboxRadius":32
+	},
+	"tempPlatformData": {
+        "lifetime": 20,
+        "cooldown": 30
+	}
+}

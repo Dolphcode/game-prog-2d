@@ -5,6 +5,8 @@
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
 	"team": 1,
+	"maxHealth": 20,
+	"immunity": 10,
 	"collider": {
 		"colliderOffset":[-32,-32],
 		"colliderSize":[64,64],
@@ -21,8 +23,8 @@
 		"maxDashes":3,
 		"dashSpeed":800,
 		"boostSpeed":600,
-		"boostTime": 3,
-		"dashCooldown":5,
+		"boostTime": 15,
+		"dashCooldown":20,
 		"restorativeAccel": 800.0,
 		"groundAccel": 800.0
 	}

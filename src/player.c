@@ -81,6 +81,7 @@ typedef struct {
 	
 	Entity	*player;	// The player reference (where the hook is being fired from)
 	Entity	*lock_target;	// The target which this hook is locked to
+	GFC_Vector2D	lock_offset;	// <If grappled onto an entity, the offset vector
 }PlayerHookData;
 
 /**
@@ -124,14 +125,33 @@ void player_hook_static_touch(Entity *self) {
  * This function is called every frame that the hook is touching a physics body
  */
 void player_hook_touch(Entity *self, Entity *other) {
+	if (!self) return;
+	PlayerHookData *hook_data = (PlayerHookData*)self->data;
+	if (!hook_data || hook_data->grappled) return;
 
+	if (other->can_grapple) {
+		hook_data->lock_target = other;
+		gfc_vector2d_sub(hook_data->lock_offset, self->position, other->position);
+		self->body->velocity = gfc_vector2d(0, 0);
+		hook_data->grappled = 1;
+		hook_data->grapple_length = gfc_vector2d_magnitude_between(self->body->position, player->body->position);
+	}
 }
 
 /**
  * Handle tracking entities we grappled onto
  */
 void player_hook_think(Entity *self) {
+	if (!self) return;
+	PlayerHookData *data = (PlayerHookData*)self->data;
+	if (!data) return;
 
+	// Un grapple if the entity we are grappled to can no longer be grappled to
+	if (data->grappled && data->lock_target && !data->lock_target->can_grapple) {
+		data->grappled = false;
+		data->lock_target = NULL;
+		gfc_vector2d_copy(self->position, data->player->position);
+	}
 }
 
 /**
@@ -453,6 +473,7 @@ void player_think(Entity *self) {
 			gfc_vector2d_copy(hook->position, self->position);
 		} else {
 			hook_data->grappled = 0;
+			hook_data->lock_target = NULL;
 			gfc_vector2d_copy(hook->position, self->position);
 		}
 	}
@@ -602,6 +623,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	gfc_vector2d_copy(hook->position, self->position);
 	entity_configure_from_file(hook, "./def/player_hook.def");
 	hook->static_touch = player_hook_static_touch;
+	hook->touch = player_hook_touch;
+	hook->think = player_hook_think;
 	
 	// Create the hook data
 	PlayerHookData *hook_data = (PlayerHookData *)malloc(sizeof(PlayerHookData));

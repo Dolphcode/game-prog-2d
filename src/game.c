@@ -81,6 +81,8 @@ int main(int argc, char * argv[])
     spawn_entity("bug", gfc_vector2d(100, -300), "def/bugs/bug2.def");
     spawn_entity("bug", gfc_vector2d(200, -500), "def/bugs/bug2.def");  
     spawn_entity("bug", gfc_vector2d(300, -300), "def/bugs/bug2.def");
+
+    spawn_entity("temp_platform", gfc_vector2d(400, -300), "def/temp_hook.def");
 	
     player_hud_init();
 
