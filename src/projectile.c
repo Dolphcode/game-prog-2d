@@ -1,0 +1,224 @@
+#include <math.h>
+
+#include "simple_logger.h"
+#include "simple_json.h"
+
+#include "gfc_list.h"
+
+#include "gf2d_sprite.h"
+#include "gf2d_draw.h"
+#include "gf2d_graphics.h"
+
+#include "camera.h"
+#include "entity.h"
+#include "projectile.h"
+
+/*
+typedef struct {
+	Uint8	is_active;	// <Whether the projectile is active or not
+	float	lifetime;	// <How long this projectile should stay alive for
+	float	timer;		// <A timer used to keep track of how long this projectile has been alive for
+}ProjectileData;
+*/
+
+typedef struct {
+	const char *name;
+	const char *config;
+}ProjectileConfig;
+
+static ProjectileConfig projectile_list[] = {
+	{
+		"turret_shot",
+		"def/projectile/turret_shot.def"	
+	},
+	{0}
+};
+
+static GFC_List *projectile_pool = NULL;
+
+void projectile_pool_init() {
+	// Create the projectile pool
+	projectile_pool = gfc_list_new();
+	if (!projectile_pool) {
+		slog("failed to create projectile pool");
+	}
+
+	atexit(projectile_pool_close);
+}
+
+void projectile_pool_close() {
+	projectile_pool_clear();
+	gfc_list_delete(projectile_pool);
+}
+
+void projectile_pool_clear() {
+	if (!projectile_pool) return;
+	int i, count = gfc_list_count(projectile_pool);
+	Entity *curr;
+
+	for (i = count - 1; i >= 0; --i) {
+		curr = gfc_list_get_nth(projectile_pool, i);
+
+		// Free this projectile if it is still in use
+		if (curr && curr->_inuse) {
+			entity_free(curr);
+		}
+
+		// Delete this list element
+		gfc_list_delete_nth(projectile_pool, i);
+	}
+}
+
+void projectile_touch(Entity *self, Entity *other) {
+	if (!self || !other || !other->damage) return;
+	other->damage(other, 2.0); // Temporary, add a contact damage component
+}
+
+void projectile_update(Entity *self) {
+	if (!self) return;
+	ProjectileData *data = (ProjectileData *)self->data;
+	if (!data) return;
+
+	if (data->timer < data->lifetime) {
+		data->timer += 0.1;
+	} else {
+		data->is_active = 0;
+		self->body->disabled = 1;
+	}
+}
+
+void projectile_draw(Entity *self) {
+	// Verify pointers
+	if (!self || !self->sprite) return;
+	ProjectileData *data = (ProjectileData *)self->data;
+	if (!data || !data->is_active) return;
+
+	// Calculate draw position and scale
+	GFC_Vector2D scale = main_camera_get_zoom();
+
+	GFC_Vector2D draw_pos = main_camera_calc_drawpos(self->position);
+
+	GFC_Vector2D center = self->sprite_offset;
+
+	data->rot = gfc_vector2d_angle(self->velocity) * 180 / M_PI + 90.0;
+
+	// Draw the sprite
+	gf2d_sprite_draw(
+		self->sprite,
+		draw_pos,
+		&scale,
+		&center,
+		&data->rot,
+		NULL,
+		NULL,
+		(Uint32)self->frame);
+
+	// Draw the point
+	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
+}
+
+Entity *projectile_new(const char* name) {
+	ProjectileConfig *conf;
+	Entity *proj;
+	if (!name) {
+		slog("no spawn name provided");
+		return NULL;
+	}
+
+	for (conf = projectile_list; conf->name != 0; ++conf) {
+		if (strcmp(name, conf->name) == 0) {
+			// Get the projectile
+			proj = entity_new();
+			if (!proj) {
+				slog("failed to retrieve entity slot");
+				return NULL;
+			}
+
+			// Load the entity data
+			SJson *json = sj_load(conf->config);
+			if (!json) {
+				slog("failed to open def file");
+				return NULL;
+			}
+			entity_configure(proj, json);
+
+			// Get the projectile def file
+			SJson *proj_json = sj_object_get_value(json, "projectile");
+			if (!proj_json) {
+				slog("couldn't find 'projectile' object in def file");
+				return NULL;
+			}
+			
+			// Load the projectile data
+			ProjectileData *proj_data = (ProjectileData*)malloc(sizeof(ProjectileData));
+			if (!proj_data) {
+				slog("failed to allocate memory for projectile data");
+				return NULL;
+			}
+			memset(proj_data, 0, sizeof(ProjectileData));
+			sj_object_get_float(proj_json, "lifetime", &proj_data->lifetime);
+			proj_data->is_active = 1;
+
+			proj->data = proj_data;
+
+			// Assign functions
+			proj->update = projectile_update;
+			proj->touch = projectile_touch;
+			proj->draw = projectile_draw;
+			
+			// Add it to the projectile pool
+			gfc_list_append(projectile_pool, proj);
+			
+			// Return the projectile object
+			return proj;
+		}
+	}
+
+	slog("failed to spawn projectile");
+	return NULL;
+}
+
+Entity *projectile_spawn(const char *name) {
+	Entity *proj;
+	ProjectileData *data;
+	int i, count = gfc_list_count(projectile_pool);
+
+	// Check the projectile pool for an inactive matching projectile
+	for (i = 0; i < count; ++i) {
+		proj = gfc_list_get_nth(projectile_pool, i);
+		if (!proj) continue;
+
+		if (strcmp(proj->name, name) == 0) {
+			data = (ProjectileData *)proj->data;
+			if (!data) continue;
+
+			if (!data->is_active) { // If this is a matching inactive projectile, reactivate it
+				data->is_active = 1;
+				data->timer = 0;
+				proj->body->disabled = 0;
+				return proj;
+			}
+		}
+	}
+
+	// Failed to find projectile in the pool, create it
+	proj = projectile_new(name);
+	if (!proj) {
+		slog("failed to create projectile %s", name);
+		return NULL;
+	}
+	return proj;
+}
+
+Entity *projectile_fire(const char *name, GFC_Vector2D position, GFC_Vector2D velocity) {
+	Entity *proj = projectile_spawn(name);
+
+	if (!proj) {
+		slog("failed to spawn projectils %s", name);
+		return NULL;
+	}
+
+	gfc_vector2d_copy(proj->position, position);
+	gfc_vector2d_copy(proj->velocity, velocity);
+	return proj;
+}

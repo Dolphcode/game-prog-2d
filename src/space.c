@@ -129,6 +129,7 @@ void space_step(Space *self, float delta_time) {
 		// Get the current reference and validate
 		curr = gfc_list_get_nth(self->physics_bodies, i);
 		if (!curr) continue;
+		if (curr->disabled) continue;
 		
 		// Reset acceleration and calculate forces
 		curr->net_acceleration = gfc_vector2d(0, 0);
@@ -181,7 +182,7 @@ void space_step(Space *self, float delta_time) {
 		// Get the current reference and validate
 		curr = gfc_list_get_nth(self->physics_bodies, i);
 		if (!curr) continue;
-			
+		if (curr->disabled) continue;	
 		if (!curr->ent->touch) continue;
 
 		gfc_shape_copy(&world_shape, curr->hitbox);

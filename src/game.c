@@ -14,6 +14,7 @@
 #include "space.h"
 #include "player.h"
 #include "spawn.h"
+#include "projectile.h"
 
 int parse_args(int argc, char * argv[]) {
 	if (argc < 2) return 0;
@@ -65,6 +66,7 @@ int main(int argc, char * argv[])
     // inserting code to initialize systems
     gfc_input_init("./config/input.cfg");
     entity_system_init(1024);
+    projectile_pool_init();
 
     SDL_ShowCursor(SDL_DISABLE);
     

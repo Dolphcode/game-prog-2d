@@ -9,6 +9,7 @@
 
 #include "camera.h"
 #include "stage_entity.h"
+#include "projectile.h"
 
 // TEMPORARY PLATFORM STAGE HAZARD
 
@@ -200,9 +201,11 @@ void turret_update(Entity *self) {
 		if (!data->grappled) {
 			GFC_Vector2D dir = {0, 1};
 			dir = gfc_vector2d_rotate(dir, -data->rot);
+			GFC_Vector2D velocity;
 			for (int i = 0; i < 4; ++i) {
-				Entity *proj = spawn_turret_proj(self->position);
-				gfc_vector2d_scale_by(proj->velocity, dir, gfc_vector2d(200, 200));
+				//Entity *proj = spawn_turret_proj(self->position);
+				gfc_vector2d_scale_by(velocity, dir, gfc_vector2d(200, 200));
+				projectile_fire("turret_shot", self->position, velocity);
 				dir = gfc_vector2d_rotate(dir, 0.5 * M_PI);
 			}
 		}

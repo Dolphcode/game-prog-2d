@@ -1,0 +1,21 @@
+{
+	"name":"turret_shot",
+	"sprite":"./images/turret_shot.png",
+	"spriteFPL":1,
+	"spriteSize":[32,16],
+	"spriteOffset":[16,8],
+	"team": 4,
+	"collider": {
+		"colliderOffset":[-32,-32],
+		"colliderSize":[64,64],
+		"maxCollisions":0,
+		"canCollide":0
+	},
+	"hitbox": {
+		"hitboxOffset":[0,0],
+		"hitboxRadius":32
+	},
+	"projectile": {
+        "lifetime": 30
+	}
+}
