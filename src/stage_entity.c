@@ -1,6 +1,13 @@
+#include <math.h>
+
 #include "simple_logger.h"
 #include "simple_json.h"
 
+#include "gf2d_sprite.h"
+#include "gf2d_graphics.h"
+#include "gf2d_draw.h"
+
+#include "camera.h"
 #include "stage_entity.h"
 
 // TEMPORARY PLATFORM STAGE HAZARD
@@ -147,3 +154,149 @@ Entity* spawn_buzzsaw(GFC_Vector2D position, const char *config) {
 
 
 // TURRET STAGE HAZARD
+typedef struct {
+	float	rate;		// <This turret's rate of fire
+	float	timer;		// <The time to the next fire
+	float	rot;		// <The rotation of the turret
+	Uint8	grappled;	// <Whether this object is grappled to at the moment or not
+}TurretData;
+
+void turret_proj_touch(Entity *self, Entity *other) {
+	if (!self || !other || !other->damage) return;
+	other->damage(other, 3);
+}
+
+Entity *spawn_turret_proj(GFC_Vector2D position) {
+	Entity *self;
+	self = entity_new();
+	if (!self) {
+		slog("failed to allocate memory for temporary platform");
+		return NULL;
+	}
+
+	gfc_vector2d_copy(self->position, position);
+
+	SJson *json = sj_load("./def/turret_proj.def");
+	if (!json) {
+		slog("failed to open def file");
+		return NULL;
+	}
+	entity_configure(self, json);
+
+	self->touch = turret_proj_touch;
+
+	return self;
+}
+
+void turret_update(Entity *self) {
+	if (!self) return;
+	TurretData* data = (TurretData *)self->data;
+	if (!data) return;
+
+	if (data->timer > 0) {
+		data->timer -= 0.1;
+	} else {
+		data->timer = data->rate;
+		if (!data->grappled) {
+			GFC_Vector2D dir = {0, 1};
+			dir = gfc_vector2d_rotate(dir, -data->rot);
+			for (int i = 0; i < 4; ++i) {
+				Entity *proj = spawn_turret_proj(self->position);
+				gfc_vector2d_scale_by(proj->velocity, dir, gfc_vector2d(200, 200));
+				dir = gfc_vector2d_rotate(dir, 0.5 * M_PI);
+			}
+		}
+	}
+
+	data->rot += 0.1;
+
+	// Force recheck
+	data->grappled = 0;
+}
+
+void turret_touch(Entity *self, Entity *other) {
+	if (!self) return;
+	TurretData* data = (TurretData *)self->data;
+	if (!data) return;
+	if (strcmp(other->name, "hook") == 0) {
+		data->grappled = 1;
+	}
+}
+
+void turret_draw(Entity *self) {
+	if (!self) return;
+	TurretData* data = (TurretData *)self->data;
+	if (!data) return;
+	// Calculate draw position and scale
+	GFC_Vector2D scale = main_camera_get_zoom();
+	GFC_Vector2D draw_pos = main_camera_calc_drawpos(self->position);
+
+	GFC_Vector2D center = self->sprite_offset;
+
+	// Draw the guns
+	gf2d_sprite_draw(
+		self->sprite,
+		draw_pos,
+		&scale,
+		&center,
+		&data->rot,
+		NULL,
+		NULL,
+		1);
+
+	// Draw the sprite
+	gf2d_sprite_draw(
+		self->sprite,
+		draw_pos,
+		&scale,
+		&center,
+		NULL,
+		NULL,
+		NULL,
+		0);
+
+	// Draw the point
+	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
+}
+
+Entity *spawn_turret(GFC_Vector2D position, const char *config) {
+	Entity *self;
+	self = entity_new();
+	if (!self) {
+		slog("failed to allocate memory for temporary platform");
+		return NULL;
+	}
+
+	gfc_vector2d_copy(self->position, position);
+
+	SJson *json = sj_load("./def/turret.def");
+	if (!json) {
+		slog("failed to open def file");
+		return NULL;
+	}
+	entity_configure(self, json);
+
+	TurretData *data = (TurretData*)malloc(sizeof(TurretData));
+	if (!data) {
+		slog("failed to allocate memory for data");
+		return NULL;
+	}
+	memset(data, 0, sizeof(TurretData));
+
+	SJson *data_json = sj_object_get_value(json, "turretData");
+	if (!data_json) {
+		slog("couldn't find turretData object in def file");
+		return NULL;
+	}
+	sj_object_get_float(data_json, "rate", &data->rate);
+	data->timer = data->rate;
+
+	self->data = data;
+	self->can_grapple = 1;
+
+	self->draw = turret_draw;
+	self->update = turret_update;
+	self->touch = turret_touch;
+	
+	return self;
+}

@@ -19,4 +19,11 @@ Entity* spawn_temp_platform(GFC_Vector2D position, const char *config);
  */
 Entity* spawn_buzzsaw(GFC_Vector2D position, const char *config);
 
+/**
+ * @brief spawns a turret into the world
+ * @param position where the turret should be spawned
+ * @config the configuration file of the turret
+ */
+Entity* spawn_turret(GFC_Vector2D position, const char *config);
+
 #endif

@@ -24,6 +24,10 @@ static Spawn spawnList[] =
 		"buzzsaw",
 		spawn_buzzsaw
 	},
+	{
+		"turret",
+		spawn_turret
+	},
 	{0}
 };
 

@@ -1,0 +1,21 @@
+{
+	"name":"turret",
+	"sprite":"./images/turret.png",
+	"spriteFPL":1,
+	"spriteSize":[64,64],
+	"spriteOffset":[32,32],
+	"team": 4,
+	"collider": {
+		"colliderOffset":[-32,-32],
+		"colliderSize":[64,64],
+		"maxCollisions":0,
+		"canCollide":0
+	},
+	"hitbox": {
+		"hitboxOffset":[0,0],
+		"hitboxRadius":32
+	}
+	"turretData": {
+        "rate":20
+	}
+}
