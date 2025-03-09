@@ -10,22 +10,27 @@ static Spawn spawnList[] =
 {
 	{
 		"player",
+		"def/player.def",
 		player_spawn
 	},
 	{
 		"bug",
+		"def/bugs/bug1.def",
 		bug_new_entity
 	},
 	{
 		"temp_platform",
+		"def/temp_hook.def",
 		spawn_temp_platform
 	},
 	{
 		"buzzsaw",
+		"def/buzzsaw.def",
 		spawn_buzzsaw
 	},
 	{
 		"turret",
+		"def/turret.def",
 		spawn_turret
 	},
 	{0}

@@ -9,6 +9,7 @@
 
 typedef struct {
 	const char *name;
+	const char *config;
 	Entity *(*spawn)(GFC_Vector2D pos, const char *config);
 }Spawn;
 
