@@ -200,7 +200,7 @@ void turret_update(Entity *self) {
 		data->timer = data->rate;
 		if (!data->grappled) {
 			GFC_Vector2D dir = {0, 1};
-			dir = gfc_vector2d_rotate(dir, -data->rot);
+			dir = gfc_vector2d_rotate(dir, data->rot * M_PI / 180);
 			GFC_Vector2D velocity;
 			for (int i = 0; i < 4; ++i) {
 				//Entity *proj = spawn_turret_proj(self->position);
@@ -212,6 +212,7 @@ void turret_update(Entity *self) {
 	}
 
 	data->rot += 0.1;
+	printf("rotation %f", data->rot);
 
 	// Force recheck
 	data->grappled = 0;
