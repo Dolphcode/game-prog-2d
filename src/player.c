@@ -13,19 +13,9 @@
 #include "player.h"
 #include "bug.h"
 #include "camera.h"
+#include "weapon.h"
 
 #define GRAVITY 700
-
-static float projv1 = 2;
-static float projv2 = 1;
-
-static Uint8 grappled = 0;
-static float grapple_length = 0;
-static Entity *hook = NULL;
-
-static Entity *player = NULL;
-static Uint8 boosting = 0;
-static GFC_Vector2D boost_dir;
 
 typedef struct {
 	int	dashes;		// The number of dashes in the dash counter
@@ -34,6 +24,8 @@ typedef struct {
 }PlayerHUD;
 
 static PlayerHUD player_hud = {0};
+static Entity *hook = NULL;
+static Entity *player = NULL;
 
 /**
  * @brief draws the player's hud
@@ -107,6 +99,8 @@ typedef struct {
 	float	ground_accel;		// The grounded acceleration value of the player
 	
 	Entity	*hook;			// A reference to the player's grappling hook
+	
+	Weapon	weapon;
 }PlayerData;
 
 /**
@@ -635,9 +629,9 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	memset(hook_data, 0, sizeof(PlayerHookData));
 	hook_data->player = self;
 	hook->data = hook_data;
+	player = self;
 
 	player_data->hook = hook;
-	player = self;
 	return self;
 }
 

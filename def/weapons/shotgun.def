@@ -1,0 +1,8 @@
+{
+    "name":"shotgun"
+    "count":3,
+    "spread":60,
+    "inaccuracy":0,
+    "projSpeed":200,
+    "projectile":"bullet"
+}
