@@ -39,4 +39,16 @@ void projectile_pool_clear();
  */
 Entity *projectile_fire(const char *name, GFC_Vector2D position, GFC_Vector2D velocity);
 
+/**
+ * @brief fires projectils with extra information
+ * @param name which projectile to spawn
+ * @param position where the projectile should be spawned
+ * @param direction base direction to fire in
+ * @param speed projectile speed
+ * @param spread projectile spread angle, only used if count is greater than 1
+ * @param inaccuracy randomness in firing
+ * @param count number of projectiles to fire
+ */
+void projectile_fire_ex(const char *name, GFC_Vector2D position, GFC_Vector2D direction, float speed, float spread, float inaccuracy, int count);
+
 #endif

@@ -41,6 +41,7 @@ typedef struct
 	// Entities and the main camera
 	Camera		*main_camera;	// <The camera object corresponding with this world
 	GFC_List	*entity_list;	// <The list of entities in the list
+	Entity		*player;	// <The player instance
 }World;
 
 /**

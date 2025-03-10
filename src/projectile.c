@@ -222,3 +222,26 @@ Entity *projectile_fire(const char *name, GFC_Vector2D position, GFC_Vector2D ve
 	gfc_vector2d_copy(proj->velocity, velocity);
 	return proj;
 }
+
+void projectile_fire_ex(const char *name, GFC_Vector2D position, GFC_Vector2D direction, float speed, float spread, float inaccuracy, int count) {
+	if (count < 1) {
+		slog("cannot fire less than 1 projectile");
+		return;
+	}
+
+	GFC_Vector2D velocity;
+	float start_rot, rot_interval;
+	gfc_vector2d_scale_by(velocity, direction, gfc_vector2d(speed, speed));
+	if (count == 1) {
+		projectile_fire(name, position, velocity);	
+	} else {
+		start_rot = -spread * 0.5 / 180 * M_PI;
+		rot_interval = (spread / ((float)count)) / 180 * M_PI;
+		velocity = gfc_vector2d_rotate(velocity, start_rot);
+		for (int i = 0; i < count; ++i) {
+			projectile_fire(name, position, velocity);
+			velocity = gfc_vector2d_rotate(velocity, rot_interval);
+		}
+
+	}
+}	

@@ -211,7 +211,7 @@ void turret_update(Entity *self) {
 		}
 	}
 
-	data->rot += 0.1;
+	if (!data->grappled) data->rot += 0.1;
 	printf("rotation %f", data->rot);
 
 	// Force recheck

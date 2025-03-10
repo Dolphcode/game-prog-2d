@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "stage_entity.h"
 #include "spawn.h"
+#include "firing_enemy.h"
 
 static Spawn spawnList[] = 
 {
@@ -33,6 +34,11 @@ static Spawn spawnList[] =
 		"def/turret.def",
 		spawn_turret
 	},
+	{
+		"shotgunner",
+		"def/enemies/shotgunner.def",
+		firing_enemy_spawn
+	},
 	{0}
 };
 
@@ -46,7 +52,7 @@ Entity* spawn_entity(const char *name, GFC_Vector2D position, const char *config
 	for (spawn = spawnList; spawn->name != 0; ++spawn) {
 		if (strcmp(name, spawn->name) == 0 ){
 			if (spawn->spawn) {
-				ent = spawn->spawn(position, config);
+				ent = spawn->spawn(position, spawn->config);
 				if (ent) {
 					return ent;
 				}
