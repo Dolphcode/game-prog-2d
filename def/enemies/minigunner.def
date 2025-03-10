@@ -1,7 +1,7 @@
 {
-	"name":"shotgunner",
-	"sprite":"./images/space_bug_top.png",
-	"spriteFPL":16,
+	"name":"minigunner",
+	"sprite":"./images/bug_mini.png",
+	"spriteFPL":1,
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
 	"team": 2,
@@ -20,14 +20,14 @@
 	"firingEnemy": {
         "projectile": "turret_shot",
         "speed": 300,
-        "rate": 20,
-        "count": 5,
+        "rate": 2,
+        "count": 1,
         "spread": 60,
         "inaccuracy": 0,
-        "hoverDistance": 400,
+        "hoverDistance": 800,
         "hoverSpeed": 20,
         "accel": 200,
         "decel": 200,
-        "maxSpeed": 200
+        "maxSpeed": 100
 	}
 }

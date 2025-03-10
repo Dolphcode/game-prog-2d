@@ -1,7 +1,7 @@
 {
-	"name":"shotgunner",
-	"sprite":"./images/space_bug_top.png",
-	"spriteFPL":16,
+	"name":"circlegunner",
+	"sprite":"./images/bug_circle.png",
+	"spriteFPL":1,
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
 	"team": 2,
@@ -20,9 +20,9 @@
 	"firingEnemy": {
         "projectile": "turret_shot",
         "speed": 300,
-        "rate": 20,
-        "count": 5,
-        "spread": 60,
+        "rate": 30,
+        "count": 10,
+        "spread": 360,
         "inaccuracy": 0,
         "hoverDistance": 400,
         "hoverSpeed": 20,

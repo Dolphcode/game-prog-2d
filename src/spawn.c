@@ -6,6 +6,7 @@
 #include "stage_entity.h"
 #include "spawn.h"
 #include "firing_enemy.h"
+#include "ram_enemy.h"
 
 static Spawn spawnList[] = 
 {
@@ -38,6 +39,26 @@ static Spawn spawnList[] =
 		"shotgunner",
 		"def/enemies/shotgunner.def",
 		firing_enemy_spawn
+	},	
+	{
+		"minigunner",
+		"def/enemies/minigunner.def",
+		firing_enemy_spawn
+	},
+	{
+		"snipergunner",
+		"def/enemies/snipergunner.def",
+		firing_enemy_spawn
+	},
+	{
+		"circlegunner",
+		"def/enemies/circlegunner.def",
+		firing_enemy_spawn
+	},
+	{
+		"rammer",
+		"def/enemies/rammer.def",
+		ram_enemy_spawn
 	},
 	{0}
 };

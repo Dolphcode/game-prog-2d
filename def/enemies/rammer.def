@@ -1,0 +1,25 @@
+{
+	"name":"rammer",
+	"sprite":"./images/legally_distinct_eye.png",
+	"spriteFPL":1,
+	"spriteSize":[256,256],
+	"spriteOffset":[128,128],
+	"team": 2,
+	"maxHealth": 30,
+	"immunity": 5,
+	"collider": {
+		"colliderOffset":[-32,-32],
+		"colliderSize":[64,64],
+		"maxCollisions":0,
+		"canCollide":1
+	},
+	"hitbox": {
+		"hitboxOffset":[0,0],
+		"hitboxRadius":32
+	},
+	"ramEnemy": {
+        "ramTime": 20,
+        "dashSpeed": 800,
+        "decel": 200
+	}
+}

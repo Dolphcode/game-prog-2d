@@ -86,9 +86,13 @@ int main(int argc, char * argv[])
     world->player = player;
 
     spawn_entity("shotgunner", gfc_vector2d(300, -300), "def/bugs/bug2.def");
+    spawn_entity("minigunner", gfc_vector2d(300, -600), "def/bugs/bug2.def");
+    spawn_entity("circlegunner", gfc_vector2d(0, -600), "def/bugs/bug2.def");
+    spawn_entity("snipergunner", gfc_vector2d(0, -300), "def/bugs/bug2.def");
     spawn_entity("temp_platform", gfc_vector2d(400, -300), "def/temp_hook.def");
     spawn_entity("buzzsaw", gfc_vector2d(500, -300), "def/buzzsaw.def");
     spawn_entity("turret", gfc_vector2d(600, -300), "def/turret.def");
+    spawn_entity("rammer", gfc_vector2d(800, -500), "");
 	
     player_hud_init();
 

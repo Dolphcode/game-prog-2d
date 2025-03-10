@@ -58,7 +58,6 @@ void firing_enemy_think(Entity *self) {
 		data->timer = 0;
 		gfc_vector2d_sub(fire_dir, player_ref->position, self->position);
 		gfc_vector2d_normalize(&fire_dir);
-		slog("firing %s", data->projectile);
 		projectile_fire_ex(data->projectile, self->position, fire_dir, data->speed, data->spread, data->inaccuracy, data->count);
 	}
 }
@@ -126,20 +125,11 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	}
 	entity_configure(self, json);
 
-	// Get the json object for the firing entity
-	
-	
 	// Assign player functions
-	
 	self->think = firing_enemy_think;
 	self->update = firing_enemy_update;
 	self->draw = firing_enemy_draw;
-	/*
-	self->draw = player_draw;
-	self->touch = player_touch;
-	self->update = player_update;
-	self->damage = player_damage;*/
-	
+
 	// Since this is a living thing, mark it as alive
 	self->alive = 1;
 
@@ -159,7 +149,6 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	}
 	const char *proj_name = sj_object_get_string(data_json, "projectile");
 	strcpy(data->projectile, proj_name);
-	slog("initialized with %s", data->projectile);
 	sj_object_get_float(data_json, "rate", &data->rate);
 	sj_object_get_int(data_json, "count", &data->count);
 	sj_object_get_float(data_json, "spread", &data->spread);
@@ -172,7 +161,6 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	sj_object_get_float(data_json, "hoverSpeed", &data->hover_speed);
 	self->data = data;
 
-	slog("initialized with %s", data->projectile);
 	sj_free(data_json);
 	sj_free(json);
 
