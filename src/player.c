@@ -53,7 +53,7 @@ void player_hud_draw() {
 
 
 	GFC_Rect healthbar = {0, 10, (int)(player_hud.health_frac * 400), 32};
-	gf2d_draw_rect(healthbar, GFC_COLOR_RED);
+	gf2d_draw_rect_filled(healthbar, GFC_COLOR_RED);
 }
 
 void player_hud_init() {

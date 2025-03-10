@@ -5,7 +5,7 @@
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
 	"team": 1,
-	"maxHealth": 20,
+	"maxHealth": 200,
 	"immunity": 10,
 	"collider": {
 		"colliderOffset":[-32,-32],
@@ -15,7 +15,7 @@
 	},
 	"hitbox": {
 		"hitboxOffset":[0,0],
-		"hitboxRadius":32
+		"hitboxRadius":16
 	},
 	"player": {
 		"maxAirSpeed":600,
