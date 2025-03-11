@@ -19,12 +19,13 @@ typedef struct {
 	
 	// Weapon visuals
 	Sprite		*sprite;// <This weapon's sprite for rendering the weapon
+	GFC_Vector2D	sprite_offset;
 
 	// Generic weapon info
 	float		rate;		// <Time between each fire call
 	
 	// Ranged weapon info
-	float		count;		// <Number of projectiles fired in one shot
+	int		count;		// <Number of projectiles fired in one shot
 	float		inaccuracy;	// <Randomness in the weapon's fire
 	float		spread;		// <If count > 1, how spread out should projectiles be
 	float		proj_speed;	// <Speed at which projectiles are launched
@@ -35,6 +36,8 @@ typedef struct {
 	// Weapon state
 	float		fire_time;	// <Time since last fire call
 }Weapon;
+
+void weapon_load_from_file(Weapon *self, const char *path);
 
 /**
  * @brief loads the weapon data

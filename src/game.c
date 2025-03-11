@@ -27,6 +27,9 @@ int parse_args(int argc, char * argv[]) {
 			DRAW_CENTER = 1;
 		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-b") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-bounds") == 0) {
 			DRAW_BOUNDS = 1;
+		} else if ((gfc_string_l_strcmp(gfc_string(argv[i]), "-w") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--weapon") == 0) && i + 1 < argc) {
+			++i;
+
 		}
 	}
 

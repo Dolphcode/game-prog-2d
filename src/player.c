@@ -538,6 +538,19 @@ void player_draw(Entity *self) {
 		gf2d_draw_line(player_point, hook_point, GFC_COLOR_BLACK);
 	}
 	if (((int)self->i_time) % 2 == 0) entity_draw(self);
+
+	GFC_Vector2D scale = main_camera_get_zoom();
+	GFC_Vector2D draw_pos = main_camera_calc_drawpos(self->position);
+	GFC_Vector2D center = data->weapon.sprite_offset;
+	gf2d_sprite_draw(
+		data->weapon.sprite,
+		draw_pos,
+		&scale,
+		&center,
+		NULL,
+		NULL,
+		NULL,
+		0);
 }
 
 void player_damage(Entity *self, float amount) {
@@ -603,6 +616,11 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	sj_object_get_float(data_json, "groundAccel", &player_data->ground_accel);
 	player_data->dash_counter = player_data->max_dashes;
 	self->data = player_data; // Assign the player data object
+	
+	// Player weapon config
+	memset(&player_data->weapon, 0, sizeof(Weapon));
+	weapon_load_from_file(&player_data->weapon, "def/weapons/shotgun.def");
+
 
 	// GRAPPLING HOOK INITIALIZATION
 
