@@ -47,6 +47,7 @@ void weapon_load(Weapon *self, SJson *data) {
 	sj_object_get_int(data, "count", &self->count);
 	sj_object_get_float(data, "inaccuracy", &self->inaccuracy);
 	sj_object_get_float(data, "spread", &self->spread);
+	sj_object_get_float(data, "rate", &self->rate);
 
 	projectile = sj_object_get_string(data, "projectile");
 	slog("post projectile");

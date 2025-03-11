@@ -10,6 +10,7 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "projectile.h"
 #include "player.h"
 #include "bug.h"
 #include "camera.h"
@@ -472,6 +473,13 @@ void player_think(Entity *self) {
 		}
 	}
 
+	// Weapon firinig
+	Weapon *wep = &player_data->weapon;
+	if (gfc_input_command_down("fire") && wep->fire_time <= 0) {
+		projectile_fire_ex(wep->projectile, self->position, wep->direction, 300, wep->spread, wep->inaccuracy, wep->count);
+		wep->fire_time = wep->rate;
+	}
+
 	if (!hook_data->grappled) {
 		// Run ungrappled movement computations
 		player_think_ungrappled(self, player_data);
@@ -483,17 +491,6 @@ void player_think(Entity *self) {
 }
 
 
-
-/*
- * boost command - "boost"
- * "left"
- * "right"
- * "up"
- * "down"
- * "dash"
- * "hook_up"
- * "retract"
- */
 void player_update(Entity *self) {
 	if (!self) return;
 	
@@ -519,6 +516,25 @@ void player_update(Entity *self) {
 		self->i_time = 0;
 	}
 	player_hud.health_frac = self->health / self->max_health;
+
+	// Update weapon direction
+	int mx, my;
+	GFC_Vector2D mouse_dir, screen_res;
+	SDL_GetMouseState(&mx, &my);
+	mouse_dir.x = mx;
+	mouse_dir.y = my;
+	screen_res = gf2d_graphics_get_resolution();
+	gfc_vector2d_scale_by(screen_res, screen_res, gfc_vector2d(0.5, 0.5));
+	gfc_vector2d_sub(mouse_dir, mouse_dir, screen_res);
+	gfc_vector2d_normalize(&mouse_dir);
+	gfc_vector2d_copy(p_data->weapon.direction, mouse_dir); // Update direction of wepaon
+	p_data->weapon.rotation = gfc_vector2d_angle(mouse_dir) * 180 / M_PI; // And its rotation value for drawing
+									      //
+	// Update weapon timer
+	Weapon *wep = &p_data->weapon;
+	if (wep->fire_time > 0) {
+		wep->fire_time -= 0.1;
+	}
 }
 
 void player_draw(Entity *self) {
@@ -547,7 +563,7 @@ void player_draw(Entity *self) {
 		draw_pos,
 		&scale,
 		&center,
-		NULL,
+		&data->weapon.rotation,
 		NULL,
 		NULL,
 		0);

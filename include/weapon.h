@@ -35,6 +35,9 @@ typedef struct {
 
 	// Weapon state
 	float		fire_time;	// <Time since last fire call
+	float		use_time;	// <Time until weapon is no longer being used (for melee primarily);
+	GFC_Vector2D	direction;	// <The direction of the weapon
+	float		rotation;	// <The rotation of the weapon
 }Weapon;
 
 void weapon_load_from_file(Weapon *self, const char *path);

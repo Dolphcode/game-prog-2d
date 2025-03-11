@@ -1,5 +1,6 @@
 {
     "name":"shotgun",
+    "rate": 10,
     "count":3,
     "spread":60,
     "inaccuracy":0,
@@ -7,6 +8,6 @@
     "projectile":"bullet",
     "sprite":"images/shotgun.png",
     "spriteFPL":16,
-	"spriteSize":[128,64],
-	"spriteOffset":[128,32]
+	"spriteSize":[64,128],
+	"spriteOffset":[32,128]
 }

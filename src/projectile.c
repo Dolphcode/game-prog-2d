@@ -31,6 +31,10 @@ static ProjectileConfig projectile_list[] = {
 		"turret_shot",
 		"def/projectile/turret_shot.def"	
 	},
+	{
+		"bullet",
+		"def/projectile/bullet.def"
+	},
 	{0}
 };
 
