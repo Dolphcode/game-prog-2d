@@ -50,11 +50,9 @@ void weapon_load(Weapon *self, SJson *data) {
 	sj_object_get_float(data, "rate", &self->rate);
 
 	projectile = sj_object_get_string(data, "projectile");
-	slog("post projectile");
 	strcpy(self->projectile, projectile);
 	
 	sprite = sj_object_get_string(data, "sprite");
-	slog("post sprite");
 	if (sprite) {
 		sj_object_get_vector2d(data, "spriteSize", &frame_size);
 		sj_object_get_uint32(data, "spriteFPL", &fpl);
@@ -67,5 +65,5 @@ void weapon_load(Weapon *self, SJson *data) {
 
 		sj_object_get_vector2d(data, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
-	}	
+	}
 }

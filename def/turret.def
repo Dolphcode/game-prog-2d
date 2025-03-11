@@ -14,7 +14,7 @@
 	"hitbox": {
 		"hitboxOffset":[0,0],
 		"hitboxRadius":32
-	}
+	},
 	"turretData": {
         "rate":20
 	}

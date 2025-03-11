@@ -124,6 +124,7 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 		return NULL;
 	}
 	entity_configure(self, json);
+	slog("enemy configured with typical entity data");
 
 	// Assign player functions
 	self->think = firing_enemy_think;
@@ -159,9 +160,9 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	sj_object_get_float(data_json, "maxSpeed", &data->max_speed);
 	sj_object_get_float(data_json, "speed", &data->speed);
 	sj_object_get_float(data_json, "hoverSpeed", &data->hover_speed);
+	slog("special data is causing error");
 	self->data = data;
 
-	sj_free(data_json);
 	sj_free(json);
 
 	return self;
