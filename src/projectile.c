@@ -39,6 +39,18 @@ static ProjectileConfig projectile_list[] = {
 		"fire",
 		"def/projectile/fire.def"
 	},
+	{
+		"spikeball",
+		"def/projectile/spikeball.def"
+	},
+	{
+		"rocket",
+		"def/projectile/rocket.def"
+	},
+	{
+		"moabrocket",
+		"def/projectile/moabrocket.def"
+	},
 	{0}
 };
 
@@ -116,7 +128,7 @@ void projectile_draw(Entity *self) {
 
 	GFC_Vector2D center = self->sprite_offset;
 
-	data->rot = gfc_vector2d_angle(self->velocity) * 180 / M_PI + 90.0;
+	data->rot = gfc_vector2d_angle(self->velocity) * 180 / M_PI - 90.0;
 
 	// Draw the sprite
 	gf2d_sprite_draw(
@@ -131,6 +143,21 @@ void projectile_draw(Entity *self) {
 
 	// Draw the point
 	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
+}
+
+void projectile_gravity_think(Entity *self) {
+	if (!self) return;
+	self->acceleration.y += 500;
+}
+
+void projectile_speed_up_think(Entity *self) {
+	if (!self) return;
+	GFC_Vector2D force;
+	gfc_vector2d_copy(force, self->velocity);
+	gfc_vector2d_normalize(&force);
+	slog("rocket dir %f %f", force.x, force.y);
+	gfc_vector2d_scale_by(force, force, gfc_vector2d(100, 100));
+	gfc_vector2d_add(self->acceleration, self->acceleration, force);
 }
 
 Entity *projectile_new(const char* name) {
@@ -182,6 +209,14 @@ Entity *projectile_new(const char* name) {
 			proj->update = projectile_update;
 			proj->touch = projectile_touch;
 			proj->draw = projectile_draw;
+
+			Uint8 type = 0;
+			sj_object_get_uint8(proj_json, "type", &type);
+			if (type == 1) {
+				proj->think = projectile_gravity_think;
+			} else if (type == 2) {
+				proj->think = projectile_speed_up_think;
+			}
 			
 			// Add it to the projectile pool
 			gfc_list_append(projectile_pool, proj);

@@ -1,0 +1,22 @@
+{
+	"name":"rocket",
+	"sprite":"./images/rocket.png",
+	"spriteFPL":1,
+	"spriteSize":[48,32],
+	"spriteOffset":[24,32],
+	"team": 1,
+	"collider": {
+		"colliderOffset":[-32,-32],
+		"colliderSize":[64,64],
+		"maxCollisions":0,
+		"canCollide":0
+	},
+	"hitbox": {
+		"hitboxOffset":[0,0],
+		"hitboxRadius":24
+	},
+	"projectile": {
+        "lifetime": 30,
+        "type": 2
+	}
+}
