@@ -246,9 +246,16 @@ void projectile_fire_ex(const char *name, GFC_Vector2D position, GFC_Vector2D di
 		return;
 	}
 
+	if (inaccuracy > 0) {
+		inaccuracy = inaccuracy / 180 * M_PI;
+		float amount = -inaccuracy + (2 * inaccuracy) * ((float)rand() / (float)RAND_MAX);
+		direction = gfc_vector2d_rotate(direction, amount);
+	}
+
 	GFC_Vector2D velocity;
 	float start_rot, rot_interval;
 	gfc_vector2d_scale_by(velocity, direction, gfc_vector2d(speed, speed));
+
 	if (count == 1) {
 		projectile_fire(name, position, velocity);	
 	} else {

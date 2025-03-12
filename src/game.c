@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <time.h>
 #include "simple_logger.h"
 
 #include "gf2d_graphics.h"
@@ -64,6 +65,7 @@ int main(int argc, char * argv[])
     gf2d_graphics_set_frame_delay(16);
     gf2d_sprite_init(1024);
 	
+	srand((unsigned int)time(NULL));
     // Parse Args
     strcpy(weapon, "def/weapons/shotgun.def");
     int parse_status = parse_args(argc, argv);
