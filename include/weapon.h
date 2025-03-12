@@ -25,12 +25,18 @@ typedef struct {
 	float		rate;		// <Time between each fire call
 	
 	// Ranged weapon info
+	Uint8		has_ranged;	// <Has a ranged component
 	int		count;		// <Number of projectiles fired in one shot
 	float		inaccuracy;	// <Randomness in the weapon's fire
 	float		spread;		// <If count > 1, how spread out should projectiles be
 	float		proj_speed;	// <Speed at which projectiles are launched
 	const char	projectile[256];// <Which projectile spawn function should be invoked
 	GFC_Vector2D	spawn_offset;	// <Offset with which projectiles are spawned
+	
+	// Melee weapon info
+	Uint8		has_melee;	// <Has a melee component
+	float		swing_angle;	// <How wide the swing is
+	Uint8		swinging;	// <Check if the weapon is swinging
 	
 	// Weapon state
 	float		fire_time;	// <Time since last fire call

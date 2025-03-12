@@ -20,7 +20,7 @@
 	"player": {
 		"maxAirSpeed":600,
 		"maxGroundSpeed":10,
-		"maxDashes":3,
+		"maxDashes":5,
 		"dashSpeed":800,
 		"boostSpeed":600,
 		"boostTime": 15,

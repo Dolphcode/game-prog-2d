@@ -6,6 +6,7 @@
     "inaccuracy":0,
     "projSpeed":20,
     "projectile":"moabrocket",
+    "hasRanged": 1,
     "spawnOffset":[6,-41],
     "sprite":"images/gatling.png",
     "spriteFPL":16,

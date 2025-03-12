@@ -476,11 +476,17 @@ void player_think(Entity *self) {
 	// Weapon firinig
 	Weapon *wep = &player_data->weapon;
 	if (gfc_input_command_down("fire") && wep->fire_time <= 0) {
-		GFC_Vector2D offset, spawnpos;
-		gfc_vector2d_copy(offset, wep->spawn_offset);
-		offset = gfc_vector2d_rotate(offset, gfc_vector2d_angle(wep->direction));
-		gfc_vector2d_add(spawnpos, offset, self->position);
-		projectile_fire_ex(wep->projectile, spawnpos, wep->direction, wep->proj_speed, wep->spread, wep->inaccuracy, wep->count);
+		if (wep->has_ranged) {
+			GFC_Vector2D offset, spawnpos;
+			gfc_vector2d_copy(offset, wep->spawn_offset);
+			offset = gfc_vector2d_rotate(offset, gfc_vector2d_angle(wep->direction));
+			gfc_vector2d_add(spawnpos, offset, self->position);
+			projectile_fire_ex(wep->projectile, spawnpos, wep->direction, wep->proj_speed, wep->spread, wep->inaccuracy, wep->count);
+		}
+
+		if (wep->has_melee) {
+			wep->swinging = 1;
+		}
 		wep->fire_time = wep->rate;
 	}
 
@@ -522,6 +528,7 @@ void player_update(Entity *self) {
 	player_hud.health_frac = self->health / self->max_health;
 
 	// Update weapon direction
+	if (!p_data->weapon.has_melee || !p_data->weapon.swinging) {
 	int mx, my;
 	GFC_Vector2D mouse_dir, screen_res;
 	SDL_GetMouseState(&mx, &my);
@@ -533,11 +540,21 @@ void player_update(Entity *self) {
 	gfc_vector2d_normalize(&mouse_dir);
 	gfc_vector2d_copy(p_data->weapon.direction, mouse_dir); // Update direction of wepaon
 	p_data->weapon.rotation = gfc_vector2d_angle(mouse_dir) * 180 / M_PI; // And its rotation value for drawing
-									      //
+	}	      
+
 	// Update weapon timer
 	Weapon *wep = &p_data->weapon;
 	if (wep->fire_time > 0) {
 		wep->fire_time -= 0.1;
+
+		if (wep->has_melee) {
+			float rotation_interval = 0.1 * (wep->swing_angle / wep->rate);
+			wep->rotation += rotation_interval;
+			wep->direction = gfc_vector2d_rotate(wep->direction, rotation_interval / 180 * M_PI);
+		}
+
+	} else if (wep->has_melee && wep->swinging) {
+		wep->swinging = 0;
 	}
 }
 
@@ -562,15 +579,18 @@ void player_draw(Entity *self) {
 	GFC_Vector2D scale = main_camera_get_zoom();
 	GFC_Vector2D draw_pos = main_camera_calc_drawpos(self->position);
 	GFC_Vector2D center = data->weapon.sprite_offset;
-	gf2d_sprite_draw(
-		data->weapon.sprite,
-		draw_pos,
-		&scale,
-		&center,
-		&data->weapon.rotation,
-		NULL,
-		NULL,
-		0);
+
+	if (!data->weapon.has_melee || (data->weapon.has_melee && data->weapon.swinging)) {
+		gf2d_sprite_draw(
+			data->weapon.sprite,
+			draw_pos,
+			&scale,
+			&center,
+			&data->weapon.rotation,
+			NULL,
+			NULL,
+			0);
+	}
 }
 
 void player_damage(Entity *self, float amount) {

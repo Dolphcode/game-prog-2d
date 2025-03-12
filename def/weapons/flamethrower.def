@@ -7,6 +7,7 @@
     "projSpeed":600,
     "projectile":"fire",
     "spawnOffset":[6,-41],
+    "hasRanged": 1,
     "sprite":"images/flamethrower.png",
     "spriteFPL":16,
 	"spriteSize":[32,96],

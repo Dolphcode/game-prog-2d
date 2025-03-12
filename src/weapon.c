@@ -51,6 +51,9 @@ void weapon_load(Weapon *self, SJson *data) {
 	sj_object_get_float(data, "rate", &self->rate);
 	sj_object_get_float(data, "projSpeed", &self->proj_speed);
 	sj_object_get_vector2d(data, "spawnOffset", &self->spawn_offset);
+	sj_object_get_uint8(data, "hasRanged", &self->has_ranged);
+	sj_object_get_uint8(data, "hasMelee", &self->has_melee);
+	sj_object_get_float(data, "swingAngle", &self->swing_angle);
 
 	projectile = sj_object_get_string(data, "projectile");
 	strcpy(self->projectile, projectile);
