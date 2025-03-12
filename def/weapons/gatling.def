@@ -1,0 +1,14 @@
+{
+    "name":"gatling",
+    "rate": 0.2,
+    "count":1,
+    "spread":5,
+    "inaccuracy":10,
+    "projSpeed":800,
+    "projectile":"bullet",
+    "spawnOffset":[6,-41],
+    "sprite":"images/gatling.png",
+    "spriteFPL":16,
+	"spriteSize":[32,96],
+	"spriteOffset":[17,55]
+}
