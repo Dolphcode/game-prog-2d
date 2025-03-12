@@ -183,21 +183,19 @@ void space_step(Space *self, float delta_time) {
 		curr = gfc_list_get_nth(self->physics_bodies, i);
 		if (!curr) continue;
 		if (curr->disabled) continue;	
-		if (!curr->ent->touch) continue;
 
 		gfc_shape_copy(&world_shape, curr->hitbox);
 		gfc_shape_move(&world_shape, curr->position);
 		for (j = i + 1; j < count; ++j) {
 			other = gfc_list_get_nth(self->physics_bodies, j);
 			if (!other) continue;
-			if (!other->ent->touch) continue;
 			if ((curr->ent->team & other->ent->team)) continue;
 
 			gfc_shape_copy(&other_world_shape, other->hitbox);
 			gfc_shape_move(&other_world_shape, other->position);
 			if (gfc_shape_overlap(world_shape, other_world_shape)) {
-				curr->ent->touch(curr->ent, other->ent);
-				other->ent->touch(other->ent, curr->ent);
+				if (curr->ent->touch) curr->ent->touch(curr->ent, other->ent);
+				if (other->ent->touch) other->ent->touch(other->ent, curr->ent);
 				continue;
 			}
 		}

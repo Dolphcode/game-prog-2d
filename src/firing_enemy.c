@@ -25,7 +25,7 @@ typedef struct {
 }FiringEnemyData;
 
 void firing_enemy_think(Entity *self) {
-	if (!self || !world_get_active() || !world_get_active()->player) return;
+	if (!self || !self->alive || !world_get_active() || !world_get_active()->player) return;
 	FiringEnemyData *data = (FiringEnemyData *)self->data;
 	if (!data) return;
 
@@ -63,15 +63,21 @@ void firing_enemy_think(Entity *self) {
 }
 
 void firing_enemy_update(Entity *self) {
-	if (!self || !world_get_active() || !world_get_active()->player) return;
+	if (!self || !self->alive || !world_get_active() || !world_get_active()->player) return;
 	FiringEnemyData *data = (FiringEnemyData *)self->data;
 	if (!data) return;
 
 	data->timer += 0.1;
+
+	if (self->i_time > 0) {
+		self->i_time -= 0.1;
+	} else {
+		self->i_time = 0;
+	}
 }
 
 void firing_enemy_draw(Entity *self) {
-	if (!self || !world_get_active() || !world_get_active()->player) return;
+	if (!self || !self->alive || !world_get_active() || !world_get_active()->player) return;
 	FiringEnemyData *data = (FiringEnemyData *)self->data;
 	if (!data) return;
 
@@ -104,6 +110,16 @@ void firing_enemy_draw(Entity *self) {
 	if (DRAW_CENTER) gf2d_draw_circle(draw_pos, 4, GFC_COLOR_LIGHTGREEN);
 }
 
+void firing_enemy_damage(Entity *self, float damage) {
+	if (!self || self->i_time > 0) return;
+	self->i_time = self->immunity;
+	self->health -= damage;
+	if (self->health <= 0) {
+		self->alive = 0;
+		self->body->disabled = 1;
+	}
+}
+
 Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	// INITIAL ENTITY INITIALIZATION
 	Entity *self;
@@ -129,6 +145,7 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	self->think = firing_enemy_think;
 	self->update = firing_enemy_update;
 	self->draw = firing_enemy_draw;
+	self->damage = firing_enemy_damage;
 
 	// Since this is a living thing, mark it as alive
 	self->alive = 1;
