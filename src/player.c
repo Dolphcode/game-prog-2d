@@ -640,10 +640,8 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	self->data = player_data; // Assign the player data object
 
 	memset(&player_data->weapon, 0, sizeof(Weapon));
-	slog("weapon?");
-	slog("%f", player_data->weapon.spread);
-	slog("%s", weapon);
 	weapon_load_from_file(&player_data->weapon, weapon);
+
 	// GRAPPLING HOOK INITIALIZATION
 
 	// Now create the grappling hook
@@ -678,20 +676,11 @@ Entity *player_new_entity(GFC_Vector2D position) {
 
 
 Entity *player_spawn(GFC_Vector2D position, const char * config) {
-	slog("config %s", config);
 	strcpy(weapon, config);
-	slog("config %s", weapon);
 	Entity *player = player_new_entity(position);
 	if (!player) return NULL;
-	slog("made player");
 	PlayerData *player_data = (PlayerData*)player->data;
 	if (!player_data) return NULL;
-	slog("got player data");
 	// Player weapon config
-	//memset(&player_data->weapon, 0, sizeof(Weapon));
-	slog("weapon?");
-	slog("%s", config);
-	//weapon_load_from_file(&player_data->weapon, config);
-	slog("loading from the file?");
 	return player;
 }

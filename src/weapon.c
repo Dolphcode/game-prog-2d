@@ -44,22 +44,17 @@ void weapon_load(Weapon *self, SJson *data) {
 	Uint32 fpl;
 
 	self->type = WC_RANGE;
-	slog("got here?");
 
 	sj_object_get_int(data, "count", &self->count);
 	sj_object_get_float(data, "inaccuracy", &self->inaccuracy);
 	sj_object_get_float(data, "spread", &self->spread);
 	sj_object_get_float(data, "rate", &self->rate);
 	sj_object_get_vector2d(data, "spawnOffset", &self->spawn_offset);
-	slog("how bout here?");
 
 	projectile = sj_object_get_string(data, "projectile");
-	slog("got the projectile string?");
 	strcpy(self->projectile, projectile);
-	slog("and assigned it?");
 	
 	sprite = sj_object_get_string(data, "sprite");
-	slog("is there a sprite here?");
 	if (sprite) {
 		sj_object_get_vector2d(data, "spriteSize", &frame_size);
 		sj_object_get_uint32(data, "spriteFPL", &fpl);

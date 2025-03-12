@@ -95,13 +95,10 @@ int main(int argc, char * argv[])
     spawn_entity("minigunner", gfc_vector2d(300, -600), "def/enemies/minigunner.def");
     spawn_entity("circlegunner", gfc_vector2d(0, -600), "def/enemies/circlegunner.def");
     spawn_entity("snipergunner", gfc_vector2d(0, -300), "def/enemies/snipergunner.def");
-    slog("ranged enemies loaded");
     spawn_entity("temp_platform", gfc_vector2d(400, -300), "def/temp_hook.def");
     spawn_entity("buzzsaw", gfc_vector2d(500, -300), "def/buzzsaw.def");
     spawn_entity("turret", gfc_vector2d(600, -300), "def/turret.def");
-    slog("special stuff loaded");
     spawn_entity("rammer", gfc_vector2d(800, -500), "def/enemies/rammer.def");
-    slog("enemies loaded");
 	
     player_hud_init();
 
@@ -138,7 +135,6 @@ int main(int argc, char * argv[])
 	    entity_system_postsync_all();
 
 	    entity_system_update_all();
-		//slog("i'm updating everyone");		
 	    // Update camera before drawing
 	    camera_update(cam);
 	    entity_system_draw_all();
