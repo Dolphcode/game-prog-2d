@@ -476,7 +476,11 @@ void player_think(Entity *self) {
 	// Weapon firinig
 	Weapon *wep = &player_data->weapon;
 	if (gfc_input_command_down("fire") && wep->fire_time <= 0) {
-		projectile_fire_ex(wep->projectile, self->position, wep->direction, 300, wep->spread, wep->inaccuracy, wep->count);
+		GFC_Vector2D offset, spawnpos;
+		gfc_vector2d_copy(offset, wep->spawn_offset);
+		offset = gfc_vector2d_rotate(offset, gfc_vector2d_angle(wep->direction));
+		gfc_vector2d_add(spawnpos, offset, self->position);
+		projectile_fire_ex(wep->projectile, spawnpos, wep->direction, 300, wep->spread, wep->inaccuracy, wep->count);
 		wep->fire_time = wep->rate;
 	}
 

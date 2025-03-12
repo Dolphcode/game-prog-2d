@@ -48,6 +48,7 @@ void weapon_load(Weapon *self, SJson *data) {
 	sj_object_get_float(data, "inaccuracy", &self->inaccuracy);
 	sj_object_get_float(data, "spread", &self->spread);
 	sj_object_get_float(data, "rate", &self->rate);
+	sj_object_get_vector2d(data, "spawnOffset", &self->spawn_offset);
 
 	projectile = sj_object_get_string(data, "projectile");
 	strcpy(self->projectile, projectile);

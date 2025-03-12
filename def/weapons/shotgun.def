@@ -1,11 +1,12 @@
 {
     "name":"shotgun",
     "rate": 10,
-    "count":3,
+    "count":1,
     "spread":60,
     "inaccuracy":0,
     "projSpeed":200,
     "projectile":"bullet",
+    "spawnOffset":[0,-128],
     "sprite":"images/shotgun.png",
     "spriteFPL":16,
 	"spriteSize":[64,128],

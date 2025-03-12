@@ -30,9 +30,8 @@ typedef struct {
 	float		spread;		// <If count > 1, how spread out should projectiles be
 	float		proj_speed;	// <Speed at which projectiles are launched
 	const char	projectile[256];// <Which projectile spawn function should be invoked
+	GFC_Vector2D	spawn_offset;	// <Offset with which projectiles are spawned
 	
-
-
 	// Weapon state
 	float		fire_time;	// <Time since last fire call
 	float		use_time;	// <Time until weapon is no longer being used (for melee primarily);
