@@ -1,0 +1,22 @@
+{
+	"name":"sword_hit",
+	"sprite":"",
+	"spriteFPL":1,
+	"spriteSize":[32,16],
+	"spriteOffset":[16,8],
+	"team": 1,
+	"collider": {
+		"colliderOffset":[-8,-8],
+		"colliderSize":[16,16],
+		"maxCollisions":0,
+		"canCollide":0
+	},
+	"hitbox": {
+		"hitboxOffset":[0,0],
+		"hitboxRadius":16
+	},
+	"projectile": {
+        "lifetime": 0.2,
+        "pierce": 1
+	}
+}

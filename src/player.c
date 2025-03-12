@@ -527,6 +527,32 @@ void player_update(Entity *self) {
 	}
 	player_hud.health_frac = self->health / self->max_health;
 
+      
+
+	// Update weapon timer
+	Weapon *wep = &p_data->weapon;
+	if (wep->fire_time > 0) {
+		wep->fire_time -= 0.1;
+
+		if (wep->has_melee) {
+			float rotation_interval = 0.1 * (wep->swing_angle / wep->rate);
+			wep->rotation += rotation_interval;
+			wep->direction = gfc_vector2d_rotate(wep->direction, rotation_interval / 180 * M_PI);
+			GFC_Vector2D spawnpos, dir;
+			gfc_vector2d_scale_by(dir, wep->direction, gfc_vector2d(16, 16));
+			gfc_vector2d_copy(spawnpos, self->position);
+			for (int i = 0; i < 10; ++i) {
+				projectile_fire("sword_hit", spawnpos, gfc_vector2d(0, 0));
+				gfc_vector2d_add(spawnpos, spawnpos, dir);
+			}
+
+		}
+
+	} 
+	if (wep->fire_time <= 0 && wep->has_melee && wep->swinging) {
+		wep->swinging = 0;
+	}	
+	
 	// Update weapon direction
 	if (!p_data->weapon.has_melee || !p_data->weapon.swinging) {
 	int mx, my;
@@ -540,22 +566,7 @@ void player_update(Entity *self) {
 	gfc_vector2d_normalize(&mouse_dir);
 	gfc_vector2d_copy(p_data->weapon.direction, mouse_dir); // Update direction of wepaon
 	p_data->weapon.rotation = gfc_vector2d_angle(mouse_dir) * 180 / M_PI; // And its rotation value for drawing
-	}	      
-
-	// Update weapon timer
-	Weapon *wep = &p_data->weapon;
-	if (wep->fire_time > 0) {
-		wep->fire_time -= 0.1;
-
-		if (wep->has_melee) {
-			float rotation_interval = 0.1 * (wep->swing_angle / wep->rate);
-			wep->rotation += rotation_interval;
-			wep->direction = gfc_vector2d_rotate(wep->direction, rotation_interval / 180 * M_PI);
-		}
-
-	} else if (wep->has_melee && wep->swinging) {
-		wep->swinging = 0;
-	}
+	}	
 }
 
 void player_draw(Entity *self) {

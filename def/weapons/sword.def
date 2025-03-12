@@ -1,5 +1,5 @@
 {
-    "name":"sniper",
+    "name":"sword",
     "rate": 5,
     "count":1,
     "spread":0,
@@ -13,5 +13,5 @@
     "sprite":"images/sniper.png",
     "spriteFPL":16,
 	"spriteSize":[32,96],
-	"spriteOffset":[17,55]
+	"spriteOffset":[16,96]
 }

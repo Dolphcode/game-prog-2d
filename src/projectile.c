@@ -51,6 +51,10 @@ static ProjectileConfig projectile_list[] = {
 		"moabrocket",
 		"def/projectile/moabrocket.def"
 	},
+	{
+		"sword_hit",
+		"def/projectile/sword_hit.def"
+	},
 	{0}
 };
 
@@ -129,7 +133,8 @@ void projectile_draw(Entity *self) {
 	GFC_Vector2D center = self->sprite_offset;
 
 	data->rot = gfc_vector2d_angle(self->velocity) * 180 / M_PI - 90.0;
-
+	
+	if (strcmp(self->name, "sword_hit") == 0) return;
 	// Draw the sprite
 	gf2d_sprite_draw(
 		self->sprite,
