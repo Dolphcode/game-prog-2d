@@ -5,6 +5,7 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "projectile.h"
 #include "world.h"
 #include "camera.h"
 #include "boss.h"
@@ -16,6 +17,7 @@ typedef struct WormSegment_S {
 	GFC_Vector2D		current_action;
 	GFC_Vector2D		actions[WORM_FRAME_DELAY];
 	struct WormSegment_S	*next;	// <The next segment to pass actions to
+	float	time;		// <timer for some behavior
 }WormSegmentData;
 
 void electroworm_segment_pass_action(WormSegmentData *self, GFC_Vector2D action) {
@@ -30,7 +32,11 @@ void electroworm_segment_pass_action(WormSegmentData *self, GFC_Vector2D action)
 }
 
 void electroworm_body_update(Entity *self) {
+	if (!self) return;
+	WormSegmentData *data = (WormSegmentData *)self->data;
+	if (!data) return;
 
+	data->time -= 0.1;
 }
 
 void electroworm_body_think(Entity *self) {
@@ -38,6 +44,18 @@ void electroworm_body_think(Entity *self) {
 	WormSegmentData *data = (WormSegmentData *)self->data;
 	if (!data) return;
 	gfc_vector2d_copy(self->velocity, data->current_action);
+
+	GFC_Vector2D up, down;
+	if (data->time <= 0) {
+		data->time = 10;
+		up = gfc_vector2d_rotate(self->velocity, -M_PI * 0.5);
+		down = gfc_vector2d_rotate(self->velocity, -M_PI * 0.5);
+		gfc_vector2d_normalize(&up);
+		gfc_vector2d_normalize(&down);
+
+		projectile_fire_ex("turret_shot", self->position, up, 800, 0, 0, 1);
+		projectile_fire_ex("turret_shot", self->position, down, 800, 0, 0, 1);
+	}
 }
 
 void electroworm_head_update(Entity *self) {
@@ -119,6 +137,8 @@ Entity* electroworm_spawn(GFC_Vector2D position, const char *config) {
 	curr_segment->data = curr_data;
 	curr_segment->think = electroworm_body_think;
 	curr_segment->draw = electroworm_draw;
+	curr_segment->update = electroworm_body_update;
+	curr_data->time = 10;
 	curr_segment->can_grapple = 1;
 	curr_segment->frame = 2;
 	gfc_vector2d_copy(curr_segment->position, position);
@@ -136,6 +156,8 @@ Entity* electroworm_spawn(GFC_Vector2D position, const char *config) {
 			next_segment->data = next_data;
 			next_segment->think = electroworm_body_think;
 			next_segment->draw = electroworm_draw;
+			next_segment->update = electroworm_body_update;
+			next_data->time = 10;
 			gfc_vector2d_copy(next_segment->position, position);
 
 			next_segment->frame = 1;

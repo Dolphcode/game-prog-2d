@@ -13,7 +13,7 @@
 	},
     "hitbox": {
 		"hitboxOffset":[0,0],
-		"hitboxRadius":4
+		"hitboxRadius":32
 	}
 
 }
