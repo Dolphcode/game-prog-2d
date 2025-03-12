@@ -16,6 +16,8 @@
 #include "spawn.h"
 #include "projectile.h"
 
+static char weapon[256];
+
 int parse_args(int argc, char * argv[]) {
 	if (argc < 2) return 0;
 
@@ -29,7 +31,7 @@ int parse_args(int argc, char * argv[]) {
 			DRAW_BOUNDS = 1;
 		} else if ((gfc_string_l_strcmp(gfc_string(argv[i]), "-w") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--weapon") == 0) && i + 1 < argc) {
 			++i;
-
+			strcpy(weapon, argv[i]);
 		}
 	}
 
@@ -63,6 +65,7 @@ int main(int argc, char * argv[])
     gf2d_sprite_init(1024);
 	
     // Parse Args
+    strcpy(weapon, "def/weapons/shotgun.def");
     int parse_status = parse_args(argc, argv);
     if (parse_status) return 0;
 
@@ -82,22 +85,22 @@ int main(int argc, char * argv[])
     World* world = world_load("def/world.def");
     world_make_active(world);
 
-    Entity* player = spawn_entity("player", gfc_vector2d(60, -40), "");
+    Entity* player = spawn_entity("player", gfc_vector2d(60, -40), weapon);
     spawn_entity("bug", gfc_vector2d(100, -300), "def/bugs/bug2.def");
     spawn_entity("bug", gfc_vector2d(200, -500), "def/bugs/bug2.def");  
     spawn_entity("bug", gfc_vector2d(300, -300), "def/bugs/bug2.def");
     world->player = player;
 
-    spawn_entity("shotgunner", gfc_vector2d(300, -300), "def/bugs/bug2.def");
-    spawn_entity("minigunner", gfc_vector2d(300, -600), "def/bugs/bug2.def");
-    spawn_entity("circlegunner", gfc_vector2d(0, -600), "def/bugs/bug2.def");
-    spawn_entity("snipergunner", gfc_vector2d(0, -300), "def/bugs/bug2.def");
+    spawn_entity("shotgunner", gfc_vector2d(300, -300), "def/enemies/shotgunner.def");
+    spawn_entity("minigunner", gfc_vector2d(300, -600), "def/enemies/minigunner.def");
+    spawn_entity("circlegunner", gfc_vector2d(0, -600), "def/enemies/circlegunner.def");
+    spawn_entity("snipergunner", gfc_vector2d(0, -300), "def/enemies/snipergunner.def");
     slog("ranged enemies loaded");
     spawn_entity("temp_platform", gfc_vector2d(400, -300), "def/temp_hook.def");
     spawn_entity("buzzsaw", gfc_vector2d(500, -300), "def/buzzsaw.def");
     spawn_entity("turret", gfc_vector2d(600, -300), "def/turret.def");
     slog("special stuff loaded");
-    spawn_entity("rammer", gfc_vector2d(800, -500), "");
+    spawn_entity("rammer", gfc_vector2d(800, -500), "def/enemies/rammer.def");
     slog("enemies loaded");
 	
     player_hud_init();

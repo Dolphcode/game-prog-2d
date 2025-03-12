@@ -21,4 +21,5 @@ typedef struct {
  */
 Entity* spawn_entity(const char *name, GFC_Vector2D position, const char *config);
 
+Entity* spawn_entity_default(const char *name, GFC_Vector2D position);
 #endif

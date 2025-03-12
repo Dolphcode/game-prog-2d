@@ -63,7 +63,7 @@ static Spawn spawnList[] =
 	{0}
 };
 
-Entity* spawn_entity(const char *name, GFC_Vector2D position, const char *config) {
+Entity* spawn_entity_default(const char *name, GFC_Vector2D position) {
 	Spawn *spawn;
 	Entity *ent;
 	if (!name) {
@@ -74,6 +74,28 @@ Entity* spawn_entity(const char *name, GFC_Vector2D position, const char *config
 		if (strcmp(name, spawn->name) == 0 ){
 			if (spawn->spawn) {
 				ent = spawn->spawn(position, spawn->config);
+				if (ent) {
+					return ent;
+				}
+			}
+		}
+	}
+	
+	slog("failed to spawn entity");
+	return NULL;
+}
+
+Entity* spawn_entity(const char *name, GFC_Vector2D position, const char *config) {
+	Spawn *spawn;
+	Entity *ent;
+	if (!name) {
+		slog("no spawn name provided");
+		return NULL;
+	}
+	for (spawn = spawnList; spawn->name != 0; ++spawn) {
+		if (strcmp(name, spawn->name) == 0 ){
+			if (spawn->spawn) {
+				ent = spawn->spawn(position, config);
 				if (ent) {
 					return ent;
 				}

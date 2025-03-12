@@ -580,6 +580,8 @@ void player_damage(Entity *self, float amount) {
 	if (self->health <= 0) self->alive = 0;
 }
 
+static char weapon[256];
+
 Entity *player_new_entity(GFC_Vector2D position) {
 	// INITIAL ENTITY INITIALIZATION
 	Entity *self;
@@ -636,12 +638,12 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	sj_object_get_float(data_json, "groundAccel", &player_data->ground_accel);
 	player_data->dash_counter = player_data->max_dashes;
 	self->data = player_data; // Assign the player data object
-	
-	// Player weapon config
+
 	memset(&player_data->weapon, 0, sizeof(Weapon));
-	weapon_load_from_file(&player_data->weapon, "def/weapons/shotgun.def");
-
-
+	slog("weapon?");
+	slog("%f", player_data->weapon.spread);
+	slog("%s", weapon);
+	weapon_load_from_file(&player_data->weapon, weapon);
 	// GRAPPLING HOOK INITIALIZATION
 
 	// Now create the grappling hook
@@ -673,6 +675,23 @@ Entity *player_new_entity(GFC_Vector2D position) {
 	return self;
 }
 
+
+
 Entity *player_spawn(GFC_Vector2D position, const char * config) {
-	return player_new_entity(position);
+	slog("config %s", config);
+	strcpy(weapon, config);
+	slog("config %s", weapon);
+	Entity *player = player_new_entity(position);
+	if (!player) return NULL;
+	slog("made player");
+	PlayerData *player_data = (PlayerData*)player->data;
+	if (!player_data) return NULL;
+	slog("got player data");
+	// Player weapon config
+	//memset(&player_data->weapon, 0, sizeof(Weapon));
+	slog("weapon?");
+	slog("%s", config);
+	//weapon_load_from_file(&player_data->weapon, config);
+	slog("loading from the file?");
+	return player;
 }
