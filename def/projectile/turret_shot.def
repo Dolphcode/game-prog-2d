@@ -4,7 +4,7 @@
 	"spriteFPL":1,
 	"spriteSize":[32,16],
 	"spriteOffset":[16,8],
-	"team": 4,
+	"team": 2,
 	"collider": {
 		"colliderOffset":[-32,-32],
 		"colliderSize":[64,64],

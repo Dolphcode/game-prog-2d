@@ -6,9 +6,9 @@
     "inaccuracy":0,
     "projSpeed":200,
     "projectile":"bullet",
-    "spawnOffset":[0,-128],
+    "spawnOffset":[0,-64],
     "sprite":"images/shotgun.png",
     "spriteFPL":16,
-	"spriteSize":[64,128],
-	"spriteOffset":[32,128]
+	"spriteSize":[32,64],
+	"spriteOffset":[24,64]
 }
