@@ -8,6 +8,7 @@
 #include "gf2d_graphics.h"
 
 #include "world.h"
+#include "spawn.h"
 /*
 typedef struct
 {
@@ -414,4 +415,85 @@ void world_draw(World *world) {
 	if (DRAW_BOUNDS) space_draw(world->space);
 }
 
+static int wave = 0;
 
+void world_update(World *world) {
+	if (!world) return;
+	Entity *curr;
+	if (wave == 0) {
+		wave++;
+		for (int i = 0; i < 5; ++i) {
+    			curr = spawn_entity("shotgunner", gfc_vector2d(400 + 100 * i, 400), "def/enemies/shotgunner.def");
+			gfc_list_append(world->entity_list, curr);
+		}
+	} else if (wave == 1) {
+		int all_dead = 1, count;
+		count = gfc_list_count(world->entity_list);
+		for (int i = 0; i < count; ++i) {
+			curr = gfc_list_get_nth(world->entity_list, i);
+			if (!curr) continue;
+
+			if (curr->alive) all_dead = 0;
+		}
+		if (all_dead) {
+			wave++;
+
+			// Clear the previous set
+			for (int i = count - 1; i >= 0; --i) {
+				curr = gfc_list_get_nth(world->entity_list, i);
+				entity_free(curr);
+				gfc_list_delete_nth(world->entity_list, i);
+			}
+
+			for (int i = 0; i < 2; ++i) {
+    				curr = spawn_entity("snipergunner", gfc_vector2d(1000 + 100 * i, 400), "def/enemies/snipergunner.def");	
+				gfc_list_append(world->entity_list, curr);
+			}			
+			for (int i = 0; i < 2; ++i) {
+    				curr = spawn_entity("minigunner", gfc_vector2d(400 + 100 * i, 400), "def/enemies/minigunner.def");
+				gfc_list_append(world->entity_list, curr);
+			}
+		}
+	} else if (wave == 2) {
+		int all_dead = 1, count;
+		count = gfc_list_count(world->entity_list);
+		for (int i = 0; i < count; ++i) {
+			curr = gfc_list_get_nth(world->entity_list, i);
+			if (!curr) continue;
+
+			if (curr->alive) all_dead = 0;
+		}
+		if (all_dead) {
+			wave++;
+
+			// Clear the previous set
+			for (int i = count - 1; i >= 0; --i) {
+				curr = gfc_list_get_nth(world->entity_list, i);
+				entity_free(curr);
+				gfc_list_delete_nth(world->entity_list, i);
+			}
+
+			for (int i = 0; i < 2; ++i) {
+    				curr = spawn_entity("circlegunner", gfc_vector2d(400 + 100 * i, 400), "def/enemies/circlegunner.def");
+				gfc_list_append(world->entity_list, curr);
+			}			
+			for (int i = 0; i < 2; ++i) {
+    				curr = spawn_entity("rammer", gfc_vector2d(400 + 100 * i, 400), "def/enemies/rammer.def");
+				gfc_list_append(world->entity_list, curr);
+			}
+		}
+	} else if (wave == 3) {
+		int all_dead = 1, count;
+		count = gfc_list_count(world->entity_list);
+		for (int i = 0; i < count; ++i) {
+			curr = gfc_list_get_nth(world->entity_list, i);
+			if (!curr) continue;
+
+			if (curr->alive) all_dead = 0;
+		}
+		if (all_dead) {
+			wave++;
+			spawn_entity("electroworm", gfc_vector2d(400, 400), "def/boss/electroworm_head.def");
+		}
+	}
+}

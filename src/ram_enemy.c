@@ -16,7 +16,7 @@ typedef struct {
 }RamEnemyData;
 
 void ram_enemy_think(Entity *self) {
-	if (!self || !world_get_active() || !world_get_active()->player) return;
+	if (!self || !self->alive || !world_get_active() || !world_get_active()->player) return;
 	RamEnemyData *data = (RamEnemyData *)self->data;
 
 	if (!data) return;
@@ -43,7 +43,7 @@ void ram_enemy_think(Entity *self) {
 }
 
 void ram_enemy_update(Entity *self) {
-	if (!self || !world_get_active() || !world_get_active()->player) return;
+	if (!self || !self->alive || !world_get_active() || !world_get_active()->player) return;
 	RamEnemyData *data = (RamEnemyData *)self->data;
 	if (!data) return;
 
@@ -51,12 +51,23 @@ void ram_enemy_update(Entity *self) {
 }
 
 void ram_enemy_touch(Entity *self, Entity *other) {
-	if (!self || !other || !other->damage) return;
+	if (!self || !self->alive || !other || !other->damage) return;
 	other->damage(other, 5);
 }
 
+void ram_enemy_damage(Entity *self, float damage) {
+	if (!self || !self->alive || self->i_time > 0) return;
+	self->i_time = self->immunity;
+	self->health -= damage;
+	slog("test damage for eye %f", self->health);
+	//if (self->health <= 0) {
+		self->alive = 0;
+		self->body->disabled = 1;
+	//}
+}
+
 void ram_enemy_draw(Entity *self) {
-	if (!self || !world_get_active() || !world_get_active()->player) return;
+	if (!self  || !self->alive || !world_get_active() || !world_get_active()->player) return;
 	RamEnemyData *data = (RamEnemyData *)self->data;
 	if (!data) return;
 
@@ -115,6 +126,7 @@ Entity *ram_enemy_spawn(GFC_Vector2D position, const char *config) {
 	self->update = ram_enemy_update;
 	self->draw = ram_enemy_draw;
 	self->touch = ram_enemy_touch;
+	self->damage = ram_enemy_damage;
 
 	// Since this is a living thing, mark it as alive
 	self->alive = 1;
@@ -133,13 +145,10 @@ Entity *ram_enemy_spawn(GFC_Vector2D position, const char *config) {
 		slog("%s is missing a 'ramEnemy' object", config);
 		return NULL;
 	}
-	
 	sj_object_get_float(data_json, "ramTime", &data->ram_time);
 	sj_object_get_float(data_json, "dashSpeed", &data->dash_speed);
 	sj_object_get_float(data_json, "decel", &data->decel);
 	self->data = data;
-
-	sj_free(data_json);
 	sj_free(json);
 	return self;
 }

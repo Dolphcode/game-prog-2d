@@ -83,4 +83,6 @@ World *world_load(const char *filename);
  * @param world the world object to be drawn
  */
 void world_draw(World *world);
+
+void world_update(World *world);
 #endif

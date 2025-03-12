@@ -131,6 +131,7 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 
 	// Copy position date into entity
 	gfc_vector2d_copy(self->position, position);
+	slog("Spawned this firing enemy at %f %f", self->position.x, self->position.y);
 
 	// Get the player config file and configure entity from the file
 	// We'll be reusing the player config file later
@@ -179,6 +180,7 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 	self->data = data;
 
 	sj_free(json);
+
 
 	return self;
 }

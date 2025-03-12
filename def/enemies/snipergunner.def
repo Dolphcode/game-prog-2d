@@ -5,7 +5,7 @@
 	"spriteSize":[128,128],
 	"spriteOffset":[64,64],
 	"team": 2,
-	"maxHealth": 20,
+	"maxHealth": 10,
 	"immunity": 5,
 	"collider": {
 		"colliderOffset":[-32,-32],

@@ -428,7 +428,8 @@ void player_think_grappled(Entity *self, Entity *hook, PlayerData *player_data, 
 	gfc_vector2d_sub(dir, hook->position, self->position);
 	gfc_vector2d_normalize(&dir);
 	
-	if (diff > 32) {
+	if (diff > 64) {
+		slog("cutoff");
 		hook_data->grapple_out = 0;
 		hook_data->grappled = 0;
 		hook_data->lock_target = NULL;
