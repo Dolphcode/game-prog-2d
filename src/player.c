@@ -473,9 +473,10 @@ void player_think(Entity *self) {
 		}
 	}
 
+	int mouse_down = SDL_GetMouseState(NULL, NULL);
 	// Weapon firinig
 	Weapon *wep = &player_data->weapon;
-	if (gfc_input_command_down("fire") && wep->fire_time <= 0) {
+	if (mouse_down && wep->fire_time <= 0) {
 		if (wep->has_ranged) {
 			GFC_Vector2D offset, spawnpos;
 			gfc_vector2d_copy(offset, wep->spawn_offset);
