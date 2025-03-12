@@ -90,13 +90,12 @@ int main(int argc, char * argv[])
     Entity* player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
     world->player = player;
 
-    //spawn_entity("shotgunner", gfc_vector2d(300, -300), "def/enemies/shotgunner.def");
-    //spawn_entity("minigunner", gfc_vector2d(300, -600), "def/enemies/minigunner.def");
-    //spawn_entity("circlegunner", gfc_vector2d(0, -600), "def/enemies/circlegunner.def");
-    //spawn_entity("snipergunner", gfc_vector2d(0, -300), "def/enemies/snipergunner.def");
-    spawn_entity("temp_platform", gfc_vector2d(400, -300), "def/temp_hook.def");
-    spawn_entity("buzzsaw", gfc_vector2d(500, -300), "def/buzzsaw.def");
-    //spawn_entity("turret", gfc_vector2d(600, -300), "def/turret.def");
+    spawn_entity("temp_platform", gfc_vector2d(640, 640), "def/temp_hook.def");
+    spawn_entity("temp_platform", gfc_vector2d(640, 1280), "def/temp_hook.def");
+    spawn_entity("temp_platform", gfc_vector2d(1280, 1280), "def/temp_hook.def");
+    spawn_entity("buzzsaw", gfc_vector2d(960, 640), "def/buzzsaw.def");
+    spawn_entity("buzzsaw", gfc_vector2d(960, 1280), "def/buzzsaw.def");
+    spawn_entity("turret", gfc_vector2d(600, -300), "def/turret.def");
     //spawn_entity("rammer", gfc_vector2d(800, -500), "def/enemies/rammer.def");
     //spawn_entity("electroworm", gfc_vector2d(0, 0), "def/boss/electroworm_head.def");
 	
