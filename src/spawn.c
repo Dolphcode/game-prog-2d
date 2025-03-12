@@ -32,6 +32,11 @@ static Spawn spawnList[] =
 		spawn_buzzsaw
 	},
 	{
+		"medkit",
+		"def/medkit.def",
+		spawn_medkit
+	},
+	{
 		"turret",
 		"def/turret.def",
 		spawn_turret
