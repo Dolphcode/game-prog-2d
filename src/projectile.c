@@ -240,7 +240,7 @@ void projectile_fire_ex(const char *name, GFC_Vector2D position, GFC_Vector2D di
 		projectile_fire(name, position, velocity);	
 	} else {
 		start_rot = -spread * 0.5 / 180 * M_PI;
-		rot_interval = (spread / ((float)count)) / 180 * M_PI;
+		rot_interval = (spread / ((float)(count - 1))) / 180 * M_PI;
 		velocity = gfc_vector2d_rotate(velocity, start_rot);
 		for (int i = 0; i < count; ++i) {
 			projectile_fire(name, position, velocity);
