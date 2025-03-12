@@ -124,7 +124,7 @@ void player_hook_touch(Entity *self, Entity *other) {
 	PlayerHookData *hook_data = (PlayerHookData*)self->data;
 	if (!hook_data || hook_data->grappled) return;
 
-	if (other->can_grapple) {
+	if (other->can_grapple && hook_data->grapple_out) {
 		hook_data->lock_target = other;
 		gfc_vector2d_sub(hook_data->lock_offset, self->position, other->position);
 		self->body->velocity = gfc_vector2d(0, 0);
@@ -142,10 +142,16 @@ void player_hook_think(Entity *self) {
 	if (!data) return;
 
 	// Un grapple if the entity we are grappled to can no longer be grappled to
-	if (data->grappled && data->lock_target && !data->lock_target->can_grapple) {
-		data->grappled = false;
-		data->lock_target = NULL;
-		gfc_vector2d_copy(self->position, data->player->position);
+	if (data->grappled && data->lock_target) {
+		if (!data->lock_target->can_grapple) {
+			data->grapple_out = 0;
+			data->grappled = 0;
+			data->lock_target = NULL;
+			gfc_vector2d_copy(self->position, data->player->position);
+		} else {
+			slog("target position %f %f", data->lock_target->position.x, data->lock_target->position.y); 
+			gfc_vector2d_copy(self->position, data->lock_target->position);
+		}
 	}
 }
 
@@ -421,9 +427,13 @@ void player_think_grappled(Entity *self, Entity *hook, PlayerData *player_data, 
 	float diff = magbetw - hook_data->grapple_length;
 	gfc_vector2d_sub(dir, hook->position, self->position);
 	gfc_vector2d_normalize(&dir);
-
-	slog("%f magbetw %f diff %f", hook_data->grapple_length, magbetw, diff);
-	if (diff > 0) {
+	
+	if (diff > 32) {
+		hook_data->grapple_out = 0;
+		hook_data->grappled = 0;
+		hook_data->lock_target = NULL;
+		gfc_vector2d_copy(hook->position, hook_data->player->position);
+	} else if (diff > 0) {
 		GFC_Vector2D correction;
 		gfc_vector2d_scale_by(correction, dir, gfc_vector2d(diff, diff));
 
@@ -464,9 +474,11 @@ void player_think(Entity *self) {
 	// Firing and retracting the grappling hook
 	if (gfc_input_command_pressed("hook_up") && hook) {
 		if (!hook_data->grappled) {
+			hook_data->grapple_out = 1;
 			player_data->hook->velocity = gfc_vector2d(0, -200);
 			gfc_vector2d_copy(hook->position, self->position);
 		} else {
+			hook_data->grapple_out = 0;
 			hook_data->grappled = 0;
 			hook_data->lock_target = NULL;
 			gfc_vector2d_copy(hook->position, self->position);

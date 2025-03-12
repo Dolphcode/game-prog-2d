@@ -87,7 +87,7 @@ int main(int argc, char * argv[])
     World* world = world_load("def/world.def");
     world_make_active(world);
 
-    Entity* player = spawn_entity("player", gfc_vector2d(60, -40), weapon);
+    Entity* player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
     world->player = player;
 
     spawn_entity("shotgunner", gfc_vector2d(300, -300), "def/enemies/shotgunner.def");
@@ -98,6 +98,7 @@ int main(int argc, char * argv[])
     spawn_entity("buzzsaw", gfc_vector2d(500, -300), "def/buzzsaw.def");
     spawn_entity("turret", gfc_vector2d(600, -300), "def/turret.def");
     spawn_entity("rammer", gfc_vector2d(800, -500), "def/enemies/rammer.def");
+    spawn_entity("electroworm", gfc_vector2d(0, 0), "def/boss/electroworm_head.def");
 	
     player_hud_init();
 

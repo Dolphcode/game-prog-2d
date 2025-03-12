@@ -7,6 +7,7 @@
 #include "spawn.h"
 #include "firing_enemy.h"
 #include "ram_enemy.h"
+#include "boss.h"
 
 static Spawn spawnList[] = 
 {
@@ -59,6 +60,11 @@ static Spawn spawnList[] =
 		"rammer",
 		"def/enemies/rammer.def",
 		ram_enemy_spawn
+	},
+	{
+		"electroworm",
+		"def/boss/electroworm_head.def",
+		electroworm_spawn
 	},
 	{0}
 };
