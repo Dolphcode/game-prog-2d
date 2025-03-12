@@ -11,6 +11,7 @@
 
 typedef struct {
 	Uint8	is_active;	// <Whether the projectile is active or not
+	Uint8	pierce;		// <Whether this projectile should pierce or not
 	float	lifetime;	// <How long this projectile should stay alive for
 	float	timer;		// <A timer used to keep track of how long this projectile has been alive for
 	float	rot;		// <The rotation value of the projectile

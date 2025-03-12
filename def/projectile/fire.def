@@ -1,9 +1,9 @@
 {
-	"name":"bullet",
-	"sprite":"./images/bullet.png",
+	"name":"fire",
+	"sprite":"./images/fire.png",
 	"spriteFPL":1,
-	"spriteSize":[32,16],
-	"spriteOffset":[16,8],
+	"spriteSize":[48,48],
+	"spriteOffset":[24,24],
 	"team": 1,
 	"collider": {
 		"colliderOffset":[-32,-32],
@@ -13,9 +13,10 @@
 	},
 	"hitbox": {
 		"hitboxOffset":[0,0],
-		"hitboxRadius":4
+		"hitboxRadius":32
 	},
 	"projectile": {
-        "lifetime": 30
+        "lifetime": 3,
+        "pierce": 1
 	}
 }

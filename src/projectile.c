@@ -35,6 +35,10 @@ static ProjectileConfig projectile_list[] = {
 		"bullet",
 		"def/projectile/bullet.def"
 	},
+	{
+		"fire",
+		"def/projectile/fire.def"
+	},
 	{0}
 };
 
@@ -75,8 +79,15 @@ void projectile_pool_clear() {
 
 void projectile_touch(Entity *self, Entity *other) {
 	if (!self || !other || !other->damage) return;
+	ProjectileData *data = (ProjectileData *)self->data;
+	if (!data) return;
 
 	other->damage(other, 2.0); // Temporary, add a contact damage component
+	
+	if (!data->pierce) {
+		data->is_active = 0;
+		self->body->disabled = 1;
+	}
 }
 
 void projectile_update(Entity *self) {
@@ -162,6 +173,7 @@ Entity *projectile_new(const char* name) {
 			}
 			memset(proj_data, 0, sizeof(ProjectileData));
 			sj_object_get_float(proj_json, "lifetime", &proj_data->lifetime);
+			sj_object_get_uint8(proj_json, "pierce", &proj_data->pierce);
 			proj_data->is_active = 1;
 
 			proj->data = proj_data;

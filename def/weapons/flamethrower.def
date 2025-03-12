@@ -1,0 +1,14 @@
+{
+    "name":"flamethrower",
+    "rate": 0.5,
+    "count":2,
+    "spread":10,
+    "inaccuracy":0,
+    "projSpeed":800,
+    "projectile":"fire",
+    "spawnOffset":[6,-41],
+    "sprite":"images/flamethrower.png",
+    "spriteFPL":16,
+	"spriteSize":[32,96],
+	"spriteOffset":[17,55]
+}
