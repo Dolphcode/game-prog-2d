@@ -17,6 +17,9 @@
 #include "spawn.h"
 #include "projectile.h"
 
+#include "ui/window.h"
+#include "ui/widget.h"
+
 static char weapon[256];
 
 int parse_args(int argc, char * argv[]) {
@@ -82,6 +85,15 @@ int main(int argc, char * argv[])
     sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     slog("press [escape] to quit");
+
+    // UI init
+    ui_system_initialize();
+    ui_system_create_window(1);
+    ui_system_create_window(3);
+    ui_system_create_window(5);
+    ui_system_create_window(1);
+    Window *win = ui_system_create_window(9);
+    
 
     // Making a simple world and player
     World* world = world_load("def/world.def");
@@ -150,6 +162,7 @@ int main(int argc, char * argv[])
                 (int)mf);
 
 	    player_hud_draw();
+	    ui_system_draw_all();
 
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
         
