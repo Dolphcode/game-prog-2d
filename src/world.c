@@ -7,6 +7,7 @@
 
 #include "gf2d_graphics.h"
 
+#include "projectile.h"
 #include "world.h"
 #include "spawn.h"
 /*
@@ -34,6 +35,7 @@ typedef struct
 	GFC_List	*entity_list;	// <The list of entities in the list
 }World;
 */
+
 
 static World *active_world = NULL; // Pointer to the active world object
 
@@ -73,6 +75,9 @@ void world_free(World *world) {
 		slog("freeing this world's space");
 		space_free(world->space);
 	}
+
+	// Clear the projectile pool
+	projectile_pool_clear();
 
 	// Free the world
 	free(world);
@@ -355,15 +360,62 @@ World *world_load(const char *filename) {
 				hazard_obj = sj_array_get_nth(hazard_list, hazard_count);
 				if (!hazard_obj) continue;
 				hazard_name = sj_object_get_string(hazard_obj, "id");
-				slog("hazard name: %s", hazard_name);
+				//slog("hazard name: %s", hazard_name);
 				sj_object_get_vector2d(hazard_obj, "position", &hazard_pos);
-				slog("spawn at position %f %f", hazard_pos.x, hazard_pos.y);
+				//slog("spawn at position %f %f", hazard_pos.x, hazard_pos.y);
 				Entity *ent = spawn_entity_default(hazard_name, hazard_pos);
 				gfc_list_append(world->entity_list, ent);
 				space_add_entity(world->space, ent);
 			}
 		}
 	}
+
+	// Setup waves
+	SJson *waves_json = sj_object_get_value(world_json, "waves");
+	if (!waves_json) {
+		slog("No waves provided");
+		return NULL;
+	}
+	int wave_count;
+	sj_object_get_int(waves_json, "wave_count", &wave_count);
+	world->wave_count = wave_count; // Store the wave count
+	world->curr_wave = -1;
+	
+	// Load the waves
+	SJson *wave_list, *wave_obj, *spawn_list, *spawn_obj;
+	wave_list = sj_object_get_value(waves_json, "wave_list");
+	if (!wave_list) {
+		slog("Wave list couldn't be loaded");
+		return NULL;
+	}
+
+	for (wave_count -= 1; wave_count >= 0; --wave_count) {
+		wave_obj = sj_array_get_nth(wave_list, wave_count);
+		if (!wave_obj) {
+			slog("Failed to load wave data, FATAL error");
+			return NULL;
+		}
+
+		// Get the wave to be modified
+		Wave *wave_ptr = &(world->waves[wave_count]);
+
+		// Now load the spawn data
+		int spawn_count;
+		sj_object_get_int(wave_obj, "spawn_count", &spawn_count);
+		wave_ptr->spawn_count = spawn_count;
+		
+		spawn_list = sj_object_get_value(wave_obj, "spawns");
+		for (spawn_count -= 1; spawn_count >= 0; --spawn_count) {
+			spawn_obj = sj_array_get_nth(spawn_list, spawn_count);
+
+			WaveSpawn *spawn_ptr = &(wave_ptr->spawns[spawn_count]);
+			const char *spawn_id = sj_object_get_string(spawn_obj, "id");
+			strcpy(spawn_ptr->id, spawn_id);
+			slog("loading %s", spawn_ptr->id);
+			sj_object_get_vector2d(spawn_obj, "position", &(spawn_ptr->pos));
+		}
+	}
+
 	
 	// Free the json objects
 	sj_free(json);
@@ -447,6 +499,33 @@ static int wave = 0;
 
 void world_update(World *world) {
 	if (!world) return;
+
+	int all_dead = 1;
+	// Check if all entities are dead
+	if (world->curr_wave >= 0) {
+		Wave *wave_ptr = &(world->waves[world->curr_wave]);
+		for (int i = 0; i < wave_ptr->spawn_count; ++i) {
+			if (wave_ptr->ents[i]->alive) {
+				all_dead = 0;
+				break;
+			}
+		}
+	}
+
+	// Advance the wave
+	if (world->curr_wave < 0 || all_dead) {
+		world->curr_wave += 1;
+		slog("loading wave %d", world->curr_wave);
+		Wave *wave_ptr = &(world->waves[world->curr_wave]);
+		WaveSpawn spawndata;
+		for (int i = 0; i < wave_ptr->spawn_count; ++i) {
+			// Spawn every enemy
+			spawndata = wave_ptr->spawns[i];
+			slog("spawning a %s %f %f", wave_ptr->spawns[i].id, wave_ptr->spawns[i].pos.x, wave_ptr->spawns[i].pos.y);
+			wave_ptr->ents[i] = spawn_entity_default(spawndata.id, spawndata.pos);
+		}	
+	}
+	/*
 	Entity *curr;
 	if (wave == 0) {
 		wave++;
@@ -523,5 +602,5 @@ void world_update(World *world) {
 			wave++;
 			spawn_entity("electroworm", gfc_vector2d(400, 400), "def/boss/electroworm_head.def");
 		}
-	}
+	}*/
 }

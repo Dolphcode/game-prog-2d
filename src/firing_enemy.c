@@ -181,6 +181,5 @@ Entity *firing_enemy_spawn(GFC_Vector2D position, const char *config) {
 
 	sj_free(json);
 
-
 	return self;
 }

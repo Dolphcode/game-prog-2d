@@ -76,7 +76,7 @@ int main(int argc, char * argv[])
 
     // inserting code to initialize systems
     gfc_input_init("./config/input.cfg");
-    entity_system_init(1024);
+    entity_system_init(2048);
     projectile_pool_init();
 
     SDL_ShowCursor(SDL_DISABLE);
@@ -93,6 +93,7 @@ int main(int argc, char * argv[])
     ui_system_create_window(5);
     ui_system_create_window(1);
     Window *win = ui_system_create_window(9);
+    win->_active = 1;
     Widget *widget = widget_new();
     widget_configure_from_file(widget, "def/ui/test_sprite.def");
     window_add_widget(win, widget);
@@ -105,15 +106,6 @@ int main(int argc, char * argv[])
 
     Entity* player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
     world->player = player;
-/*
-    spawn_entity("medkit", gfc_vector2d(320, 128), "def/medkit.def");
-    spawn_entity("temp_platform", gfc_vector2d(640, 640), "def/temp_hook.def");
-    spawn_entity("temp_platform", gfc_vector2d(640, 1280), "def/temp_hook.def");
-    spawn_entity("temp_platform", gfc_vector2d(1280, 1280), "def/temp_hook.def");
-    spawn_entity("buzzsaw", gfc_vector2d(960, 640), "def/buzzsaw.def");
-    spawn_entity("buzzsaw", gfc_vector2d(960, 1280), "def/buzzsaw.def");
-    spawn_entity("turret", gfc_vector2d(1280, 640), "def/turret.def");
-*/	
     player_hud_init();
 
     Camera* cam = camera_get_main();
@@ -173,7 +165,7 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
 
-    //world_free(world);
+    world_free(world);
 
     slog("---==== END ====---");
     return 0;

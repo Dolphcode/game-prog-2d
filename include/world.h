@@ -12,6 +12,22 @@
 #include "tiledata.h"
 #include "space.h"
 
+#define WAVE_SPAWN_MAX 100
+#define WAVE_MAX 10
+
+typedef struct
+{
+	char	id[256];// <the spawn id of this entity
+	GFC_Vector2D	pos;	// <where to spawn the entity
+}WaveSpawn;
+
+typedef struct
+{
+	int		spawn_count;		// <Number of entities to be spawned
+	WaveSpawn 	spawns[WAVE_SPAWN_MAX];	// <list of entities to be spawned
+	Entity		*ents[WAVE_SPAWN_MAX];	// <pointers to entities in this wave
+}Wave;
+
 typedef struct
 {
 	// Object metadata
@@ -37,6 +53,11 @@ typedef struct
 
 	// The physics space
 	Space		*space;		// <The physics space of the world
+	
+	// Wave information
+	Wave		waves[WAVE_MAX];// <Wave structs
+	int		curr_wave;	// <The current wave the world is on
+	int		wave_count;	// <Number of waves
 
 	// Entities and the main camera
 	Camera		*main_camera;	// <The camera object corresponding with this world

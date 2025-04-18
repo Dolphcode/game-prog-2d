@@ -78,11 +78,86 @@
 
 			]
 		},
-		"waves":
-		[
-			["bug1", "bug1", "bug1"],
-			["bug2", "bug2", "bug2"],
-			[]
-		]
+		"waves": {
+			"wave_count": 4,
+			"wave_list": [
+				{
+					"spawn_count":5,
+					"spawns":[
+						{
+							"id":"shotgunner",
+							"position":[400, 400]
+						},
+						{
+							"id":"shotgunner",
+							"position":[500, 400]
+						},
+						{
+							"id":"shotgunner",
+							"position":[600, 400]
+						},
+						{
+							"id":"shotgunner",
+							"position":[700, 400]
+						},
+						{
+							"id":"shotgunner",
+							"position":[800, 400]
+						}
+					]
+				},
+				{
+					"spawn_count":4,
+					"spawns":[
+						{
+							"id":"snipergunner",
+							"position":[1000, 400]
+						},
+						{
+							"id":"snipergunner",
+							"position":[1100, 400]
+						},
+						{
+							"id":"minigunner",
+							"position":[400, 400]
+						},
+						{
+							"id":"minigunner",
+							"position":[500, 400]
+						}
+					]
+				},
+				{
+					"spawn_count":4,
+					"spawns":[
+						{
+							"id":"circlegunner",
+							"position":[400,400]
+						},
+						{
+							"id":"circlegunner",
+							"position":[500,400]
+						},
+						{
+							"id":"rammer",
+							"position":[600,400]
+						},
+						{
+							"id":"rammer",
+							"position":[700,400]
+						}
+					]
+				},
+				{
+					"spawn_count": 1,
+					"spawns":[
+						{
+							"id":"electroworm",
+							"position":[400,400]
+						}
+					]
+				}
+			]
+		}
 	}
 }
