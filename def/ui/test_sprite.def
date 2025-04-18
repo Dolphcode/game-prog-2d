@@ -1,0 +1,7 @@
+{
+	"name":"medkit",
+	"sprite":"./images/medkit.png",
+	"spriteFPL":4,
+	"spriteSize":[64,64],
+	"position": [200, 200]
+}

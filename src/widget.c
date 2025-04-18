@@ -82,6 +82,9 @@ void widget_configure(Widget *self, SJson *json) {
 			);
 
 	}
+	
+	// Set default draw function for now
+	self->draw = widget_draw_default;
 
 	GFC_Vector2D pos;
 	sj_object_get_vector2d(json, "position", &pos);

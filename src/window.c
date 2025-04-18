@@ -54,7 +54,7 @@ void ui_system_draw_all() {
 		widget_count = gfc_list_count(curr->widgets);
 		for (j = 0; j < widget_count; ++j) {
 			curr_widget = gfc_list_get_nth(curr->widgets, j);
-			if (curr_widget->draw) {
+			if (curr_widget->do_draw && curr_widget->draw) {
 				curr_widget->draw(curr_widget);
 			}
 		}
@@ -90,19 +90,36 @@ Window *window_new() {
 		slog("failed to allocate memory for window");
 		return NULL;
 	}
+	
+	// Allocate memory for the widget list
+	win->widgets = gfc_list_new();
+
 	return win;
 }
 
 void window_free(Window *self) {
 	if (!self) return;
 	
-
+	// Free the widget list first
+	if (self->widgets) {
+		int i, count = gfc_list_count(self->widgets);
+		Widget *curr = NULL;
+		for (i = count - 1; i >= 0; --i) {
+			curr = gfc_list_get_nth(self->widgets, i);
+			if (curr != NULL) {
+				widget_free(curr);
+			}
+			gfc_list_delete_nth(self->widgets, i);
+		}
+		gfc_list_delete(self->widgets);
+	}
 
 	free(self);
 }
 
 void window_add_widget(Window *self, Widget *widget) {
-
+	if (!self || !self->widgets || !widget) return;
+	gfc_list_append(self->widgets, widget); // Append the widget
 }
 
 void window_sort_widgets(Window *self) {

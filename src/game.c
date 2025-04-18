@@ -93,6 +93,10 @@ int main(int argc, char * argv[])
     ui_system_create_window(5);
     ui_system_create_window(1);
     Window *win = ui_system_create_window(9);
+    Widget *widget = widget_new();
+    widget_configure_from_file(widget, "def/ui/test_sprite.def");
+    window_add_widget(win, widget);
+    widget->do_draw = 1;
     
 
     // Making a simple world and player
@@ -151,6 +155,8 @@ int main(int argc, char * argv[])
 	    entity_system_draw_all();
 
             //UI elements last
+	    player_hud_draw();
+	    ui_system_draw_all();
             gf2d_sprite_draw(
                 mouse,
                 gfc_vector2d(mx,my),
@@ -160,9 +166,6 @@ int main(int argc, char * argv[])
                 NULL,
                 &mouseGFC_Color,
                 (int)mf);
-
-	    player_hud_draw();
-	    ui_system_draw_all();
 
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
         
