@@ -211,6 +211,8 @@ Entity *spawn_turret_proj(GFC_Vector2D position) {
 	}
 	entity_configure(self, json);
 
+	
+
 	self->touch = turret_proj_touch;
 
 	return self;

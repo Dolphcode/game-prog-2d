@@ -50,6 +50,8 @@ void ui_system_draw_all() {
 	count = gfc_list_count(ui_system);
 	for (i = 0; i < count; ++i) {
 		curr = gfc_list_get_nth(ui_system, i);
+		if (!curr->_active) continue;
+
 		slog("drawing window with draw_layer %d", curr->draw_layer);
 		widget_count = gfc_list_count(curr->widgets);
 		for (j = 0; j < widget_count; ++j) {

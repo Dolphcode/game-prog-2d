@@ -16,6 +16,8 @@ void ui_system_initialize();
 
 void ui_system_close();
 
+void ui_system_update();
+
 void ui_system_draw_all();
 
 Window *ui_system_create_window(int draw_layer);

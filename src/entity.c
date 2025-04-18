@@ -303,7 +303,9 @@ void entity_configure(Entity *self, SJson *json) {
 	SJson *coll_info = sj_object_get_value(json, "collider");
 	SJson *hitbox_info = sj_object_get_value(json, "hitbox");
 	entity_configure_body(self, coll_info, hitbox_info);
-	space_add_entity(world_get_active()->space, self);	
+	if (world_get_active() != NULL) {
+		space_add_entity(world_get_active()->space, self);	
+	}
 
 	// Load the entity name
 	const char *name = NULL;

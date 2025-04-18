@@ -335,7 +335,35 @@ World *world_load(const char *filename) {
 		return NULL;
 	}
 
+	// Spawn the hazards
+	SJson *hazard_json = sj_object_get_value(world_json, "hazards");
+	if (!hazard_json) {
+		slog("no hazard list provided, no hazards will be spawned");
+	} else {
+		SJson *hazard_list, *hazard_obj;
+		int hazard_count;
+		const char *hazard_name;
+		GFC_Vector2D hazard_pos;
 
+		sj_object_get_int(hazard_json, "hazard_count", &hazard_count);
+		hazard_list = sj_object_get_value(hazard_json, "hazard_list");
+		if (!hazard_list) {
+			slog("invalid hazard list, no hazards will be spawned");
+		} else {
+			slog("reading the hazard list");
+			for (hazard_count -= 1; hazard_count >= 0; hazard_count--) {
+				hazard_obj = sj_array_get_nth(hazard_list, hazard_count);
+				if (!hazard_obj) continue;
+				hazard_name = sj_object_get_string(hazard_obj, "id");
+				slog("hazard name: %s", hazard_name);
+				sj_object_get_vector2d(hazard_obj, "position", &hazard_pos);
+				slog("spawn at position %f %f", hazard_pos.x, hazard_pos.y);
+				Entity *ent = spawn_entity_default(hazard_name, hazard_pos);
+				gfc_list_append(world->entity_list, ent);
+				space_add_entity(world->space, ent);
+			}
+		}
+	}
 	
 	// Free the json objects
 	sj_free(json);

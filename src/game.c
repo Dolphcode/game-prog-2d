@@ -105,7 +105,7 @@ int main(int argc, char * argv[])
 
     Entity* player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
     world->player = player;
-
+/*
     spawn_entity("medkit", gfc_vector2d(320, 128), "def/medkit.def");
     spawn_entity("temp_platform", gfc_vector2d(640, 640), "def/temp_hook.def");
     spawn_entity("temp_platform", gfc_vector2d(640, 1280), "def/temp_hook.def");
@@ -113,7 +113,7 @@ int main(int argc, char * argv[])
     spawn_entity("buzzsaw", gfc_vector2d(960, 640), "def/buzzsaw.def");
     spawn_entity("buzzsaw", gfc_vector2d(960, 1280), "def/buzzsaw.def");
     spawn_entity("turret", gfc_vector2d(1280, 640), "def/turret.def");
-	
+*/	
     player_hud_init();
 
     Camera* cam = camera_get_main();

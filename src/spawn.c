@@ -84,6 +84,7 @@ Entity* spawn_entity_default(const char *name, GFC_Vector2D position) {
 	for (spawn = spawnList; spawn->name != 0; ++spawn) {
 		if (strcmp(name, spawn->name) == 0 ){
 			if (spawn->spawn) {
+				slog("spawning time");
 				ent = spawn->spawn(position, spawn->config);
 				if (ent) {
 					return ent;
