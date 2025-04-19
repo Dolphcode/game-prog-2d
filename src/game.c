@@ -24,12 +24,15 @@
 #include "ui/window.h"
 #include "ui/widget.h"
 
+#include "editor/level_editor.h"
+
 static char weapon[256];
+Uint8 OPEN_LEVEL_EDITOR = 0;
 
 int parse_args(int argc, char * argv[]) {
 	
 	int opt;
-	while ((opt = getopt(argc, argv, ":cbuw:")) != -1) {
+	while ((opt = getopt(argc, argv, ":cbunow:")) != -1) {
 		switch(opt) {
 			case 'c':
 				DRAW_CENTER = 1;
@@ -41,10 +44,16 @@ int parse_args(int argc, char * argv[]) {
 				DRAW_UI_BOXES = 1;
 				break;
 			case 'h':
-				slog("The following command line options are valid options for this executable:\n\t-h\t\tShow help menu\n\t-c\t\tDraw entity center points\n\t-b\t\tDraw entity bounds\n\t-w path\t\tSelect weapon");
+				slog("The following command line options are valid options for this executable:\n\t-h\t\tShow help menu\n\t-c\t\tDraw entity center points\n\t-b\t\tDraw entity bounds\n\t-w path\t\tSelect weapon\n\t-n path\t\tMake a new level file\n\t-o path\t\tLoad an existing level and edit it");
 				return 1;
 			case 'w':
 				strcpy(weapon, optarg);
+				break;
+			case 'n':
+				OPEN_LEVEL_EDITOR = 1;
+				break;
+			case 'o':
+				OPEN_LEVEL_EDITOR = 1;
 				break;
 			case ':':
 				switch(optopt) {
@@ -125,25 +134,21 @@ int main(int argc, char * argv[])
     TTF_Init(); // Initialize the font system and queue quitting for exit
     atexit(TTF_Quit);
     ui_system_initialize();
-    /*
-    Window *win = ui_system_create_window(9);
-    win->_active = 1;
-    Widget *widget = widget_new();
-    widget_configure_from_file(widget, "def/ui/test_sprite.def");
-    window_add_widget(win, widget);
-    widget->do_draw = 1;*/
     Window *win = ui_system_load_window("def/ui/level_editor.def");
     win->_active = 1;
     
-
+    World *world;
     // Making a simple world and player
-    World* world = world_load("def/world.def");
-    world_make_active(world);
+    if (!OPEN_LEVEL_EDITOR) {
+    	world = world_load("def/world.def");
+    	world_make_active(world);
+    }
 
     Entity* player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
-    world->player = player;
-    player_hud_init();
+    if (!OPEN_LEVEL_EDITOR) world->player = player;
+    if (!OPEN_LEVEL_EDITOR) player_hud_init();
 
+    if (OPEN_LEVEL_EDITOR) level_editor_init("def/world.def", 0);
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;
@@ -165,17 +170,22 @@ int main(int argc, char * argv[])
 	// Update camera
 
         // all drawing should happen betweem clear_screen and next_frame
-            //backgrounds drawn first
-            //gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
-	    world_draw(world);
+	   if(world_get_active()) {
+	    	world_draw(world_get_active());
 
-	    world_update(world_get_active());
+	    	world_update(world_get_active());
+	   }
 	    // Then draw entities
 	    entity_system_think_all();
 
-	    entity_system_presync_all();
-	    space_update(world_get_active()->space);
-	    entity_system_postsync_all();
+	    if (world_get_active()) {
+	    	entity_system_presync_all();
+	    	space_update(world_get_active()->space);
+	    	entity_system_postsync_all();
+	    }
+
+	    if (OPEN_LEVEL_EDITOR) level_editor_update();
+	    if (OPEN_LEVEL_EDITOR) level_editor_draw();
 
 	    entity_system_update_all();
 	    // Update camera before drawing
@@ -183,7 +193,9 @@ int main(int argc, char * argv[])
 	    entity_system_draw_all();
 
             //UI elements last
-	    player_hud_draw();
+	    if (!OPEN_LEVEL_EDITOR) player_hud_draw();
+		
+
 	    ui_system_update_all();
 	    ui_system_draw_all();
             gf2d_sprite_draw(
@@ -202,7 +214,7 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
 
-    world_free(world);
+    if (world_get_active()) world_free(world_get_active());
 
     slog("---==== END ====---");
     return 0;

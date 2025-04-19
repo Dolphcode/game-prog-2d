@@ -169,7 +169,7 @@ void entity_free(Entity *ent) {
 
 	// Free the physics body if we have one
 	if (ent->body) {
-		space_remove_entity(world_get_active()->space, ent);
+		if (world_get_active()) space_remove_entity(world_get_active()->space, ent);
 		physics_body_free(ent->body);
 		ent->body = NULL;
 	}

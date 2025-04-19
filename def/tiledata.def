@@ -19,6 +19,7 @@
 			"collisionType":1,
 			"collisionBox":[32,32]
 		}
-	]
+	],
+	"tileCount": 3
 
 }

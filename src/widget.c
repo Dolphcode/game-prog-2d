@@ -4,6 +4,7 @@
 
 #include "ui/widget.h"
 #include "ui/label.h"
+#include "ui/button.h"
 
 /*
 typedef struct Widget_S {
@@ -111,11 +112,14 @@ void widget_configure(Widget *self, SJson *json) {
 	sj_object_get_int(json, "type", &widget_type);
 	switch((WidgetType)widget_type) {
 		case 0:
+			self->draw = widget_draw_default;
+			self->do_draw = 1;
 			break;
 		case 1:
 			w_label_configure(self, json);
 			break;
 		case 2:
+			w_button_configure(self, json);
 			break;
 	}
 	
@@ -141,6 +145,6 @@ void widget_draw_default(Widget *self) {
 			NULL,
 			NULL,
 			NULL,
-			0);
+			(Uint32)self->frame);
 }
 

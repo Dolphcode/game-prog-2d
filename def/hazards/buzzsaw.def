@@ -1,0 +1,18 @@
+{
+	"name":"buzzsaw",
+	"sprite":"./images/buzzsaw.png",
+	"spriteFPL":4,
+	"spriteSize":[64,64],
+	"spriteOffset":[64,64],
+	"team": 4,
+	"collider": {
+		"colliderOffset":[-64,-64],
+		"colliderSize":[64,64],
+		"maxCollisions":0,
+		"canCollide":0
+	},
+	"hitbox": {
+		"hitboxOffset":[-32,-32],
+		"hitboxRadius":32
+	}
+}

@@ -69,6 +69,33 @@ GFC_Vector2D main_camera_calc_drawpos(GFC_Vector2D position) {
 	return drawpos;
 }
 
+/**
+ * @brief converts a screen position to a world space position
+ * @param screen_position the point to be converted
+ * @return the point in world space as a GFC_Vector2D
+ */
+GFC_Vector2D main_camera_screenpos_to_worldpos(GFC_Vector2D screen_position) {
+	// Copy into drawpos
+	GFC_Vector2D world_pos;
+	gfc_vector2d_copy(world_pos, screen_position);
+
+	// Compute screen res offset
+	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
+	gfc_vector2d_scale_by(screen_res, screen_res, gfc_vector2d(0.5, 0.5));
+
+	// Subtract the screen res offset
+	gfc_vector2d_sub(world_pos, world_pos, screen_res);
+
+	// Divide out the camera zoom
+	GFC_Vector2D inv_zoom = {1.0 / main_camera_get_zoom().x, 1.0 / main_camera_get_zoom().y};
+	gfc_vector2d_scale_by(world_pos, world_pos, inv_zoom);
+
+	// Subtract main camera offset
+	gfc_vector2d_sub(world_pos, world_pos, main_camera_get_offset());
+
+	return world_pos;
+}
+
 Camera* camera_get_main() {
 	return &main_camera;
 }

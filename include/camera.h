@@ -54,6 +54,13 @@ GFC_Vector2D main_camera_get_offset();
  */
 GFC_Vector2D main_camera_calc_drawpos(GFC_Vector2D position);
 
+/**
+ * @brief converts a screen position to a world space position
+ * @param screen_position the point to be converted
+ * @return the point in world space as a GFC_Vector2D
+ */
+GFC_Vector2D main_camera_screenpos_to_worldpos(GFC_Vector2D screen_position);
+
 // DEPRECATED FUNCTIONS
 
 /**

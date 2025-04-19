@@ -23,6 +23,7 @@ typedef struct Widget_S {
 	GFC_Vector2D		position;	// <The screen space position of the widget
 	GFC_Rect		box;		// <The box of the widget for mouse detection
 	GFC_Color		color;		// <The color used to modulate this object
+	int			frame;		// <What frame to use to draw
 
 	// Drawing
 	Uint8			do_draw;	// <Whether this should be drawn or not
