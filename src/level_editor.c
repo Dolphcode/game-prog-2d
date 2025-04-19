@@ -16,6 +16,9 @@
 #include "entity.h"
 #include "camera.h"
 
+#include "ui/window.h"
+#include "ui/label.h"
+
 #include "editor/level_editor.h"
 
 #define DEFAULT_MAP_W	100
@@ -76,6 +79,10 @@ static LevelEditor editor = {0};
 static Entry enemy_list[256], hazard_list[256];
 static int enemy_list_count = 0, hazard_list_count = 0, background_count = 0;
 static char backgrounds[100][256];
+
+// References
+Window *level_editor_ui = NULL;
+Widget *selected_tile_label = NULL;
 
 LevelEditor *level_editor_get_reference() {
 	return &editor;
@@ -219,6 +226,13 @@ void level_editor_init(const char *file_path, int new_file) {
 	// Copy the file path into the level editor
 	strcpy(editor.file_path, file_path);
 
+	// Get UI element references
+	level_editor_ui = ui_system_get_window("level_editor_ui");
+	slog("got the level editor ui %p", level_editor_ui);
+	selected_tile_label = window_get_widget(level_editor_ui, "tile_label");
+	slog("now got the tile label");
+	w_label_set_text(selected_tile_label, "Testing this thing");
+
 	atexit(level_editor_close);
 }
 
@@ -238,7 +252,7 @@ void level_editor_update() {
 
 	if (mouse_press) {
 		int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
-		editor.tilemap[row][col] = 1;
+		editor.tilemap[row][col] = editor.tile_index;
 	}
 }
 
@@ -269,7 +283,13 @@ void level_editor_draw() {
 	}
 }
 
-void level_editor_inc_selection();
+void level_editor_inc_selection() {
+	editor.tile_index++;
+	if (editor.tile_index > editor.tile_count) editor.tile_index = 0;
+	char buffer[256];
+	sprintf(buffer, "Tile #%d", editor.tile_index);
+	w_label_set_text(selected_tile_label, buffer);
+}
 
 void level_editor_dec_selection();
 

@@ -37,4 +37,6 @@ void window_add_widget(Window *self, Widget *widget);
 
 void window_sort_widgets(Window *self);
 
+Widget *window_get_widget(Window *self, const char *name);
+
 #endif

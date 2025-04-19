@@ -16,7 +16,7 @@ typedef enum {
 
 typedef struct Widget_S {
 	// Debug Stuff
-	const char 		*name;		// <The name of the widget for debug purposes
+	char 			name[256];	// <The name of the widget for debug purposes
 	
 	// Visual and Spatial Information
 	Sprite			*sprite;	// <The base sprite of the widget
@@ -34,10 +34,10 @@ typedef struct Widget_S {
 	Uint8			clicked;	// <Tracks whether this object is being clicked on or not
 
 	// Event Handlers
-	void			(*on_click)(struct Widget_S *self);	// <Triggered on the first frame this object is clicked on
-	void			(*on_release)(struct Widget_S *self);	// <Triggered on the first frame that the mouse is no longer clicking
-	void			(*on_hover_enter)(struct Widget_S *self);	// <Triggered on the first frame that the mouse starts hovering over this
-	void			(*on_hover_exit)(struct Widget_S *self);	// <Triggered on the first frame that the mouse is no longer hovering over this
+	void			(*on_click)();	// <Triggered on the first frame this object is clicked on
+	void			(*on_release)();	// <Triggered on the first frame that the mouse is no longer clicking
+	void			(*on_hover_enter)();	// <Triggered on the first frame that the mouse starts hovering over this
+	void			(*on_hover_exit)();	// <Triggered on the first frame that the mouse is no longer hovering over this
 
 	// Data
 	void			*data;		// <The data component of the widget

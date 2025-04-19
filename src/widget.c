@@ -90,6 +90,10 @@ void widget_configure(Widget *self, SJson *json) {
 
 	}
 
+	// Copy the name
+	const char *name = sj_object_get_string(json, "name");
+	strcpy(self->name, name);	
+
 	// Set the position and bounds of the widget in the screen
 	GFC_Vector2D pos, bounds;
 	sj_object_get_vector2d(json, "position", &pos);

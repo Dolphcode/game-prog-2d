@@ -128,4 +128,11 @@ void w_label_draw(Widget *self) {
 /**
  * @brief must call this to set text as this will trigger a re-render of the label
  */
-void w_label_set_text(Widget *self, const char *new_text);
+void w_label_set_text(Widget *self, const char *new_text) {
+	if (!self || !new_text) return;
+	W_LabelData *data = (W_LabelData *)self->data;
+	if (!data) return;
+
+	strcpy(data->text, new_text);
+	w_label_render_font(data); // Call re-render
+}

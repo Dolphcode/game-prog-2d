@@ -197,6 +197,21 @@ Window *ui_system_load_window(const char *path) {
 	return win;
 }
 
+Window *ui_system_get_window(const char *name) {
+	Window *curr;
+	int count = gfc_list_get_count(ui_system);
+	for (int i = 0; i < count; ++i) {
+		curr = gfc_list_get_nth(ui_system, i);
+		if (!curr)continue;
+		if (strcmp(name, curr->name) == 0) {
+			slog("found %s", name);
+			return curr;
+		}
+	}
+	slog("failed to find window called %s", name);
+	return NULL;
+}
+
 Window *window_new() {
 	Window *win = calloc(1, sizeof(Window));
 	if (!win) {
@@ -237,4 +252,23 @@ void window_add_widget(Window *self, Widget *widget) {
 
 void window_sort_widgets(Window *self) {
 
+}
+
+Widget *window_get_widget(Window *self, const char *name) {
+	Widget *curr;
+	slog("%p", self);
+	slog("%s", name);
+	int count = gfc_list_get_count(self->widgets);
+	slog("got the count of this thing no? %d", count);
+	for (int i = 0; i < count; ++i) {
+		curr = gfc_list_get_nth(self->widgets, i);
+		slog("and got the nth widget with name %s compared to %s", curr->name, name);
+		if (!curr)continue;
+		if (strcmp(name, curr->name) == 0) {
+			slog("found widget %s", name);
+			return curr;
+		}
+	}
+	slog("failed to find widget called %s", name);
+	return NULL;
 }
