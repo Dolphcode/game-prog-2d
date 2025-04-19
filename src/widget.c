@@ -3,6 +3,7 @@
 #include "gfc_config.h"
 
 #include "ui/widget.h"
+#include "ui/label.h"
 
 /*
 typedef struct Widget_S {
@@ -50,6 +51,11 @@ void widget_free(Widget *self) {
 		gf2d_sprite_free(self->sprite);
 	}
 
+	// Free the data
+	if (self->data && self->data_free) {
+		self->data_free(self);
+	}
+
 	// Free the widget
 	free(self);
 }
@@ -67,6 +73,7 @@ void widget_configure(Widget *self, SJson *json) {
 	const char *sprite = NULL;
 	if (!self || !json) return;
 
+	// Load the default sprite
 	sprite = sj_object_get_string(json, "sprite");
 	if (sprite) {
 		GFC_Vector2D frame_size;
@@ -83,12 +90,7 @@ void widget_configure(Widget *self, SJson *json) {
 
 	}
 
-
-	
-	// Set default draw function for now
-	self->draw = widget_draw_default;
-
-
+	// Set the position and bounds of the widget in the screen
 	GFC_Vector2D pos, bounds;
 	sj_object_get_vector2d(json, "position", &pos);
 	sj_object_get_vector2d(json, "rect", &bounds);
@@ -97,6 +99,25 @@ void widget_configure(Widget *self, SJson *json) {
 	self->box.y = pos.y;
 	self->box.w = bounds.x;
 	self->box.h = bounds.y;
+
+	// Check what type of widget this is and call the appropriate configure function
+	int widget_type;
+	sj_object_get_int(json, "type", &widget_type);
+	switch((WidgetType)widget_type) {
+		case 0:
+			break;
+		case 1:
+			w_label_configure(self, json);
+			break;
+		case 2:
+			break;
+	}
+	
+	
+	// Set default draw function for now
+	//self->draw = widget_draw_default;
+
+
 }
 
 /**

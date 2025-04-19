@@ -20,6 +20,8 @@ void ui_system_update_all();
 
 void ui_system_draw_all();
 
+Window *ui_system_load_window(const char *path);
+
 Window *ui_system_create_window(int draw_layer);
 
 Window *ui_system_get_window(const char *name);

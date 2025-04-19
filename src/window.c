@@ -142,6 +142,47 @@ Window *ui_system_create_window(int draw_layer) {
 	return win;
 }
 
+Window *ui_system_load_window(const char *path) {
+	if (!path) {
+		slog("No path provided");
+		return NULL;
+	}
+
+	// Load the json object for this window
+	SJson *json = sj_load(path);
+	if (!json) {
+		slog("failed to load json at path '%s'", path);
+		return NULL;
+	}
+
+	// Get the draw layer and create the window object
+	int draw_layer;
+	sj_object_get_int(json, "draw_layer", &draw_layer);
+	Window *win = ui_system_create_window(draw_layer);
+
+	// Now copy the name of the window
+	const char *name = sj_object_get_string(json, "name");
+	strcpy(win->name, name);
+
+	// Now begin creating the widgets
+	SJson *widget_list, *widget_obj;
+	Widget *curr_widget;
+	int widget_count;
+	sj_object_get_int(json, "widget_count", &widget_count);
+	widget_list = sj_object_get_value(json, "widgets");
+	for (int i = 0; i < widget_count; ++i) {
+		widget_obj = sj_array_get_nth(widget_list, i);
+		if (!widget_obj) continue;
+
+		curr_widget = widget_new();
+		widget_configure(curr_widget, widget_obj);
+		window_add_widget(win, curr_widget);
+	}
+
+	sj_free(json);
+	return win;
+}
+
 Window *window_new() {
 	Window *win = calloc(1, sizeof(Window));
 	if (!win) {

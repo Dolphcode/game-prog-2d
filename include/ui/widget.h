@@ -8,6 +8,12 @@
 
 #include "gf2d_sprite.h"
 
+typedef enum {
+	W_SPRITE,
+	W_LABEL,
+	W_BUTTON
+}WidgetType;
+
 typedef struct Widget_S {
 	// Debug Stuff
 	const char 		*name;		// <The name of the widget for debug purposes
@@ -16,6 +22,7 @@ typedef struct Widget_S {
 	Sprite			*sprite;	// <The base sprite of the widget
 	GFC_Vector2D		position;	// <The screen space position of the widget
 	GFC_Rect		box;		// <The box of the widget for mouse detection
+	GFC_Color		color;		// <The color used to modulate this object
 
 	// Drawing
 	Uint8			do_draw;	// <Whether this should be drawn or not

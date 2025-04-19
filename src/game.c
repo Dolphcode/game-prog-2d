@@ -1,6 +1,9 @@
-#include <SDL.h>
-#include <time.h>
 #include <unistd.h>
+#include <time.h>
+
+#include <SDL.h>
+#include <SDL_ttf.h>
+
 #include "simple_logger.h"
 
 #include "gf2d_graphics.h"
@@ -116,17 +119,18 @@ int main(int argc, char * argv[])
     slog("press [escape] to quit");
 
     // UI init
+    TTF_Init(); // Initialize the font system and queue quitting for exit
+    atexit(TTF_Quit);
     ui_system_initialize();
-    ui_system_create_window(1);
-    ui_system_create_window(3);
-    ui_system_create_window(5);
-    ui_system_create_window(1);
+    /*
     Window *win = ui_system_create_window(9);
     win->_active = 1;
     Widget *widget = widget_new();
     widget_configure_from_file(widget, "def/ui/test_sprite.def");
     window_add_widget(win, widget);
-    widget->do_draw = 1;
+    widget->do_draw = 1;*/
+    Window *win = ui_system_load_window("def/ui/level_editor.def");
+    win->_active = 1;
     
 
     // Making a simple world and player
