@@ -68,7 +68,6 @@ void widget_configure_from_file(Widget *self, const char *filename) {
 	sj_free(json);
 }
 
-// VERY RUDIMENTARY BTW
 void widget_configure(Widget *self, SJson *json) {
 	const char *sprite = NULL;
 	if (!self || !json) return;
@@ -99,6 +98,13 @@ void widget_configure(Widget *self, SJson *json) {
 	self->box.y = pos.y;
 	self->box.w = bounds.x;
 	self->box.h = bounds.y;
+
+	// Copy the color data
+	GFC_Vector3D color;
+	sj_object_get_vector3d(json, "color", &color);
+	self->color.r = color.x;
+	self->color.g = color.y;
+	self->color.b = color.z;
 
 	// Check what type of widget this is and call the appropriate configure function
 	int widget_type;

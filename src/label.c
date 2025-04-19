@@ -117,6 +117,12 @@ void w_label_draw(Widget *self) {
 			data->texture,
 			NULL,
 			&rect);
+
+	SDL_SetTextureColorMod(data->texture,
+			self->color.r,
+			self->color.g,
+			self->color.b);
+			
 }
 
 /**
