@@ -29,13 +29,16 @@ static char weapon[256];
 int parse_args(int argc, char * argv[]) {
 	
 	int opt;
-	while ((opt = getopt(argc, argv, ":cbw:")) != -1) {
+	while ((opt = getopt(argc, argv, ":cbuw:")) != -1) {
 		switch(opt) {
 			case 'c':
 				DRAW_CENTER = 1;
 				break;
 			case 'b':
 				DRAW_BOUNDS = 1;
+				break;
+			case 'u':
+				DRAW_UI_BOXES = 1;
 				break;
 			case 'h':
 				slog("The following command line options are valid options for this executable:\n\t-h\t\tShow help menu\n\t-c\t\tDraw entity center points\n\t-b\t\tDraw entity bounds\n\t-w path\t\tSelect weapon");

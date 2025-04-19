@@ -1,7 +1,11 @@
 #include "simple_logger.h"
 #include "simple_json.h"
 
+#include "gf2d_draw.h"
+
 #include "ui/window.h"
+
+Uint8 DRAW_UI_BOXES = 0;
 
 /*
 typedef struct Window_S {
@@ -114,6 +118,16 @@ void ui_system_draw_all() {
 			curr_widget = gfc_list_get_nth(curr->widgets, j);
 			if (curr_widget->do_draw && curr_widget->draw) {
 				curr_widget->draw(curr_widget);
+
+				if (DRAW_UI_BOXES) {
+					if (curr_widget->clicked) {
+						gf2d_draw_rect(curr_widget->box, GFC_COLOR_RED);
+					} else if (curr_widget->hovering) {
+						gf2d_draw_rect(curr_widget->box, GFC_COLOR_YELLOW);
+					} else {
+						gf2d_draw_rect(curr_widget->box, GFC_COLOR_GREEN);
+					}
+				}
 			}
 		}
 	}

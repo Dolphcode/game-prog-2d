@@ -5,6 +5,9 @@
 
 #include "ui/widget.h"
 
+// Debug constants
+extern Uint8	DRAW_UI_BOXES;
+
 typedef struct Window_S {
 	Uint8		_active;	// Whether this window is active or not
 	const char	name[256];	// Name for identifying windows
