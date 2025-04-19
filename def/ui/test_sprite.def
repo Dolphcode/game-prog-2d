@@ -3,5 +3,6 @@
 	"sprite":"./images/medkit.png",
 	"spriteFPL":4,
 	"spriteSize":[64,64],
-	"position": [200, 200]
+	"position": [200, 200],
+	"rect":[64,64]
 }

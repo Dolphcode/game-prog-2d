@@ -82,13 +82,21 @@ void widget_configure(Widget *self, SJson *json) {
 			);
 
 	}
+
+
 	
 	// Set default draw function for now
 	self->draw = widget_draw_default;
 
-	GFC_Vector2D pos;
+
+	GFC_Vector2D pos, bounds;
 	sj_object_get_vector2d(json, "position", &pos);
+	sj_object_get_vector2d(json, "rect", &bounds);
 	self->position = pos;
+	self->box.x = pos.x;
+	self->box.y = pos.y;
+	self->box.w = bounds.x;
+	self->box.h = bounds.y;
 }
 
 /**

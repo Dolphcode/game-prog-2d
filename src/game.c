@@ -148,6 +148,7 @@ int main(int argc, char * argv[])
 
             //UI elements last
 	    player_hud_draw();
+	    ui_system_update_all();
 	    ui_system_draw_all();
             gf2d_sprite_draw(
                 mouse,

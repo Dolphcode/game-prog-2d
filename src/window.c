@@ -42,6 +42,62 @@ void ui_system_close() {
 	slog("ui system freed");
 }
 
+void ui_system_update_all() {
+	int count, i, widget_count, j, x, y, mouse_down = SDL_GetMouseState(&x, &y);
+	Window *curr;
+	Widget *curr_widget;
+	count = gfc_list_count(ui_system);
+	for (i = 0; i < count; ++i) {
+		curr = gfc_list_get_nth(ui_system, i);
+		if (!curr->_active) continue;
+		
+		widget_count = gfc_list_count(curr->widgets);
+		for (j = 0; j < widget_count; ++j) {
+			curr_widget = gfc_list_get_nth(curr->widgets, j);
+			if (!curr_widget || !curr_widget->do_draw) continue;
+			
+
+			if (curr_widget->hovering) {
+				// If we're still in the box we can check if we just clicked
+				if (x > curr_widget->box.x && 
+						x < curr_widget->box.x + curr_widget->box.w && 
+						y > curr_widget->box.y && 
+						y < curr_widget->box.y + curr_widget->box.h) {
+					if (mouse_down && !curr_widget->clicked) {
+						slog("clicked");
+						curr_widget->clicked = 1;
+						if (curr_widget->on_click) curr_widget->on_click(curr_widget);
+					}
+				} else {
+					slog("hover exit");
+					curr_widget->hovering = 0;
+					if (curr_widget->on_hover_exit) curr_widget->on_hover_exit(curr_widget);
+				}
+			} else {
+				if (x > curr_widget->box.x && 
+						x < curr_widget->box.x + curr_widget->box.w && 
+						y > curr_widget->box.y && 
+						y < curr_widget->box.y + curr_widget->box.h) {
+					curr_widget->hovering = 1;
+					slog("hover enter");
+					if (curr_widget->on_hover_enter) curr_widget->on_hover_enter(curr_widget);
+					if (mouse_down && !curr_widget->clicked) {
+						slog("clicked");
+						curr_widget->clicked = 1;
+						if (curr_widget->on_click) curr_widget->on_click(curr_widget);
+					}
+				} 
+			}
+
+			if (curr_widget->clicked && !mouse_down) {
+				slog("released");
+				curr_widget->clicked = 0;
+				if (curr_widget->on_release) curr_widget->on_release(curr_widget);
+			}
+		}
+	}
+}
+
 void ui_system_draw_all() {
 	int count, i, widget_count, j;
 	Window *curr;
@@ -52,7 +108,7 @@ void ui_system_draw_all() {
 		curr = gfc_list_get_nth(ui_system, i);
 		if (!curr->_active) continue;
 
-		slog("drawing window with draw_layer %d", curr->draw_layer);
+		//slog("drawing window with draw_layer %d", curr->draw_layer);
 		widget_count = gfc_list_count(curr->widgets);
 		for (j = 0; j < widget_count; ++j) {
 			curr_widget = gfc_list_get_nth(curr->widgets, j);
