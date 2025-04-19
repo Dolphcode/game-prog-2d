@@ -7,6 +7,7 @@
 #include "gfc_shape.h"
 #include "gfc_list.h"
 #include "gfc_config.h"
+#include "gfc_input.h"
 
 #include "gf2d_draw.h"
 #include "gf2d_sprite.h"
@@ -250,7 +251,7 @@ void level_editor_update() {
 	// Cl
 	slog("%f %f", world_pos.x, world_pos.y);
 
-	if (mouse_press) {
+	if (gfc_input_command_pressed("editor_place")) {
 		int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
 		editor.tilemap[row][col] = editor.tile_index;
 	}

@@ -15,6 +15,7 @@ typedef struct Window_S {
 */
 
 static GFC_List *ui_system = NULL;
+static int mouse_caught = 0;
 
 void ui_system_initialize() {
 	// Create the ui system variable
@@ -46,7 +47,13 @@ void ui_system_close() {
 	slog("ui system freed");
 }
 
+int ui_system_mouse_caught() {
+	return mouse_caught;
+}
+
 void ui_system_update_all() {
+	mouse_caught = 0;
+
 	int count, i, widget_count, j, x, y, mouse_down = SDL_GetMouseState(&x, &y);
 	Window *curr;
 	Widget *curr_widget;
@@ -69,6 +76,7 @@ void ui_system_update_all() {
 						y < curr_widget->box.y + curr_widget->box.h) {
 					if (mouse_down && !curr_widget->clicked) {
 						slog("clicked");
+						mouse_caught = 1;
 						curr_widget->clicked = 1;
 						if (curr_widget->on_click) curr_widget->on_click(curr_widget);
 					}
@@ -87,6 +95,7 @@ void ui_system_update_all() {
 					if (curr_widget->on_hover_enter) curr_widget->on_hover_enter(curr_widget);
 					if (mouse_down && !curr_widget->clicked) {
 						slog("clicked");
+						mouse_caught = 1;
 						curr_widget->clicked = 1;
 						if (curr_widget->on_click) curr_widget->on_click(curr_widget);
 					}

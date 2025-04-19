@@ -167,6 +167,7 @@ int main(int argc, char * argv[])
         
         gf2d_graphics_clear_screen();// clears drawing buffers
 	
+	    ui_system_update_all();
 	// Update camera
 
         // all drawing should happen betweem clear_screen and next_frame
@@ -196,7 +197,6 @@ int main(int argc, char * argv[])
 	    if (!OPEN_LEVEL_EDITOR) player_hud_draw();
 		
 
-	    ui_system_update_all();
 	    ui_system_draw_all();
             gf2d_sprite_draw(
                 mouse,
