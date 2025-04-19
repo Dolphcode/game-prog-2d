@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <time.h>
+#include <unistd.h>
 #include "simple_logger.h"
 
 #include "gf2d_graphics.h"
@@ -23,8 +24,36 @@
 static char weapon[256];
 
 int parse_args(int argc, char * argv[]) {
-	if (argc < 2) return 0;
-
+	
+	int opt;
+	while ((opt = getopt(argc, argv, ":cbw:")) != -1) {
+		switch(opt) {
+			case 'c':
+				DRAW_CENTER = 1;
+				break;
+			case 'b':
+				DRAW_BOUNDS = 1;
+				break;
+			case 'h':
+				slog("The following command line options are valid options for this executable:\n\t-h\t\tShow help menu\n\t-c\t\tDraw entity center points\n\t-b\t\tDraw entity bounds\n\t-w path\t\tSelect weapon");
+				return 1;
+			case 'w':
+				strcpy(weapon, optarg);
+				break;
+			case ':':
+				switch(optopt) {
+					case 'w':
+						slog("Missing required 'path' option argument");
+						return 1;
+					break;
+				}
+				break;
+			case '?':
+				slog("Unknown option '%c'", optopt);
+				break;
+		}
+	}	
+	/*
 	for (int i = 1; i < argc; i++) {
 		if (gfc_string_l_strcmp(gfc_string(argv[i]), "-h") == 0) {
 			slog("The following command line options are valid options for this executable\n\t-h, --help\t\tShow help menu\n\t-c, --draw-center\t\tDraw entity center points\n\t-b, --draw-bounds\t\tDraw entity bounds\n");
@@ -37,7 +66,7 @@ int parse_args(int argc, char * argv[]) {
 			++i;
 			strcpy(weapon, argv[i]);
 		}
-	}
+	}*/
 
 	return 0;
 }

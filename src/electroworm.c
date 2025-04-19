@@ -181,6 +181,7 @@ Entity* electroworm_spawn(GFC_Vector2D position, const char *config) {
 	next_segment->think = electroworm_head_think;
 	next_segment->update = electroworm_head_update;
 	next_segment->draw = electroworm_draw;
+	next_segment->alive = 1;
 
 
 	gfc_vector2d_copy(next_segment->position, position);
