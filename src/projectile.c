@@ -94,7 +94,7 @@ void projectile_pool_clear() {
 }
 
 void projectile_touch(Entity *self, Entity *other) {
-	if (!self || !other || !other->damage) return;
+	if (!self || !other || !other->damage || !other->alive) return;
 	ProjectileData *data = (ProjectileData *)self->data;
 	if (!data) return;
 
