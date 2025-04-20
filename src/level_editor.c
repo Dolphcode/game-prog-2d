@@ -83,7 +83,7 @@ static char backgrounds[100][256];
 
 // References
 Window *level_editor_ui = NULL, *tile_editor_ui = NULL, *hazard_editor_ui = NULL, *wave_editor_ui = NULL;
-Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL;
+Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL, *selected_wave_label = NULL;
 
 LevelEditor *level_editor_get_reference() {
 	return &editor;
@@ -364,6 +364,7 @@ void level_editor_init(const char *file_path, int new_file) {
 	hazard_editor_ui = ui_system_get_window("hazard_editor_ui");
 	wave_editor_ui = ui_system_get_window("wave_editor_ui");
 	selected_hazard_sprite  = window_get_widget(hazard_editor_ui, "hazard_sprite");
+	selected_wave_label = window_get_widget(wave_editor_ui, "wave_label");
 
 	slog("got the level editor ui %p", level_editor_ui);
 	selected_tile_label = window_get_widget(tile_editor_ui, "tile_label");
@@ -662,4 +663,21 @@ void level_editor_enemy_mode() {
 	tile_editor_ui->_active = 0;
        	hazard_editor_ui->_active = 0;
 	wave_editor_ui->_active = 1;
+}
+
+void level_editor_inc_wave() {
+	editor.wave_index++;
+	if (editor.wave_index >= WAVE_MAX) editor.wave_index = 0;
+	char buffer[256];
+	sprintf(buffer, "Wave #%d", editor.wave_index + 1);
+	w_label_set_text(selected_wave_label, buffer);
+
+}
+
+void level_editor_dec_wave() {
+	editor.wave_index--;
+	if (editor.wave_index < 0) editor.wave_index = WAVE_MAX - 1;
+	char buffer[256];
+	sprintf(buffer, "Wave #%d", editor.wave_index + 1);
+	w_label_set_text(selected_wave_label, buffer);
 }

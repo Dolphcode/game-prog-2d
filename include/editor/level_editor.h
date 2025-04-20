@@ -73,6 +73,8 @@ void level_editor_close();
 // Button Callbacks
 void level_editor_inc_selection();
 void level_editor_dec_selection();
+void level_editor_inc_wave();
+void level_editor_dec_wave();
 void level_editor_inc_bg();
 void level_editor_dec_bg();
 void level_editor_inc_fg();

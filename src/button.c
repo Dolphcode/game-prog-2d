@@ -30,6 +30,14 @@ static CallbackEntry callback_list[] = {
 		level_editor_enemy_mode,
 		"level_editor_enemy_mode"
 	},
+	{
+		level_editor_inc_wave,
+		"level_editor_inc_wave"
+	},
+	{
+		level_editor_dec_wave,
+		"level_editor_dec_wave"
+	},
 	{0}
 };
 

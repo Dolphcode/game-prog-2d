@@ -1,7 +1,7 @@
 {
     "name":"wave_editor_ui",
     "draw_layer":1,
-    "widget_count":2,
+    "widget_count":9,
     "widgets":[
         {
             "name":"side_pane",
@@ -23,6 +23,80 @@
                 "font":"./fonts/typewcond_regular.otf",
                 "text":"Waves",
                 "font_size":50
+            }
+        },
+        {
+            "name":"tile_sprite",
+            "sprite":"./images/larger_tileset.png",
+            "spriteFPL":1,
+            "spriteSize":[64,64],
+            "position": [1015, 100],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":0
+        },
+        {
+            "name":"tile_dec_button",
+            "sprite":"./images/ui/editor/left_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [950, 180],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_dec_index"
+            }
+        },
+        {
+            "name":"tile_inc_button",
+            "sprite":"./images/ui/editor/right_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [1050, 180],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_inc_index"
+            }
+        },
+        {
+            "name":"wave_label",
+            "position": [900, 400],
+            "rect":[64,64],
+            "color":[0, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Wave #",
+                "font_size":50
+            }
+        },
+        {
+            "name":"wave_dec_button",
+            "sprite":"./images/ui/editor/left_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [950, 480],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_dec_wave"
+            }
+        },
+        {
+            "name":"wave_inc_button",
+            "sprite":"./images/ui/editor/right_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [1050, 480],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_inc_wave"
             }
         }
     ]
