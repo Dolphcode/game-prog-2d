@@ -1,0 +1,29 @@
+{
+    "name":"wave_editor_ui",
+    "draw_layer":1,
+    "widget_count":1,
+    "widgets":[
+        {
+            "name":"side_pane",
+            "sprite":"./images/ui/editor/editor_side_pane.png",
+            "spriteFPL":4,
+            "spriteSize":[300,720],
+            "position": [900, 0],
+            "rect":[900,150],
+            "color":[255, 255, 255],
+            "type":0
+        },
+        {
+            "name":"title_label",
+            "position": [900, 0],
+            "rect":[64,64],
+            "color":[0, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Waves",
+                "font_size":50
+            }
+        }
+    ]
+}

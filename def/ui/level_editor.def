@@ -1,7 +1,7 @@
 {
     "name":"level_editor_ui",
     "draw_layer":1,
-    "widget_count":11,
+    "widget_count":10,
     "widgets":[
         {
             "name":"top_pane",
@@ -50,19 +50,6 @@
                 "font":"./fonts/typewcond_regular.otf",
                 "text":"Tile Number",
                 "font_size":30
-            }
-        },
-        {
-            "name":"tile_inc_button",
-            "sprite":"./images/medkit.png",
-            "spriteFPL":4,
-            "spriteSize":[64,64],
-            "position": [220, 10],
-            "rect":[64,64],
-            "color":[255, 0, 255],
-            "type":2,
-            "data":{
-                "callback":"level_editor_inc_index"
             }
         },
         {
@@ -115,7 +102,7 @@
             "type":1,
             "data":{
                 "font":"./fonts/typewcond_regular.otf",
-                "text":"Hi Lea!",
+                "text":"Hi Ada!",
                 "font_size":50
             }
         },

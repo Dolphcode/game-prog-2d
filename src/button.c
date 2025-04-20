@@ -13,6 +13,10 @@ static CallbackEntry callback_list[] = {
 	{
 		level_editor_inc_selection,
 		"level_editor_inc_index"
+	},	
+	{
+		level_editor_dec_selection,
+		"level_editor_dec_index"
 	},
 	{
 		level_editor_tile_mode,

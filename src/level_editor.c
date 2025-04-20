@@ -82,8 +82,8 @@ static int enemy_list_count = 0, hazard_list_count = 0, background_count = 0;
 static char backgrounds[100][256];
 
 // References
-Window *level_editor_ui = NULL;
-Widget *selected_tile_label = NULL;
+Window *level_editor_ui = NULL, *tile_editor_ui = NULL, *hazard_editor_ui = NULL, *wave_editor_ui = NULL;
+Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL;
 
 LevelEditor *level_editor_get_reference() {
 	return &editor;
@@ -185,6 +185,7 @@ void level_editor_init(const char *file_path, int new_file) {
 
 	// Initialize the editor in tile mode
 	editor.mode = LEDIT_TILE;
+	editor.tile_index = 1;
 
 	// Now either build the new world data or load data from a file
 	if (!new_file) {
@@ -316,10 +317,17 @@ void level_editor_init(const char *file_path, int new_file) {
 
 	// Get UI element references
 	level_editor_ui = ui_system_get_window("level_editor_ui");
+	tile_editor_ui = ui_system_get_window("tile_editor_ui");
+	hazard_editor_ui = ui_system_get_window("hazard_editor_ui");
+	wave_editor_ui = ui_system_get_window("wave_editor_ui");
+	selected_hazard_sprite  = window_get_widget(hazard_editor_ui, "hazard_sprite");
+
 	slog("got the level editor ui %p", level_editor_ui);
-	selected_tile_label = window_get_widget(level_editor_ui, "tile_label");
+	selected_tile_label = window_get_widget(tile_editor_ui, "tile_label");
+	selected_tile_sprite = window_get_widget(tile_editor_ui, "tile_sprite");
 	slog("now got the tile label");
 	w_label_set_text(selected_tile_label, "Testing this thing");
+
 
 	atexit(level_editor_close);
 }
@@ -530,16 +538,52 @@ void level_editor_close() {
 
 // Callback functions
 void level_editor_inc_selection() {
-	editor.tile_index++;
-	if (editor.tile_index > editor.tile_count) editor.tile_index = 0;
-	char buffer[256];
-	sprintf(buffer, "Tile #%d", editor.tile_index);
-	w_label_set_text(selected_tile_label, buffer);
+	if (editor.mode == LEDIT_TILE) {
+		editor.tile_index++;
+		if (editor.tile_index > editor.tile_count) editor.tile_index = 1;
+		char buffer[256];
+		sprintf(buffer, "Tile #%d", editor.tile_index);
+		w_label_set_text(selected_tile_label, buffer);
+		int frame = editor.tiledata[editor.tile_index - 1];
+		frame--;
+
+		selected_tile_sprite->frame = frame;
+	} else if (editor.mode == LEDIT_HAZARD) {
+		editor.hazard_index++;
+		if (editor.hazard_index >= hazard_list_count) editor.hazard_index = 0;
+		selected_hazard_sprite->sprite = hazard_list[editor.hazard_index].icon;
+	}
 }
 
-void level_editor_dec_selection();
+void level_editor_dec_selection() {
+	if (editor.mode == LEDIT_TILE) {
+		editor.tile_index--;
+		if (editor.tile_index < 1) editor.tile_index = editor.tile_count;
+		char buffer[256];
+		sprintf(buffer, "Tile #%d", editor.tile_index);
+		w_label_set_text(selected_tile_label, buffer);
+		int frame = editor.tiledata[editor.tile_index - 1];
+		frame--;
+
+		selected_tile_sprite->frame = frame;
+	} else if (editor.mode == LEDIT_HAZARD) {
+		editor.hazard_index--;
+		if (editor.hazard_index < 0) editor.hazard_index = hazard_list_count - 1;
+		selected_hazard_sprite->sprite = hazard_list[editor.hazard_index].icon;
+	}
+}
 
 void level_editor_set_mode(LevelEditorMode mode);
 
-void level_editor_tile_mode() { editor.mode = LEDIT_TILE; }
-void level_editor_hazard_mode() { editor.mode = LEDIT_HAZARD; }
+void level_editor_tile_mode() { 
+	editor.mode = LEDIT_TILE; 
+	tile_editor_ui->_active = 1;
+       	hazard_editor_ui->_active = 0;
+	wave_editor_ui->_active = 0;
+}
+void level_editor_hazard_mode() { 
+	editor.mode = LEDIT_HAZARD; 	
+	tile_editor_ui->_active = 0;
+       	hazard_editor_ui->_active = 1;
+	wave_editor_ui->_active = 0;
+}

@@ -124,6 +124,8 @@ int main(int argc, char * argv[])
     	win->_active = 1;
 	win = ui_system_load_window("def/ui/tile_editor.def");
 	win->_active = 1;
+	win = ui_system_load_window("def/ui/hazard_editor.def");
+	win = ui_system_load_window("def/ui/wave_editor.def");
     }
     
     World *world;
