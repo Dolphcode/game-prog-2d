@@ -1,7 +1,7 @@
 {
     "name":"wave_editor_ui",
     "draw_layer":1,
-    "widget_count":1,
+    "widget_count":2,
     "widgets":[
         {
             "name":"side_pane",

@@ -287,6 +287,49 @@ void level_editor_init(const char *file_path, int new_file) {
 		}
 
 
+		// Load the hazards
+		SJson *waves_json = sj_object_get_value(obj, "waves"), *wave_list_json = sj_object_get_value(waves_json, "wave_list");
+		int world_wave_count;
+		sj_object_get_int(waves_json, "wave_count", &world_wave_count);
+		for (int i = 0; i < world_wave_count; ++i) {
+			slog("wave %d", i + 1);
+			SJson *curr_wave, *spawn_obj;
+			curr_wave = sj_array_get_nth(wave_list_json, i);
+			int spawn_count;
+			sj_object_get_int(curr_wave, "spawn_count", &spawn_count);
+			SJson *spawn_list = sj_object_get_value(curr_wave, "spawns");
+			for (int j = 0; j < spawn_count; ++j) {
+				SJson *curr_spawn = sj_array_get_nth(spawn_list, j);
+				curr_inst = calloc(1, sizeof(Instance));
+				slog("spawn %d is %p", j, curr_spawn);
+				if (!curr_spawn || !curr_inst) continue;
+
+				const char *ent_id = sj_object_get_string(curr_spawn, "id");
+				for (int j = 0; j < enemy_list_count; ++j) {
+					if (strcmp(ent_id, enemy_list[j].id) == 0) {
+						curr_inst->index = j;
+						break;
+					}
+				}
+
+				Sprite *ent_sprite = enemy_list[j].icon;
+		
+				GFC_Vector2D position = {0};
+				sj_object_get_vector2d(curr_spawn, "position", &position);
+
+				// Since conveniently all hazards are a mere tile we'll stick with this for now
+				curr_inst->box.x = position.x;
+				curr_inst->box.y =  position.y;
+				curr_inst->box.h = ent_sprite->frame_w;
+				curr_inst->box.w = ent_sprite->frame_h;
+				
+				slog("appending %s to list", ent_id);
+				// Append to the gfc_list
+				gfc_list_append(editor.waves[i], curr_inst);
+
+			}
+		}
+
 		sj_free(obj);
 	} else {
 		// Make the tilemap
@@ -473,21 +516,46 @@ void level_editor_draw() {
 				0);
 	}
 
-	// Draw the cursor position
-	int x, y, mouse_press = SDL_GetMouseState(&x, &y);	
-	GFC_Rect r = {0};
-	r.w = 64 * zoom.x;
-	r.h = 64 * zoom.y;
-	GFC_Vector2D cursor_pos = gfc_vector2d(x, y);
-	cursor_pos = main_camera_screenpos_to_worldpos(cursor_pos);
-	cursor_pos.x = (int)(cursor_pos.x / 64);
-	cursor_pos.y = (int)(cursor_pos.y / 64);
-	cursor_pos.x = ((cursor_pos.x < 0) ? 0 : ((cursor_pos.x >= editor.map_size.x) ? editor.map_size.x - 1 : cursor_pos.x)) * 64;
-	cursor_pos.y = ((cursor_pos.y < 0) ? 0 : ((cursor_pos.y >= editor.map_size.y) ? editor.map_size.y - 1 : cursor_pos.y)) * 64;
-	cursor_pos = main_camera_calc_drawpos(cursor_pos);
-	r.x = cursor_pos.x;
-	r.y = cursor_pos.y;
-	gf2d_draw_rect(r, GFC_COLOR_YELLOW);
+	if (editor.mode == LEDIT_ENT) {
+		GFC_List *disp_wave = editor.waves[editor.wave_index];
+		int spawn_count = gfc_list_get_count(disp_wave);
+		slog("count %d", spawn_count);
+		for (int i = 0; i < spawn_count; ++i) {
+			curr_inst = gfc_list_get_nth(disp_wave, i);
+			if (!curr_inst) continue;
+			
+			slog("printing %d at %f %f", curr_inst->index, curr_inst->box.x, curr_inst->box.y);
+			curr_draw = enemy_list[curr_inst->index].icon;
+			GFC_Vector2D draw_pos = gfc_vector2d(curr_inst->box.x, curr_inst->box.y);
+			draw_pos = main_camera_calc_drawpos(draw_pos);
+			gf2d_sprite_draw(curr_draw,
+				draw_pos,
+				&zoom,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				0);
+		}
+	}
+
+	if (editor.mode == LEDIT_TILE || editor.mode == LEDIT_HAZARD) {
+		// Draw the cursor position
+		int x, y, mouse_press = SDL_GetMouseState(&x, &y);	
+		GFC_Rect r = {0};
+		r.w = 64 * zoom.x;
+		r.h = 64 * zoom.y;
+		GFC_Vector2D cursor_pos = gfc_vector2d(x, y);
+		cursor_pos = main_camera_screenpos_to_worldpos(cursor_pos);
+		cursor_pos.x = (int)(cursor_pos.x / 64);
+		cursor_pos.y = (int)(cursor_pos.y / 64);
+		cursor_pos.x = ((cursor_pos.x < 0) ? 0 : ((cursor_pos.x >= editor.map_size.x) ? editor.map_size.x - 1 : cursor_pos.x)) * 64;
+		cursor_pos.y = ((cursor_pos.y < 0) ? 0 : ((cursor_pos.y >= editor.map_size.y) ? editor.map_size.y - 1 : cursor_pos.y)) * 64;
+		cursor_pos = main_camera_calc_drawpos(cursor_pos);
+		r.x = cursor_pos.x;
+		r.y = cursor_pos.y;
+		gf2d_draw_rect(r, GFC_COLOR_YELLOW);
+	}
 }
 
 
@@ -581,9 +649,17 @@ void level_editor_tile_mode() {
        	hazard_editor_ui->_active = 0;
 	wave_editor_ui->_active = 0;
 }
+
 void level_editor_hazard_mode() { 
 	editor.mode = LEDIT_HAZARD; 	
 	tile_editor_ui->_active = 0;
        	hazard_editor_ui->_active = 1;
 	wave_editor_ui->_active = 0;
+}
+
+void level_editor_enemy_mode() {
+	editor.mode = LEDIT_ENT; 	
+	tile_editor_ui->_active = 0;
+       	hazard_editor_ui->_active = 0;
+	wave_editor_ui->_active = 1;
 }

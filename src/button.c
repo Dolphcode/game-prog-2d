@@ -26,6 +26,10 @@ static CallbackEntry callback_list[] = {
 		level_editor_hazard_mode,
 		"level_editor_hazard_mode"
 	},
+	{
+		level_editor_enemy_mode,
+		"level_editor_enemy_mode"
+	},
 	{0}
 };
 
