@@ -38,6 +38,10 @@ static CallbackEntry callback_list[] = {
 		level_editor_dec_wave,
 		"level_editor_dec_wave"
 	},
+	{
+		level_editor_save,
+		"level_editor_save"
+	},
 	{0}
 };
 

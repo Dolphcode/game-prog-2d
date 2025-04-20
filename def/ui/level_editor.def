@@ -1,7 +1,7 @@
 {
     "name":"level_editor_ui",
     "draw_layer":1,
-    "widget_count":10,
+    "widget_count":11,
     "widgets":[
         {
             "name":"top_pane",
@@ -50,6 +50,19 @@
                 "font":"./fonts/typewcond_regular.otf",
                 "text":"Tile Number",
                 "font_size":30
+            }
+        },
+        {
+            "name":"tile_save_button",
+            "sprite":"./images/ui/editor/save_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [370, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_save"
             }
         },
         {

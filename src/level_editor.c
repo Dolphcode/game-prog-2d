@@ -81,6 +81,8 @@ static Entry enemy_list[256], hazard_list[256];
 static int enemy_list_count = 0, hazard_list_count = 0, background_count = 0;
 static char backgrounds[100][256];
 
+static char file_path_str[256];
+
 // References
 Window *level_editor_ui = NULL, *tile_editor_ui = NULL, *hazard_editor_ui = NULL, *wave_editor_ui = NULL;
 Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL, *selected_enemy_sprite = NULL, *selected_wave_label = NULL;
@@ -104,6 +106,8 @@ void level_editor_reload_bgs() {
 }
 
 void level_editor_init(const char *file_path, int new_file) {
+	strcpy(file_path_str, file_path);
+
 	// Load a list of every hazard and enemy
 	DIR *curr_dir;
 	struct dirent *curr_ent;
@@ -592,7 +596,107 @@ void level_editor_draw() {
 
 
 
-void level_editor_save();
+void level_editor_save() {
+	SJson *data = sj_object_new(), *world_obj = sj_object_new();
+
+	// Loading the basic stuff
+	SJson *background = sj_new_str(backgrounds[editor.background_index]);
+	SJson *foreground = sj_new_str(backgrounds[editor.foreground_index]);
+	sj_object_insert(world_obj, "background", background);
+	sj_object_insert(world_obj, "foreground", foreground);
+
+	SJson *parallax_factor = sj_new_float(PARALLAX_FACTOR);
+	SJson *tile_set = sj_new_str("images/larger_tileset.png"); // temporary
+	SJson *frame_size = sj_new_int(FRAME_SIZE);
+	SJson *fpl = sj_new_int(1);
+	SJson *tile_count = sj_new_int(3); // temporary
+	SJson *tile_data = sj_new_str("def/tiledata.def");
+	SJson *world_size = sj_vector2d_new(editor.map_size);
+	sj_object_insert(world_obj, "parallaxFactor", parallax_factor);
+	sj_object_insert(world_obj, "tileSet", tile_set);
+	sj_object_insert(world_obj, "frameSize", frame_size);
+	sj_object_insert(world_obj, "framesPerLine", fpl);
+	sj_object_insert(world_obj, "tileCount", tile_count);
+	sj_object_insert(world_obj, "tileData", tile_data);
+	sj_object_insert(world_obj, "worldSize", world_size);
+
+	// Copy the tilemap over
+	SJson *tilemap_obj = sj_array_new();
+	for (int row = 0; row < editor.map_size.y; ++row) {
+		SJson *row_obj = sj_array_new();
+		for (int col = 0; col < editor.map_size.x; ++col) {
+			SJson *cell = sj_new_int(editor.tilemap[row][col]);
+			sj_array_append(row_obj, cell);
+		}
+		sj_array_append(tilemap_obj, row_obj);
+	}
+	sj_object_insert(world_obj, "tileMap", tilemap_obj);
+
+	// Copy the hazards over
+	SJson *hazards_obj = sj_object_new();
+	SJson *hazard_count_obj = sj_new_int(gfc_list_get_count(editor.hazards));
+	SJson *hazard_list_obj = sj_array_new();
+	for (int i = 0; i < gfc_list_get_count(editor.hazards); ++i) {
+		Instance *curr_inst = gfc_list_get_nth(editor.hazards, i);
+		GFC_Vector2D position = gfc_vector2d(curr_inst->box.x, curr_inst->box.y);
+
+		SJson *curr_hazard = sj_object_new();
+		SJson *id = sj_new_str(hazard_list[curr_inst->index].id);
+		SJson *position_obj = sj_vector2d_new(position);
+
+		sj_object_insert(curr_hazard, "id", id);
+		sj_object_insert(curr_hazard, "position", position_obj);
+		sj_array_append(hazard_list_obj, curr_hazard);
+	}
+	sj_object_insert(hazards_obj, "hazard_count", hazard_count_obj);
+	sj_object_insert(hazards_obj, "hazard_list", hazard_list_obj);
+	sj_object_insert(world_obj, "hazards", hazards_obj);
+
+	// Copy the waves over
+	SJson *waves_obj = sj_object_new();
+	int final_wave_count = 0;
+	SJson *wave_list_obj = sj_array_new();
+	for (int i = 0; i < WAVE_MAX; ++i) {
+		GFC_List *curr_wave = editor.waves[i];
+		if (gfc_list_get_count(curr_wave) == 0) continue;
+		
+		SJson *curr_wave_obj = sj_object_new();
+		SJson *spawns_obj = sj_array_new();
+		int final_spawn_count = 0;
+
+		for (int j = 0; j < gfc_list_get_count(curr_wave); ++j) {
+			Instance *curr_inst = gfc_list_get_nth(curr_wave, j);
+			GFC_Vector2D position = gfc_vector2d(curr_inst->box.x, curr_inst->box.y);
+
+			SJson *curr_spawn = sj_object_new();
+			SJson *id = sj_new_str(enemy_list[curr_inst->index].id);
+			SJson *position_obj = sj_vector2d_new(position);
+
+			sj_object_insert(curr_spawn, "id", id);
+			sj_object_insert(curr_spawn, "position", position_obj);
+			sj_array_append(spawns_obj, curr_spawn);
+			final_spawn_count++;
+		}
+
+		SJson *spawn_count_obj = sj_new_int(final_spawn_count);
+		sj_object_insert(curr_wave_obj, "spawns", spawns_obj);
+		sj_object_insert(curr_wave_obj, "spawn_count", spawn_count_obj);
+
+		sj_array_append(wave_list_obj, curr_wave_obj);
+		final_wave_count++;
+	}
+
+	SJson *wave_count_obj = sj_new_int(final_wave_count);
+	sj_object_insert(waves_obj, "wave_count", wave_count_obj);
+	sj_object_insert(waves_obj, "wave_list", wave_list_obj);
+	sj_object_insert(world_obj, "waves", waves_obj);
+	
+	// Now save the  world
+	sj_object_insert(data, "world", world_obj);
+	sj_save(data, file_path_str);
+
+
+}
 
 void level_editor_close() {
 	// Free the enemy and hazard sprites

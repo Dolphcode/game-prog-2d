@@ -29,10 +29,13 @@
 static char weapon[256];
 Uint8 OPEN_LEVEL_EDITOR = 0;
 
+static char world_file[256] = "def/world.def";
+static Uint8 newfile = 0;
+
 int parse_args(int argc, char * argv[]) {
 	
 	int opt;
-	while ((opt = getopt(argc, argv, ":cbunow:")) != -1) {
+	while ((opt = getopt(argc, argv, ":cbun:o:l:w:")) != -1) {
 		switch(opt) {
 			case 'c':
 				DRAW_CENTER = 1;
@@ -51,10 +54,15 @@ int parse_args(int argc, char * argv[]) {
 				break;
 			case 'n':
 				OPEN_LEVEL_EDITOR = 1;
+				newfile = 1;
+				strcpy(world_file, optarg);
 				break;
 			case 'o':
 				OPEN_LEVEL_EDITOR = 1;
+				strcpy(world_file, optarg);
 				break;
+			case 'l':
+				strcpy(world_file, optarg);
 			case ':':
 				switch(optopt) {
 					case 'w':
@@ -131,7 +139,7 @@ int main(int argc, char * argv[])
     World *world;
     // Making a simple world and player
     if (!OPEN_LEVEL_EDITOR) {
-    	world = world_load("def/world.def");
+    	world = world_load(world_file);
     	world_make_active(world);
     }
 
@@ -142,7 +150,7 @@ int main(int argc, char * argv[])
     if (!OPEN_LEVEL_EDITOR) world->player = player;
     if (!OPEN_LEVEL_EDITOR) player_hud_init();
 
-    if (OPEN_LEVEL_EDITOR) level_editor_init("def/world.def", 0);
+    if (OPEN_LEVEL_EDITOR) level_editor_init(world_file, newfile);
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;
