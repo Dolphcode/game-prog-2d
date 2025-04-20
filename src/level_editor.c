@@ -83,7 +83,7 @@ static char backgrounds[100][256];
 
 // References
 Window *level_editor_ui = NULL, *tile_editor_ui = NULL, *hazard_editor_ui = NULL, *wave_editor_ui = NULL;
-Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL, *selected_wave_label = NULL;
+Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL, *selected_enemy_sprite = NULL, *selected_wave_label = NULL;
 
 LevelEditor *level_editor_get_reference() {
 	return &editor;
@@ -365,6 +365,7 @@ void level_editor_init(const char *file_path, int new_file) {
 	wave_editor_ui = ui_system_get_window("wave_editor_ui");
 	selected_hazard_sprite  = window_get_widget(hazard_editor_ui, "hazard_sprite");
 	selected_wave_label = window_get_widget(wave_editor_ui, "wave_label");
+	selected_enemy_sprite = window_get_widget(wave_editor_ui, "enemy_sprite");
 
 	slog("got the level editor ui %p", level_editor_ui);
 	selected_tile_label = window_get_widget(tile_editor_ui, "tile_label");
@@ -401,6 +402,36 @@ void level_editor_update() {
 			}
 			break;
 		case LEDIT_ENT:
+			GFC_List *curr_wave = editor.waves[editor.wave_index];
+			if (gfc_input_command_pressed("editor_place")) {
+				Instance *curr_inst = calloc(1, sizeof(Instance));
+				Sprite *ent_sprite = enemy_list[editor.entity_index].icon;
+
+				// Since conveniently all hazards are a mere tile we'll stick with this for now
+				curr_inst->box.x = world_pos.x;
+				curr_inst->box.y = world_pos.y;
+				curr_inst->box.h = ent_sprite->frame_w;
+				curr_inst->box.w = ent_sprite->frame_h;
+
+				curr_inst->index = editor.entity_index; 
+
+				// Append to the gfc_list
+				gfc_list_append(curr_wave, curr_inst);
+			} else if (gfc_input_command_pressed("editor_remove")) {
+				int world_enemy_count = gfc_list_get_count(curr_wave);
+				Instance *curr_inst;
+				for (int i = world_enemy_count - 1; i >= 0; --i) {
+					curr_inst = gfc_list_get_nth(curr_wave, i);
+					if (world_pos.x > curr_inst->box.x &&
+							world_pos.x < curr_inst->box.x + curr_inst->box.w &&
+							world_pos.y > curr_inst->box.y &&
+							world_pos.y < curr_inst->box.y + curr_inst->box.h) {
+						gfc_list_delete_nth(curr_wave, i);
+						free(curr_inst);
+						//++i;
+					}
+				}	
+			}
 			break;
 		case LEDIT_HAZARD:
 			if (gfc_input_command_pressed("editor_place")) {
@@ -621,7 +652,12 @@ void level_editor_inc_selection() {
 		editor.hazard_index++;
 		if (editor.hazard_index >= hazard_list_count) editor.hazard_index = 0;
 		selected_hazard_sprite->sprite = hazard_list[editor.hazard_index].icon;
+	} else {
+		editor.entity_index++;
+		if (editor.entity_index >= enemy_list_count) editor.entity_index = 0;
+		selected_enemy_sprite->sprite = enemy_list[editor.entity_index].icon;
 	}
+
 }
 
 void level_editor_dec_selection() {
@@ -639,6 +675,10 @@ void level_editor_dec_selection() {
 		editor.hazard_index--;
 		if (editor.hazard_index < 0) editor.hazard_index = hazard_list_count - 1;
 		selected_hazard_sprite->sprite = hazard_list[editor.hazard_index].icon;
+	} else {
+		editor.entity_index--;
+		if (editor.entity_index < 0) editor.entity_index = enemy_list_count - 1;
+		selected_enemy_sprite->sprite = enemy_list[editor.entity_index].icon;
 	}
 }
 
