@@ -47,6 +47,7 @@ typedef struct {
 	GFC_List	*waves[WAVE_MAX];
 
 	// Editor state
+	LevelEditorMode		mode;
 	int		tile_index;
 	int		hazard_index;
 	int		wave_index;
@@ -65,18 +66,19 @@ void level_editor_update();
 
 void level_editor_draw();
 
+void level_editor_save();
+
+void level_editor_close();
+
+// Button Callbacks
 void level_editor_inc_selection();
 void level_editor_dec_selection();
-
 void level_editor_inc_bg();
 void level_editor_dec_bg();
 void level_editor_inc_fg();
 void level_editor_dec_fg();
-
-void level_editor_set_mode(LevelEditorMode mode);
-
-void level_editor_save();
-
-void level_editor_close();
+void level_editor_tile_mode();
+void level_editor_hazard_mode();
+void level_editor_enemy_mode();
 
 #endif

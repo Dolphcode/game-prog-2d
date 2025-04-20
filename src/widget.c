@@ -123,6 +123,7 @@ void widget_configure(Widget *self, SJson *json) {
 			w_label_configure(self, json);
 			break;
 		case 2:
+			//self->draw = widget_draw_default;
 			w_button_configure(self, json);
 			break;
 	}

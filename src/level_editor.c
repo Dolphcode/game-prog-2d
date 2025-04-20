@@ -183,6 +183,9 @@ void level_editor_init(const char *file_path, int new_file) {
 		editor.waves[i] = gfc_list_new();
 	}
 
+	// Initialize the editor in tile mode
+	editor.mode = LEDIT_TILE;
+
 	// Now either build the new world data or load data from a file
 	if (!new_file) {
 		// Load data 
@@ -335,14 +338,51 @@ void level_editor_update() {
 	// Cl
 	//slog("%f %f", world_pos.x, world_pos.y);
 	
+	switch(editor.mode) {
+		case LEDIT_TILE:
+			if (gfc_input_command_down("editor_place")) {
+				int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
+				editor.tilemap[row][col] = editor.tile_index;
+			} else if (gfc_input_command_down("editor_remove")) {
+				int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
+				editor.tilemap[row][col] = 0;
+			}
+			break;
+		case LEDIT_ENT:
+			break;
+		case LEDIT_HAZARD:
+			if (gfc_input_command_pressed("editor_place")) {
+				GFC_Vector2D clamped_pos = gfc_vector2d(((int)world_pos.x / FRAME_SIZE) * FRAME_SIZE, ((int)world_pos.y / FRAME_SIZE) * FRAME_SIZE);
+				Instance *curr_inst = calloc(1, sizeof(Instance));
 
-		if (gfc_input_command_down("editor_place")) {
-			int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
-			editor.tilemap[row][col] = editor.tile_index;
-		} else if (gfc_input_command_down("editor_remove")) {
-			int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
-			editor.tilemap[row][col] = 0;
-		}	
+				// Since conveniently all hazards are a mere tile we'll stick with this for now
+				curr_inst->box.x = clamped_pos.x;
+				curr_inst->box.y =  clamped_pos.y;
+				curr_inst->box.h = FRAME_SIZE;
+				curr_inst->box.w = FRAME_SIZE;
+
+				curr_inst->index = editor.hazard_index; 
+
+				// Append to the gfc_list
+				gfc_list_append(editor.hazards, curr_inst);
+			} else if (gfc_input_command_pressed("editor_remove")) {
+				int world_hazard_count = gfc_list_get_count(editor.hazards);
+				Instance *curr_inst;
+				for (int i = world_hazard_count - 1; i >= 0; --i) {
+					curr_inst = gfc_list_get_nth(editor.hazards, i);
+					if (world_pos.x > curr_inst->box.x &&
+							world_pos.x < curr_inst->box.x + curr_inst->box.w &&
+							world_pos.y > curr_inst->box.y &&
+							world_pos.y < curr_inst->box.y + curr_inst->box.h) {
+						gfc_list_delete_nth(editor.hazards, i);
+						free(curr_inst);
+						//++i;
+					}
+				}	
+			}
+			break;
+	}
+
 }
 
 void level_editor_draw() {
@@ -392,7 +432,6 @@ void level_editor_draw() {
 			
 			GFC_Vector2D position = {col * FRAME_SIZE, row * FRAME_SIZE};
 			GFC_Vector2D draw_pos = main_camera_calc_drawpos(position);
-			slog("drawing a tile at %f %f", position.x, position.y);
 
 			gf2d_sprite_draw(editor.tileset,
 					draw_pos,
@@ -415,7 +454,6 @@ void level_editor_draw() {
 
 		curr_draw = hazard_list[curr_inst->index].icon;
 		GFC_Vector2D draw_pos = gfc_vector2d(curr_inst->box.x, curr_inst->box.y);
-		slog("Drawing a hazard at %f %f", curr_inst->box.x, curr_inst->box.y);
 		draw_pos = main_camera_calc_drawpos(draw_pos);
 		gf2d_sprite_draw(curr_draw,
 				draw_pos,
@@ -444,17 +482,7 @@ void level_editor_draw() {
 	gf2d_draw_rect(r, GFC_COLOR_YELLOW);
 }
 
-void level_editor_inc_selection() {
-	editor.tile_index++;
-	if (editor.tile_index > editor.tile_count) editor.tile_index = 0;
-	char buffer[256];
-	sprintf(buffer, "Tile #%d", editor.tile_index);
-	w_label_set_text(selected_tile_label, buffer);
-}
 
-void level_editor_dec_selection();
-
-void level_editor_set_mode(LevelEditorMode mode);
 
 void level_editor_save();
 
@@ -500,3 +528,18 @@ void level_editor_close() {
 	free(editor.tiledata);
 }
 
+// Callback functions
+void level_editor_inc_selection() {
+	editor.tile_index++;
+	if (editor.tile_index > editor.tile_count) editor.tile_index = 0;
+	char buffer[256];
+	sprintf(buffer, "Tile #%d", editor.tile_index);
+	w_label_set_text(selected_tile_label, buffer);
+}
+
+void level_editor_dec_selection();
+
+void level_editor_set_mode(LevelEditorMode mode);
+
+void level_editor_tile_mode() { editor.mode = LEDIT_TILE; }
+void level_editor_hazard_mode() { editor.mode = LEDIT_HAZARD; }

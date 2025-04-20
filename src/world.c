@@ -324,8 +324,9 @@ World *world_load(const char *filename) {
 
 			// Append the tile to the world's space
 			if (world->space && tile_value && world->tile_data[tile_value - 1].collision_type) {
-				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size), 
+				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size),
 						world->tile_data[tile_value - 1].collision_type);
+				slog("placing a tile at %d %d", col * world->tile_size, row * world->tile_size);
 			}
 		}
 	}
@@ -366,6 +367,7 @@ World *world_load(const char *filename) {
 				Entity *ent = spawn_entity_default(hazard_name, hazard_pos);
 				gfc_list_append(world->entity_list, ent);
 				space_add_entity(world->space, ent);
+				slog("spawning a hazard at %f %f", hazard_pos.x, hazard_pos.y);
 			}
 		}
 	}

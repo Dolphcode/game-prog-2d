@@ -14,6 +14,14 @@ static CallbackEntry callback_list[] = {
 		level_editor_inc_selection,
 		"level_editor_inc_index"
 	},
+	{
+		level_editor_tile_mode,
+		"level_editor_tile_mode"
+	},
+	{
+		level_editor_hazard_mode,
+		"level_editor_hazard_mode"
+	},
 	{0}
 };
 
@@ -26,10 +34,24 @@ void w_button_configure(Widget *self, SJson *json) {
 			self->on_click = ptr->on_click;
 		}
 	}
-
+	self->draw = w_button_draw;
 	self->do_draw = 1;
 }
 
 void w_button_draw(Widget *self) {
+	if (!self || !self->sprite) return;
 
+	int frame = 0;
+	if (self->clicked) frame = 2;
+	else if (self->hovering) frame = 1;
+
+	gf2d_sprite_draw(
+		self->sprite,
+		self->position,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		(Uint32)frame);
 }
