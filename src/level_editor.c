@@ -309,19 +309,25 @@ void level_editor_update() {
 void level_editor_draw() {
 	// Get the zoom vector once and never again
 	GFC_Vector2D zoom = main_camera_get_zoom();
+	GFC_Vector2D screen_res_offset = gf2d_graphics_get_resolution();
+	gfc_vector2d_scale_by(screen_res_offset, screen_res_offset, gfc_vector2d(0.5, 0.5));
 	
 	// Draw the background with parallax effect in
-	GFC_Vector2D bg_center = gfc_vector2d(editor.background->frame_w * 0.5, editor.background->frame_h * 0.5);
-	GFC_Vector2D fg_center = gfc_vector2d(editor.foreground->frame_w * 0.5, editor.foreground->frame_h * 0.5);
-	gfc_vector2d_scale_by(bg_center, bg_center, gfc_vector2d(PARALLAX_FACTOR, PARALLAX_FACTOR));
-	gfc_vector2d_scale_by(fg_center, fg_center, gfc_vector2d(PARALLAX_FACTOR, PARALLAX_FACTOR));
-	bg_center = main_camera_calc_drawpos(bg_center);
-	fg_center = main_camera_calc_drawpos(fg_center);
+	GFC_Vector2D bg_center_pos = gfc_vector2d(editor.background->frame_w * 0.5, editor.background->frame_h * 0.5);
+	GFC_Vector2D fg_center_pos = gfc_vector2d(editor.foreground->frame_w * 0.5, editor.foreground->frame_h * 0.5);	
+	GFC_Vector2D bg_center = {0};
+	GFC_Vector2D fg_center = {0};
+	gfc_vector2d_add(bg_center, bg_center, main_camera_get_offset());
+	gfc_vector2d_scale_by(bg_center, bg_center, gfc_vector2d(zoom.x * PARALLAX_FACTOR, zoom.y * PARALLAX_FACTOR));
+	gfc_vector2d_add(bg_center, bg_center, screen_res_offset);
+	gfc_vector2d_add(fg_center, fg_center, main_camera_get_offset());
+	gfc_vector2d_scale_by(fg_center, fg_center, gfc_vector2d(zoom.x * 2 * PARALLAX_FACTOR, zoom.y * 2 * PARALLAX_FACTOR));
+	gfc_vector2d_add(fg_center, fg_center, screen_res_offset);
 
 	gf2d_sprite_draw(editor.background,
 			bg_center,
 			&zoom,
-			NULL,
+			&bg_center_pos,
 			NULL,
 			NULL,
 			NULL,
@@ -329,7 +335,7 @@ void level_editor_draw() {
 	gf2d_sprite_draw(editor.foreground,
 			fg_center,
 			&zoom,
-			NULL,
+			&fg_center_pos,
 			NULL,
 			NULL,
 			NULL,
@@ -359,6 +365,22 @@ void level_editor_draw() {
 					frame);
 		}
 	}
+
+	// Draw the cursor position
+	int x, y, mouse_press = SDL_GetMouseState(&x, &y);	
+	GFC_Rect r = {0};
+	r.w = 64 * zoom.x;
+	r.h = 64 * zoom.y;
+	GFC_Vector2D cursor_pos = gfc_vector2d(x, y);
+	cursor_pos = main_camera_screenpos_to_worldpos(cursor_pos);
+	cursor_pos.x = (int)(cursor_pos.x / 64);
+	cursor_pos.y = (int)(cursor_pos.y / 64);
+	cursor_pos.x = ((cursor_pos.x < 0) ? 0 : ((cursor_pos.x >= editor.map_size.x) ? editor.map_size.x - 1 : cursor_pos.x)) * 64;
+	cursor_pos.y = ((cursor_pos.y < 0) ? 0 : ((cursor_pos.y >= editor.map_size.y) ? editor.map_size.y - 1 : cursor_pos.y)) * 64;
+	cursor_pos = main_camera_calc_drawpos(cursor_pos);
+	r.x = cursor_pos.x;
+	r.y = cursor_pos.y;
+	gf2d_draw_rect(r, GFC_COLOR_YELLOW);
 }
 
 void level_editor_inc_selection() {

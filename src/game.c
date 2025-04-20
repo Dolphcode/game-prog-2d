@@ -119,8 +119,12 @@ int main(int argc, char * argv[])
     TTF_Init(); // Initialize the font system and queue quitting for exit
     atexit(TTF_Quit);
     ui_system_initialize();
-    Window *win = ui_system_load_window("def/ui/level_editor.def");
-    win->_active = 1;
+    if (OPEN_LEVEL_EDITOR) {
+    	Window *win = ui_system_load_window("def/ui/level_editor.def");
+    	win->_active = 1;
+	win = ui_system_load_window("def/ui/tile_editor.def");
+	win->_active = 1;
+    }
     
     World *world;
     // Making a simple world and player

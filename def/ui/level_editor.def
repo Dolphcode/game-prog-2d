@@ -1,7 +1,7 @@
 {
     "name":"level_editor_ui",
     "draw_layer":1,
-    "widget_count":6,
+    "widget_count":7,
     "widgets":[
         {
             "name":"top_pane",
@@ -12,6 +12,30 @@
             "rect":[900,150],
             "color":[255, 255, 255],
             "type":0
+        },
+        {
+            "name":"background_label",
+            "position": [5, 5],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Background",
+                "font_size":30
+            }
+        },
+        {
+            "name":"foreground_label",
+            "position": [5, 45],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Foreground",
+                "font_size":30
+            }
         },
         {
             "name":"tile_label",
