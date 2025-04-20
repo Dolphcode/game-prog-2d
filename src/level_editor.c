@@ -89,6 +89,20 @@ LevelEditor *level_editor_get_reference() {
 	return &editor;
 }
 
+void level_editor_reload_bgs() {
+	if (editor.background) {
+		gf2d_sprite_free(editor.background);
+		editor.background = NULL;
+	}
+
+	if (editor.foreground) {
+		gf2d_sprite_free(editor.foreground);
+		editor.foreground = NULL;
+	}
+	editor.background = gf2d_sprite_load_image(backgrounds[editor.background_index]);
+	editor.foreground = gf2d_sprite_load_image(backgrounds[editor.foreground_index]);
+}
+
 void level_editor_init(const char *file_path, int new_file) {
 	// Load a list of every hazard and enemy
 	DIR *curr_dir;
@@ -159,10 +173,11 @@ void level_editor_init(const char *file_path, int new_file) {
 		strcpy(backgrounds[background_count], "images/backgrounds/");
 		strcat(backgrounds[background_count], curr_ent->d_name);
 		slog("loaded background %s", backgrounds[background_count]);
+		background_count++;
 	}
 	closedir(curr_dir);
 
-
+	// Now either build the new world data or load data from a file
 	if (!new_file) {
 		// Load data 
 		SJson *world_json = sj_load(file_path), *obj = sj_object_get_value(world_json, "world");
@@ -204,6 +219,31 @@ void level_editor_init(const char *file_path, int new_file) {
 		}
 		sj_free(tiledata_json);
 
+		// Load the background and foreground
+		const char *background_path = sj_object_get_string(obj, "background");
+		editor.background_index = 0;
+		slog("searching for backgorund %s", background_path);
+		for (int i = 0; i < background_count; ++i) {
+			slog("comparing against %s", backgrounds[i]);
+			if (strcmp(background_path, backgrounds[i]) == 0) {
+				slog("found %s", backgrounds[i]);
+				editor.background_index = i;
+				break;
+			}
+		}
+		const char *foreground_path = sj_object_get_string(obj, "foreground");
+		editor.foreground_index = 0;
+		slog("searching for foreground %s", background_path);
+		for (int i = 0; i < background_count; ++i) {
+			slog("comparing against %s", backgrounds[i]);
+			if (strcmp(foreground_path, backgrounds[i]) == 0) {
+				slog("found %s", backgrounds[i]);
+				editor.foreground_index = i;
+				break;
+			}
+		}
+		level_editor_reload_bgs();
+
 		sj_free(obj);
 	} else {
 		// Make the tilemap
@@ -221,6 +261,11 @@ void level_editor_init(const char *file_path, int new_file) {
 			FRAME_SIZE,
 			1,
 			0);
+
+		// Load the default background and foreground
+		editor.background_index = 0;
+		editor.foreground_index = 1;
+		level_editor_reload_bgs();
 
 	}
 
@@ -249,15 +294,48 @@ void level_editor_update() {
 	if (world_pos.y < 0) world_pos.y = 0;
 	if (world_pos.y > editor.map_size.y * FRAME_SIZE) world_pos.y = (editor.map_size.y - 1) * FRAME_SIZE;
 	// Cl
-	slog("%f %f", world_pos.x, world_pos.y);
+	//slog("%f %f", world_pos.x, world_pos.y);
+	
 
-	if (gfc_input_command_pressed("editor_place")) {
-		int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
-		editor.tilemap[row][col] = editor.tile_index;
-	}
+		if (gfc_input_command_down("editor_place")) {
+			int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
+			editor.tilemap[row][col] = editor.tile_index;
+		} else if (gfc_input_command_down("editor_remove")) {
+			int row = world_pos.y / FRAME_SIZE, col = world_pos.x / FRAME_SIZE;
+			editor.tilemap[row][col] = 0;
+		}	
 }
 
 void level_editor_draw() {
+	// Get the zoom vector once and never again
+	GFC_Vector2D zoom = main_camera_get_zoom();
+	
+	// Draw the background with parallax effect in
+	GFC_Vector2D bg_center = gfc_vector2d(editor.background->frame_w * 0.5, editor.background->frame_h * 0.5);
+	GFC_Vector2D fg_center = gfc_vector2d(editor.foreground->frame_w * 0.5, editor.foreground->frame_h * 0.5);
+	gfc_vector2d_scale_by(bg_center, bg_center, gfc_vector2d(PARALLAX_FACTOR, PARALLAX_FACTOR));
+	gfc_vector2d_scale_by(fg_center, fg_center, gfc_vector2d(PARALLAX_FACTOR, PARALLAX_FACTOR));
+	bg_center = main_camera_calc_drawpos(bg_center);
+	fg_center = main_camera_calc_drawpos(fg_center);
+
+	gf2d_sprite_draw(editor.background,
+			bg_center,
+			&zoom,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			0);
+	gf2d_sprite_draw(editor.foreground,
+			fg_center,
+			&zoom,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			0);
+
+	// Draw the tilemap
 	for (int row = 0; row < editor.map_size.y; ++row) {
 		for (int col = 0; col < editor.map_size.x; ++col) {
 			int data = editor.tilemap[row][col];
@@ -268,7 +346,6 @@ void level_editor_draw() {
 			frame--;
 			
 			GFC_Vector2D position = {col * FRAME_SIZE, row * FRAME_SIZE};
-			GFC_Vector2D zoom = main_camera_get_zoom();
 			GFC_Vector2D draw_pos = main_camera_calc_drawpos(position);
 
 
@@ -305,6 +382,9 @@ void level_editor_close() {
 	for (int i = 0; i < hazard_list_count; ++i) {
 		gf2d_sprite_free(hazard_list[i].icon);
 	}
+
+	if (editor.foreground) gf2d_sprite_free(editor.foreground);
+	if (editor.background) gf2d_sprite_free(editor.background);
 
 	free(editor.tiledata);
 }

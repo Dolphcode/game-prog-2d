@@ -68,21 +68,6 @@ int parse_args(int argc, char * argv[]) {
 				break;
 		}
 	}	
-	/*
-	for (int i = 1; i < argc; i++) {
-		if (gfc_string_l_strcmp(gfc_string(argv[i]), "-h") == 0) {
-			slog("The following command line options are valid options for this executable\n\t-h, --help\t\tShow help menu\n\t-c, --draw-center\t\tDraw entity center points\n\t-b, --draw-bounds\t\tDraw entity bounds\n");
-			return 1;
-		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-c") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-center") == 0) {
-			DRAW_CENTER = 1;
-		} else if (gfc_string_l_strcmp(gfc_string(argv[i]), "-b") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--draw-bounds") == 0) {
-			DRAW_BOUNDS = 1;
-		} else if ((gfc_string_l_strcmp(gfc_string(argv[i]), "-w") == 0 || gfc_string_l_strcmp(gfc_string(argv[i]), "--weapon") == 0) && i + 1 < argc) {
-			++i;
-			strcpy(weapon, argv[i]);
-		}
-	}*/
-
 	return 0;
 }
 
@@ -144,7 +129,10 @@ int main(int argc, char * argv[])
     	world_make_active(world);
     }
 
-    Entity* player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
+    Entity *player;
+    if (!OPEN_LEVEL_EDITOR) player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
+    else player = cursor_player_spawn();
+    
     if (!OPEN_LEVEL_EDITOR) world->player = player;
     if (!OPEN_LEVEL_EDITOR) player_hud_init();
 

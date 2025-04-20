@@ -729,3 +729,28 @@ Entity *player_spawn(GFC_Vector2D position, const char * config) {
 	// Player weapon config
 	return player;
 }
+
+// The cursor player stuff
+#define CURSOR_SPEED 10
+void cursor_player_think(Entity *self) {
+	if (gfc_input_command_down("left")) {
+		self->position.x -= CURSOR_SPEED;
+	}
+	if (gfc_input_command_down("right")) {
+		self->position.x += CURSOR_SPEED;
+	}
+	if (gfc_input_command_down("up")) {
+		self->position.y -= CURSOR_SPEED;
+	}
+	if (gfc_input_command_down("down")) {
+		self->position.y += CURSOR_SPEED;
+	}
+}
+
+Entity *cursor_player_spawn() {
+	Entity *cursor = entity_new();
+	if (!cursor) return NULL;
+	cursor->think = cursor_player_think;
+	return cursor;
+}
+

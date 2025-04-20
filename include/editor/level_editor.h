@@ -51,6 +51,8 @@ typedef struct {
 	int		hazard_index;
 	int		wave_index;
 	int		entity_index;
+	int		background_index;
+	int		foreground_index;
 	char		file_path[256];
 	
 }LevelEditor;
@@ -64,8 +66,12 @@ void level_editor_update();
 void level_editor_draw();
 
 void level_editor_inc_selection();
-
 void level_editor_dec_selection();
+
+void level_editor_inc_bg();
+void level_editor_dec_bg();
+void level_editor_inc_fg();
+void level_editor_dec_fg();
 
 void level_editor_set_mode(LevelEditorMode mode);
 

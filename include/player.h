@@ -27,4 +27,6 @@ void player_hud_init();
 
 void player_hud_close();
 
+Entity *cursor_player_spawn();
+
 #endif

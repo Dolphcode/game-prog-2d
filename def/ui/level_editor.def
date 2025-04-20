@@ -1,8 +1,18 @@
 {
     "name":"level_editor_ui",
     "draw_layer":1,
-    "widget_count":5,
+    "widget_count":6,
     "widgets":[
+        {
+            "name":"top_pane",
+            "sprite":"./images/ui/editor/editor_top_pane.png",
+            "spriteFPL":4,
+            "spriteSize":[900,150],
+            "position": [0, 0],
+            "rect":[900,150],
+            "color":[255, 255, 255],
+            "type":0
+        },
         {
             "name":"tile_label",
             "sprite":"./images/medkit.png",
