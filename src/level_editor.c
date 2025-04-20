@@ -93,6 +93,10 @@ LevelEditor *level_editor_get_reference() {
 	return &editor;
 }
 
+void init_ui_elements() {
+
+}
+
 void level_editor_reload_bgs() {
 	if (editor.background) {
 		gf2d_sprite_free(editor.background);
@@ -706,7 +710,7 @@ void level_editor_save() {
 	// Now save the  world
 	sj_object_insert(data, "world", world_obj);
 	sj_save(data, file_path_str);
-
+	sj_free(data);
 
 }
 

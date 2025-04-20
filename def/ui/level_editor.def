@@ -1,7 +1,7 @@
 {
     "name":"level_editor_ui",
     "draw_layer":1,
-    "widget_count":11,
+    "widget_count":6,
     "widgets":[
         {
             "name":"top_pane",
@@ -14,42 +14,15 @@
             "type":0
         },
         {
-            "name":"background_label",
+            "name":"title",
             "position": [5, 5],
             "rect":[64,64],
             "color":[255, 255, 255],
             "type":1,
             "data":{
                 "font":"./fonts/typewcond_regular.otf",
-                "text":"Background",
-                "font_size":30
-            }
-        },
-        {
-            "name":"foreground_label",
-            "position": [5, 45],
-            "rect":[64,64],
-            "color":[255, 255, 255],
-            "type":1,
-            "data":{
-                "font":"./fonts/typewcond_regular.otf",
-                "text":"Foreground",
-                "font_size":30
-            }
-        },
-        {
-            "name":"tile_label",
-            "sprite":"./images/medkit.png",
-            "spriteFPL":4,
-            "spriteSize":[64,64],
-            "position": [220, 10],
-            "rect":[64,64],
-            "color":[255, 0, 255],
-            "type":1,
-            "data":{
-                "font":"./fonts/typewcond_regular.otf",
-                "text":"Tile Number",
-                "font_size":30
+                "text":"Level Editor",
+                "font_size":70
             }
         },
         {
@@ -105,45 +78,29 @@
             }
         },
         {
-            "name":"label1",
-            "sprite":"./images/medkit.png",
-            "spriteFPL":4,
-            "spriteSize":[64,64],
-            "position": [600, 200],
+            "name":"background_label",
+            "position": [5, 5],
             "rect":[64,64],
-            "color":[255, 0, 0],
+            "color":[255, 255, 255],
             "type":1,
             "data":{
                 "font":"./fonts/typewcond_regular.otf",
-                "text":"Hi Ada!",
-                "font_size":50
+                "text":"Background",
+                "font_size":30
             }
         },
         {
-            "name":"sprite",
-            "sprite":"./images/medkit.png",
-            "spriteFPL":4,
-            "spriteSize":[64,64],
-            "position": [0, 200],
+            "name":"foreground_label",
+            "position": [5, 45],
             "rect":[64,64],
-            "color":[255, 0, 0],
-            "type":0
-        },
-        {
-            "name":"label2",
-            "sprite":"./images/medkit.png",
-            "spriteFPL":4,
-            "spriteSize":[64,64],
-            "position": [200, 200],
-            "rect":[64,64],
-            "color":[0, 255, 255],
+            "color":[255, 255, 255],
             "type":1,
             "data":{
                 "font":"./fonts/typewcond_regular.otf",
-                "text":"Hi Holden!",
-                "font_size":50
+                "text":"Foreground",
+                "font_size":30
             }
-        }
+        },
 
     ]
 }
