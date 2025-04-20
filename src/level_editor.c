@@ -24,7 +24,9 @@
 
 #define DEFAULT_MAP_W	100
 #define DEFAULT_MAP_H	100
-#define DEFAULT_TILESET		"images/tiles.png"
+#define DEFAULT_TILESET		"images/larger_tileset.png"
+#define DEFAULT_TILEDATA	"def/tiledata.def"
+#define DEFAULT_TILECOUNT	3
 
 #define HAZARD_MAX	128
 #define WAVE_MAX	10
@@ -351,6 +353,16 @@ void level_editor_init(const char *file_path, int new_file) {
 			FRAME_SIZE,
 			1,
 			0);
+
+		const char *tiledata_path = DEFAULT_TILEDATA;
+		int tiledata_count = DEFAULT_TILECOUNT;
+		SJson *tiledata_json = sj_load(tiledata_path), *data_list = sj_object_get_value(tiledata_json, "tileData"), *curr_tdata;
+		editor.tile_count = tiledata_count;
+		editor.tiledata = calloc(tiledata_count, sizeof(int));
+		for (int i = 0; i < tiledata_count; ++i) {
+			curr_tdata = sj_array_get_nth(data_list, i);
+			sj_object_get_int(curr_tdata, "frame", &(editor.tiledata[i]));
+		}
 
 		// Load the default background and foreground
 		editor.background_index = 0;
