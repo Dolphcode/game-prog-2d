@@ -177,6 +177,12 @@ void level_editor_init(const char *file_path, int new_file) {
 	}
 	closedir(curr_dir);
 
+	// Create the lists
+	editor.hazards = gfc_list_new();
+	for (int i = 0; i < WAVE_MAX; ++i) {
+		editor.waves[i] = gfc_list_new();
+	}
+
 	// Now either build the new world data or load data from a file
 	if (!new_file) {
 		// Load data 
@@ -243,6 +249,39 @@ void level_editor_init(const char *file_path, int new_file) {
 			}
 		}
 		level_editor_reload_bgs();
+
+		// Load the hazards
+		SJson *hazards_json = sj_object_get_value(obj, "hazards"), *hazard_list_json = sj_object_get_value(hazards_json, "hazard_list"), *curr_hazard;
+		Instance *curr_inst;
+		int world_hazard_count;
+		sj_object_get_int(hazards_json, "hazard_count", &world_hazard_count);
+		for (int i = 0; i < world_hazard_count; ++i) {
+			curr_inst = calloc(1, sizeof(Instance));
+			curr_hazard = sj_array_get_nth(hazard_list_json, i);
+			if (!curr_inst || !curr_hazard) continue;
+
+			GFC_Vector2D position = {0};
+			sj_object_get_vector2d(curr_hazard, "position", &position);
+
+			// Match the sprite to the hazard
+			const char *haz_id = sj_object_get_string(curr_hazard, "id");
+			for (int j = 0; j < hazard_list_count; ++j) {
+				if (strcmp(haz_id, hazard_list[j].id) == 0) {
+					curr_inst->index = j;
+					break;
+				}
+			}
+
+			// Since conveniently all hazards are a mere tile we'll stick with this for now
+			curr_inst->box.x = position.x;
+			curr_inst->box.y =  position.y;
+			curr_inst->box.h = 64;
+			curr_inst->box.w = 64;
+
+			// Append to the gfc_list
+			gfc_list_append(editor.hazards, curr_inst);
+		}
+
 
 		sj_free(obj);
 	} else {
@@ -353,7 +392,7 @@ void level_editor_draw() {
 			
 			GFC_Vector2D position = {col * FRAME_SIZE, row * FRAME_SIZE};
 			GFC_Vector2D draw_pos = main_camera_calc_drawpos(position);
-
+			slog("drawing a tile at %f %f", position.x, position.y);
 
 			gf2d_sprite_draw(editor.tileset,
 					draw_pos,
@@ -364,6 +403,28 @@ void level_editor_draw() {
 					NULL,
 					frame);
 		}
+	}
+
+	// Draw the hazards
+	int world_hazard_count = gfc_list_get_count(editor.hazards);
+	Sprite *curr_draw;
+	Instance *curr_inst;
+	for (int i = 0; i < world_hazard_count; ++i) {
+		curr_inst = gfc_list_get_nth(editor.hazards, i);
+		if (!curr_inst) continue;
+
+		curr_draw = hazard_list[curr_inst->index].icon;
+		GFC_Vector2D draw_pos = gfc_vector2d(curr_inst->box.x, curr_inst->box.y);
+		slog("Drawing a hazard at %f %f", curr_inst->box.x, curr_inst->box.y);
+		draw_pos = main_camera_calc_drawpos(draw_pos);
+		gf2d_sprite_draw(curr_draw,
+				draw_pos,
+				&zoom,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				0);
 	}
 
 	// Draw the cursor position
@@ -398,6 +459,7 @@ void level_editor_set_mode(LevelEditorMode mode);
 void level_editor_save();
 
 void level_editor_close() {
+	// Free the enemy and hazard sprites
 	for (int i = 0; i < enemy_list_count; ++i) {
 		gf2d_sprite_free(enemy_list[i].icon);
 	}
@@ -405,8 +467,35 @@ void level_editor_close() {
 		gf2d_sprite_free(hazard_list[i].icon);
 	}
 
+	// Free the foreground and background sprites if possible
 	if (editor.foreground) gf2d_sprite_free(editor.foreground);
 	if (editor.background) gf2d_sprite_free(editor.background);
+
+	// Free the hazard list
+	if (editor.hazards) {
+		Instance *inst;
+		int count = gfc_list_get_count(editor.hazards);
+		for (int i = count - 1; i >= count; --i) {
+			inst = gfc_list_get_nth(editor.hazards, i);
+			free(inst);
+			gfc_list_delete_nth(editor.hazards, i);
+		}
+		gfc_list_delete(editor.hazards);
+	}
+
+	// Free the wave lists
+	for (int i = 0; i < WAVE_MAX; ++i) {
+		if (editor.waves[i]) {
+			Instance *inst;
+			int count = gfc_list_get_count(editor.waves[i]);
+			for (int i = count - 1; i >= count; --i) {
+				inst = gfc_list_get_nth(editor.waves[i], i);
+				free(inst);
+				gfc_list_delete_nth(editor.waves[i], i);
+			}
+			gfc_list_delete(editor.waves[i]);
+		}
+	}
 
 	free(editor.tiledata);
 }

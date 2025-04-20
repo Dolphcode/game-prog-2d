@@ -1,5 +1,5 @@
 {
-	"name":"temp_platform_1by1",
+	"name":"temp_platform",
 	"sprite":"./images/temp_platform.png",
 	"spriteFPL":1,
 	"spriteSize":[64,64],
