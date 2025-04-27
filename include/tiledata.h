@@ -2,6 +2,7 @@
 #define __TILEDATA_H__
 
 #include "gfc_vector.h"
+#include "gfc_color.h"
 
 typedef enum {
 	TCT_NONE = 0,	// <No collision, player will pass through block
@@ -12,6 +13,7 @@ typedef enum {
 typedef struct {
 	// Draw data
 	Uint32			frame;	// <Which frame this tile represents
+	GFC_Color		minimap_color;
 	
 	// Collision data
 	TileCollisionType	collision_type;	// <The type of collision this tile

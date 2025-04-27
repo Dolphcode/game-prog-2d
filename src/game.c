@@ -35,8 +35,11 @@ static Uint8 newfile = 0;
 int parse_args(int argc, char * argv[]) {
 	
 	int opt;
-	while ((opt = getopt(argc, argv, ":cbun:o:l:w:")) != -1) {
+	while ((opt = getopt(argc, argv, ":cbOun:o:l:w:")) != -1) {
 		switch(opt) {
+            case 'O':
+                DRAW_OBSCURERS = 1;
+                break;
 			case 'c':
 				DRAW_CENTER = 1;
 				break;

@@ -27,5 +27,15 @@
 		"dashCooldown":20,
 		"restorativeAccel": 800.0,
 		"groundAccel": 800.0
+	},
+	"lights": {
+		"count":1,
+		"list":[
+			{
+				"offset":[0,0],
+				"radius":50,
+				"color":[255, 255, 255]
+			}
+		]
 	}
 }

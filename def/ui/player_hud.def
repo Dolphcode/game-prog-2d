@@ -1,0 +1,106 @@
+{
+    "name":"player_hud",
+    "draw_layer":0,
+    "widget_count":6,
+    "widgets":[
+        {
+            "name":"top_pane",
+            "sprite":"./images/ui/editor/editor_top_pane.png",
+            "spriteFPL":4,
+            "spriteSize":[900,150],
+            "position": [0, 0],
+            "rect":[900,150],
+            "color":[255, 255, 255],
+            "type":0
+        },
+        {
+            "name":"title",
+            "position": [5, 5],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Level Editor",
+                "font_size":70
+            }
+        },
+        {
+            "name":"tile_save_button",
+            "sprite":"./images/ui/editor/save_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [370, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_save"
+            }
+        },
+        {
+            "name":"tile_edit_button",
+            "sprite":"./images/ui/editor/tile_edit_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [480, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_tile_mode"
+            }
+        },
+        {
+            "name":"hazard_edit_button",
+            "sprite":"./images/ui/editor/hazard_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [590, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_hazard_mode"
+            }
+        },
+        {
+            "name":"enemy_edit_button",
+            "sprite":"./images/ui/editor/enemy_edit_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [700, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_enemy_mode"
+            }
+        },
+        {
+            "name":"background_label",
+            "position": [5, 5],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Background",
+                "font_size":30
+            }
+        },
+        {
+            "name":"foreground_label",
+            "position": [5, 45],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Foreground",
+                "font_size":30
+            }
+        },
+
+    ]
+}

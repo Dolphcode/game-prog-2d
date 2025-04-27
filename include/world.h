@@ -15,6 +15,8 @@
 #define WAVE_SPAWN_MAX 100
 #define WAVE_MAX 10
 
+extern Uint8	DRAW_OBSCURERS;
+
 typedef struct
 {
 	char	id[256];// <the spawn id of this entity
@@ -58,6 +60,10 @@ typedef struct
 	Wave		waves[WAVE_MAX];// <Wave structs
 	int		curr_wave;	// <The current wave the world is on
 	int		wave_count;	// <Number of waves
+	
+	// Light obscurer information
+	GFC_Edge2D	*obscurers;	// <A list of edges that can obscure light sources in the world
+	int		obscurer_count;	// <The number of obscurers in the world
 
 	// Entities and the main camera
 	Camera		*main_camera;	// <The camera object corresponding with this world

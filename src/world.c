@@ -5,11 +5,15 @@
 
 #include "gfc_config.h"
 
+#include "gf2d_draw.h"
 #include "gf2d_graphics.h"
 
 #include "projectile.h"
 #include "world.h"
 #include "spawn.h"
+
+Uint8 DRAW_OBSCURERS = 0;
+
 /*
 typedef struct
 {
@@ -118,6 +122,108 @@ World *world_new(Uint32 width, Uint32 height, Uint32 tile_count) {
 	}
 
 	return world;
+}
+
+void world_build_obscurer_map(World *world) {
+	if (!world) return;
+
+	// Start by copying the tilemap to a new Uint32 array
+	Uint32 *tiles = malloc(sizeof(Uint32) * world->world_size.x * world->world_size.y);
+	memcpy(tiles, world->tile_map, sizeof(Uint32) * world->world_size.x * world->world_size.y);
+	slog("copied the tiles");
+
+	// Create the list of edges with the maximum possible number of edges
+
+	// Zero out tiles that are non colliding
+	for (int row = 0; row < world->world_size.y; ++row) {
+		for (int col = 0; col < world->world_size.x; ++col) {
+			int index = world->world_size.x * row + col;
+			if (tiles[index] == 0) continue;
+			TileData dat = world->tile_data[tiles[index] - 1];
+			if (dat.collision_type == TCT_NONE) {
+				tiles[index] = 0;
+			}
+		}
+	}
+	slog("removed noncolliding tiles");
+
+	// Iterate through tiles to create exposed edges
+	int edge_count = 0;
+	GFC_Edge2D **edges = malloc(sizeof(GFC_Edge2D *) * world->world_size.x * world->world_size.y * 4);
+	for (int row = 0; row < world->world_size.y; ++row) {
+		for (int col = 0; col < world->world_size.x; ++col) {
+			// Compute the index
+			int index = world->world_size.x * row + col;
+
+			// Skip air tiles
+			if (tiles[index] == 0) continue;
+
+			// Compute the world rect
+			GFC_Rect world_rect = gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size);
+
+			// Check each side
+			if (row == 0 || !tiles[index - (int)world->world_size.x]) { // top side
+				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
+				*(edges[edge_count++]) = gfc_edge(world_rect.x, world_rect.y, world_rect.x + world_rect.w, world_rect.y);
+				slog("bottom edge");
+			}
+
+			if (row == world->world_size.y - 1 || !tiles[index + (int)world->world_size.x]) { // bottom side
+				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
+				*(edges[edge_count++]) = gfc_edge(world_rect.x, world_rect.y + world_rect.h, world_rect.x + world_rect.w, world_rect.y + world_rect.h);
+				slog("top edge");
+			}
+
+			if (col == 0 || !tiles[index - 1]) { // left side
+				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
+				*(edges[edge_count++]) = gfc_edge(world_rect.x, world_rect.y, world_rect.x, world_rect.y + world_rect.h);
+				slog("left edge");
+			}
+
+			if (col == world->world_size.x - 1 || !tiles[index + 1]) { // right side
+				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
+				*(edges[edge_count++]) = gfc_edge(world_rect.x + world_rect.w, world_rect.y, world_rect.x + world_rect.w, world_rect.y + world_rect.h);
+				slog("right edge");
+			}
+		}
+	}
+	slog("identified exposed edges, %d", edge_count);
+
+	// Now build the obscurers list by merging adjacent edges
+	int final_edge_count = 0;
+	GFC_Edge2D *obscurers = malloc(sizeof(GFC_Edge2D) * edge_count);
+	for (int i = 0; i < edge_count; ++i) {
+		if (edges[i] == NULL) continue;
+		obscurers[final_edge_count] = *(edges[i]);
+		free(edges[i]);
+		edges[i] = NULL;
+
+		int direction = (obscurers[final_edge_count].x1 == obscurers[final_edge_count].x2) ? 1 : 0; // 1 is horizontal, 0 is vertical
+
+		for (int j = i + 1; j < edge_count; ++j) {
+			if (edges[j] == NULL) continue;
+			GFC_Edge2D comp = *(edges[j]);
+			int comp_dir = (comp.x1 == comp.x2) ? 1 : 0;
+			if (comp_dir == direction && comp.x1 == obscurers[final_edge_count].x2 && comp.y1 == obscurers[final_edge_count].y2) {
+				// Free the consolidated edge
+				free(edges[j]);
+				edges[j] = NULL;
+
+				// Adjust the obscurer endpoint
+				obscurers[final_edge_count].x2 = comp.x2;
+				obscurers[final_edge_count].y2 = comp.y2;
+			}
+		}
+		final_edge_count++;
+	}
+	obscurers = realloc(obscurers, sizeof(GFC_Edge2D) * final_edge_count);
+	world->obscurers = obscurers;
+	world->obscurer_count = final_edge_count;
+	slog("World has %d edges", final_edge_count);
+
+	// Reallocate memory for the obscurer list for efficiency and free the tiles
+	free(edges);
+	free(tiles);
 }
 
 void world_build_tile_layer(World *world) {
@@ -232,7 +338,7 @@ World *world_load(const char *filename) {
 	// Create the world object
 	Uint32 tile_count = 0;
 	GFC_Vector2D world_size = {0};
-	sj_object_get_uint32(world_json, "tileCount", &tile_count);
+	sj_object_get_uint32(tile_json, "tileCount", &tile_count);
 	slog("creating for tilecount %i", tile_count);
 	sj_object_get_vector2d(world_json, "worldSize", &world_size);
 	World* world = world_new(world_size.x, world_size.y, tile_count);
@@ -261,15 +367,15 @@ World *world_load(const char *filename) {
 	sj_object_get_float(world_json, "parallaxFactor", &world->bg_factor);
 
 	// Load the tileset
-	const char * tileset = sj_object_get_string(world_json, "tileSet");
+	const char * tileset = sj_object_get_string(tile_json, "tileSet");
 	if (!tileset) {
 		slog("missing 'tileSet' path");
 		return NULL;
 	}
 	Uint32 tileset_framesize = 0;
 	Uint32 tileset_fpl = 0;
-	sj_object_get_uint32(world_json, "frameSize", &tileset_framesize);
-	sj_object_get_uint32(world_json, "framesPerLine", &tileset_fpl);
+	sj_object_get_uint32(tile_json, "frameSize", &tileset_framesize);
+	sj_object_get_uint32(tile_json, "framesPerLine", &tileset_fpl);
 	world->tile_set = gf2d_sprite_load_all(
 		tileset,
 		tileset_framesize,
@@ -287,17 +393,20 @@ World *world_load(const char *filename) {
 		Uint32 frame = 0;
 		int coll_type = 0;
 		GFC_Vector2D coll_box = {0};
+		GFC_Vector3D minimap_color = {0};
 		
 		// Retrieve information from def file
 		sj_object_get_vector2d(tile, "collisionBox", &coll_box);
 		sj_object_get_int(tile, "collisionType", &coll_type);
 		sj_object_get_uint32(tile, "frame", &frame);
+		sj_object_get_vector3d(tile, "tileColor", &minimap_color);
 		
 		// Load tile data into slot
 		world->tile_data[i].frame = frame;
 		world->tile_data[i].collision_type = (TileCollisionType)coll_type;
 		world->tile_data[i].collision_box.x = coll_box.x;
 		world->tile_data[i].collision_box.y = coll_box.y;
+		world->tile_data[i].minimap_color = gfc_color8(minimap_color.x, minimap_color.y, minimap_color.z, 255);
 	}
 	
 	// Load the tilemap
@@ -331,8 +440,9 @@ World *world_load(const char *filename) {
 		}
 	}
 
-	// Build the tile layer
+	// Build the tile layer, then load teh obscurers
 	world_build_tile_layer(world);
+	world_build_obscurer_map(world);
 
 	// Create the entity list
 	world->entity_list = gfc_list_new();
@@ -495,6 +605,18 @@ void world_draw(World *world) {
 			0);
 
 	if (DRAW_BOUNDS) space_draw(world->space);
+
+	if (DRAW_OBSCURERS) {
+		for (int n = 0; n < world->obscurer_count; ++n) {
+			GFC_Vector2D p1 = gfc_vector2d(world->obscurers[n].x1, world->obscurers[n].y1);
+			GFC_Vector2D p2 = gfc_vector2d(world->obscurers[n].x2, world->obscurers[n].y2);
+			slog("Drawing a line %d from %f %f to %f %f", n, p1.x, p1.y, p2.x, p2.y);
+			p1 = main_camera_calc_drawpos(p1);
+			p2 = main_camera_calc_drawpos(p2);
+			gf2d_draw_line(p1, p2, GFC_COLOR_BROWN);
+		
+		}
+	}
 }
 
 static int wave = 0;

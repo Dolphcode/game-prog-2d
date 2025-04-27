@@ -10,6 +10,7 @@
 #include "gf2d_sprite.h"
 
 #include "physicsbody.h"
+#include "light.h"
 
 #define TEAM_PLAYER 	0b00000001
 #define TEAM_HOSTILE  	0b00000010
@@ -80,6 +81,10 @@ typedef struct Entity_S
 	void		(*touch)(struct Entity_S *self, struct Entity_S *other);	// <Called every physics step this entity is overlapping with another entity
 	void		(*static_touch)(struct Entity_S *self);				// <Called if monitor static overlaps is true for every physics step this entity is overlapping with a static shape
 					
+	// Lights
+	struct LightSource_S	*sources;	// <The list of light sources tied to this object
+	int		source_count;	// <The number of light sources attached to this object
+
 	// Entity status
 	float		max_health;	// <This entity's maximum health
 	float		health;		// <This entity's health
