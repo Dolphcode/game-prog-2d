@@ -6,12 +6,20 @@
 #include "gfc_vector.h"
 #include "gfc_color.h"
 
+typedef struct {
+	float x, y;
+	int one_way;
+}BlockingEdge2D;
 
 typedef struct LightSource_S {
 	GFC_Vector2D	offset;	// <The offset from the center of the parent where this light source should be drawn
 	float		range;	// <The range of the light
 	GFC_Color	color;	// <The color of the light
 }LightSource;
+
+void light_manager_init();
+
+void light_manager_close();
 
 /**
  * @brief renders the lighting overlay based on the world's entity list and obscuring map
@@ -22,8 +30,9 @@ void light_manager_render_overlay();
 /**
  * @brief loads a light source from an entity json object
  * @param json the json object to load the light source from
+ * @return a light source object
  */
-void light_source_load(SJson *json); 
+LightSource *light_source_load(SJson *json); 
 
 
 

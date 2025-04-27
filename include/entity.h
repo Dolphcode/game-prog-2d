@@ -82,7 +82,7 @@ typedef struct Entity_S
 	void		(*static_touch)(struct Entity_S *self);				// <Called if monitor static overlaps is true for every physics step this entity is overlapping with a static shape
 					
 	// Lights
-	struct LightSource_S	*sources;	// <The list of light sources tied to this object
+	struct LightSource_S	**sources;	// <The list of light sources tied to this object
 	int		source_count;	// <The number of light sources attached to this object
 
 	// Entity status
@@ -111,6 +111,13 @@ void entity_system_init(Uint32 maxEnts);
  * @brief free all entities in the entity system
  */
 void entity_system_free_all();
+
+/**
+ * @brief gets a pointer to the entity system
+ */
+Entity *entity_system_get();
+
+int entity_system_get_max();
 
 /**
  * @brief free entities in the entity system from a list
