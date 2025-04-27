@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "world.h"
 #include "physicsbody.h"
+#include "light.h"
 
 Uint8	DRAW_CENTER = 0;
 Uint8	DRAW_BOUNDS = 0;
@@ -23,6 +24,14 @@ typedef struct
 }EntitySystem;
 
 static EntitySystem entity_system = {0};
+
+Entity *entity_system_get() {
+	return entity_system.entity_list;
+}
+
+int entity_system_get_max() {
+	return entity_system.entity_max;
+}
 
 /**
  * @brief frees all entities and closes the entity system
@@ -179,6 +188,15 @@ void entity_free(Entity *ent) {
 		free(ent->data);
 	}
 
+	// Free the lights
+	if (ent->sources) {
+		for (int i = 0; i < ent->source_count; ++i) {
+			free(ent->sources[i]);
+			ent->sources[i] = NULL;
+		}
+		free(ent->sources);
+	}
+
 	// Mark entity as no longer in use
 	ent->_inuse = 0;
 	entity_system.active_entities--;
@@ -305,6 +323,22 @@ void entity_configure(Entity *self, SJson *json) {
 	entity_configure_body(self, coll_info, hitbox_info);
 	if (world_get_active() != NULL) {
 		space_add_entity(world_get_active()->space, self);	
+	}
+
+	// Load the light sources
+	SJson *light_json = sj_object_get_value(json, "lights");
+	if (light_json) {
+		slog("entity has lights");
+		int count;
+		sj_object_get_int(light_json, "count", &count);
+		SJson *light_list = sj_object_get_value(light_json, "list"), *light_obj;
+		self->source_count = count;
+		self->sources = malloc(sizeof(LightSource*) * count);
+		for (int i = 0; i < count; ++i) {
+			slog("loading light %d", i + 1);
+			light_obj = sj_array_get_nth(light_list, i);
+			self->sources[i] = light_source_load(light_obj);
+		}
 	}
 
 	// Load the entity name

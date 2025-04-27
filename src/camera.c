@@ -125,10 +125,10 @@ void camera_update(Camera *self) {
 	self->position = self->target->position;
 
 	// Update the rect
-	self->bounds.x = self->position.x - screen_res.x / 2.0;
-	self->bounds.y = self->position.y - screen_res.y / 2.0;
-	self->bounds.w = screen_res.x;
-	self->bounds.h = screen_res.y;
+	self->bounds.x = self->position.x - screen_res.x / 2.0 / self->zoom;
+	self->bounds.y = self->position.y - screen_res.y / 2.0 / self->zoom;
+	self->bounds.w = screen_res.x / self->zoom;
+	self->bounds.h = screen_res.y / self->zoom;
 }
 
 GFC_Vector2D camera_get_zoom(Camera *self) {

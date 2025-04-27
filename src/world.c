@@ -80,6 +80,11 @@ void world_free(World *world) {
 		space_free(world->space);
 	}
 
+	if (world->obscurers) {
+		slog("freed all obscurers");
+		free(world->obscurers);
+	}
+
 	// Clear the projectile pool
 	projectile_pool_clear();
 

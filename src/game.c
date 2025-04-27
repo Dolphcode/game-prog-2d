@@ -20,6 +20,7 @@
 #include "player.h"
 #include "spawn.h"
 #include "projectile.h"
+#include "light.h"
 
 #include "ui/window.h"
 #include "ui/widget.h"
@@ -107,6 +108,7 @@ int main(int argc, char * argv[])
         0);
     gf2d_graphics_set_frame_delay(16);
     gf2d_sprite_init(1024);
+    light_manager_init();
 	
 	srand((unsigned int)time(NULL));
     // Parse Args
@@ -184,6 +186,7 @@ int main(int argc, char * argv[])
 	    // Then draw entities
 	    entity_system_think_all();
 
+	    light_manager_render_overlay();
 	    if (world_get_active()) {
 	    	entity_system_presync_all();
 	    	space_update(world_get_active()->space);
