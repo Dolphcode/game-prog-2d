@@ -62,7 +62,7 @@ typedef struct
 	int		wave_count;	// <Number of waves
 	
 	// Light obscurer information
-	GFC_Edge2D	*obscurers;	// <A list of edges that can obscure light sources in the world
+	BlockingEdge2D	*obscurers;	// <A list of edges that can obscure light sources in the world
 	int		obscurer_count;	// <The number of obscurers in the world
 
 	// Entities and the main camera

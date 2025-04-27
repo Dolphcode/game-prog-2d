@@ -7,7 +7,7 @@
 #include "gfc_color.h"
 
 typedef struct {
-	float x, y;
+	float x1, y1, x2, y2;
 	int one_way;
 }BlockingEdge2D;
 

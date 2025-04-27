@@ -154,7 +154,7 @@ void world_build_obscurer_map(World *world) {
 
 	// Iterate through tiles to create exposed edges
 	int edge_count = 0;
-	GFC_Edge2D **edges = malloc(sizeof(GFC_Edge2D *) * world->world_size.x * world->world_size.y * 4);
+	BlockingEdge2D **edges = malloc(sizeof(BlockingEdge2D *) * world->world_size.x * world->world_size.y * 4);
 	for (int row = 0; row < world->world_size.y; ++row) {
 		for (int col = 0; col < world->world_size.x; ++col) {
 			// Compute the index
@@ -162,32 +162,43 @@ void world_build_obscurer_map(World *world) {
 
 			// Skip air tiles
 			if (tiles[index] == 0) continue;
+			
+			// Check if it's one way or not
+			TileData dat = world->tile_data[tiles[index] - 1];
+			int one_way = 0;
+			if (dat.collision_type == TCT_ONE_WAY) {
+				one_way = 1;
+			}
 
 			// Compute the world rect
 			GFC_Rect world_rect = gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size);
 
 			// Check each side
 			if (row == 0 || !tiles[index - (int)world->world_size.x]) { // top side
-				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
-				*(edges[edge_count++]) = gfc_edge(world_rect.x, world_rect.y, world_rect.x + world_rect.w, world_rect.y);
+				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
+				BlockingEdge2D new_edge = {world_rect.x, world_rect.y, world_rect.x + world_rect.w, world_rect.y, one_way};
+				*(edges[edge_count++]) = new_edge;
 				slog("bottom edge");
 			}
 
-			if (row == world->world_size.y - 1 || !tiles[index + (int)world->world_size.x]) { // bottom side
-				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
-				*(edges[edge_count++]) = gfc_edge(world_rect.x, world_rect.y + world_rect.h, world_rect.x + world_rect.w, world_rect.y + world_rect.h);
+			if ((row == world->world_size.y - 1 || !tiles[index + (int)world->world_size.x]) && dat.collision_type != TCT_ONE_WAY) { // bottom side
+				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
+				BlockingEdge2D new_edge = {world_rect.x, world_rect.y + world_rect.h, world_rect.x + world_rect.w, world_rect.y + world_rect.h, one_way};
+				*(edges[edge_count++]) = new_edge;
 				slog("top edge");
 			}
 
-			if (col == 0 || !tiles[index - 1]) { // left side
-				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
-				*(edges[edge_count++]) = gfc_edge(world_rect.x, world_rect.y, world_rect.x, world_rect.y + world_rect.h);
+			if ((col == 0 || !tiles[index - 1]) && dat.collision_type != TCT_ONE_WAY) { // left side
+				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
+				BlockingEdge2D new_edge = {world_rect.x, world_rect.y, world_rect.x, world_rect.y + world_rect.h, one_way};
+				*(edges[edge_count++]) = new_edge;
 				slog("left edge");
 			}
 
-			if (col == world->world_size.x - 1 || !tiles[index + 1]) { // right side
-				edges[edge_count] = malloc(sizeof(GFC_Edge2D));
-				*(edges[edge_count++]) = gfc_edge(world_rect.x + world_rect.w, world_rect.y, world_rect.x + world_rect.w, world_rect.y + world_rect.h);
+			if ((col == world->world_size.x - 1 || !tiles[index + 1]) && dat.collision_type != TCT_ONE_WAY) { // right side
+				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
+				BlockingEdge2D new_edge = {world_rect.x + world_rect.w, world_rect.y, world_rect.x + world_rect.w, world_rect.y + world_rect.h, one_way};
+				*(edges[edge_count++]) = new_edge;
 				slog("right edge");
 			}
 		}
@@ -196,7 +207,7 @@ void world_build_obscurer_map(World *world) {
 
 	// Now build the obscurers list by merging adjacent edges
 	int final_edge_count = 0;
-	GFC_Edge2D *obscurers = malloc(sizeof(GFC_Edge2D) * edge_count);
+	BlockingEdge2D *obscurers = malloc(sizeof(BlockingEdge2D) * edge_count);
 	for (int i = 0; i < edge_count; ++i) {
 		if (edges[i] == NULL) continue;
 		obscurers[final_edge_count] = *(edges[i]);
@@ -207,7 +218,7 @@ void world_build_obscurer_map(World *world) {
 
 		for (int j = i + 1; j < edge_count; ++j) {
 			if (edges[j] == NULL) continue;
-			GFC_Edge2D comp = *(edges[j]);
+			BlockingEdge2D comp = *(edges[j]);
 			int comp_dir = (comp.x1 == comp.x2) ? 1 : 0;
 			if (comp_dir == direction && comp.x1 == obscurers[final_edge_count].x2 && comp.y1 == obscurers[final_edge_count].y2) {
 				// Free the consolidated edge
@@ -221,7 +232,7 @@ void world_build_obscurer_map(World *world) {
 		}
 		final_edge_count++;
 	}
-	obscurers = realloc(obscurers, sizeof(GFC_Edge2D) * final_edge_count);
+	obscurers = realloc(obscurers, sizeof(BlockingEdge2D) * final_edge_count);
 	world->obscurers = obscurers;
 	world->obscurer_count = final_edge_count;
 	slog("World has %d edges", final_edge_count);

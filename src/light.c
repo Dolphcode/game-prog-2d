@@ -70,13 +70,14 @@ void light_manager_render_overlay() {
 	
 
 	// Now we must identify which obscurers in the world are in view
-	GFC_Edge2D *world_edges = malloc(world->obscurer_count * sizeof(GFC_Edge2D));
+	BlockingEdge2D *world_edges = malloc(world->obscurer_count * sizeof(BlockingEdge2D));
 	int edges_in_view = 0;
 	for (int i = 0; i < world->obscurer_count; ++i) {
-		GFC_Edge2D edge = world->obscurers[i];
+		BlockingEdge2D edge = world->obscurers[i];
+		GFC_Edge2D edge_conv = {edge.x1, edge.y1, edge.x2, edge.y2};
 		if (gfc_point_in_rect(gfc_vector2d(edge.x1, edge.y1), cam_bounds)
 			       	|| gfc_point_in_rect(gfc_vector2d(edge.x2, edge.y2), cam_bounds)
-				|| gfc_edge_rect_intersection(edge, cam_bounds)) {
+				|| gfc_edge_rect_intersection(edge_conv, cam_bounds)) {
 			world_edges[edges_in_view++] = edge;
 		}
 	}
@@ -141,6 +142,8 @@ void light_manager_render_overlay() {
 
 				// Now build quads and draw them based on each obscurer
 				for (int v = 0; v < edges_in_view; ++v) {
+					if (world_edges[v].one_way && ent->position.y > world_edges[v].y1) continue; 
+
 					// Start with the three points used to calculate the quad
 					GFC_Vector2D p1 = main_camera_calc_drawpos(gfc_vector2d(world_edges[v].x1, world_edges[v].y1)),
 						     p2 = main_camera_calc_drawpos(gfc_vector2d(world_edges[v].x2, world_edges[v].y2)),

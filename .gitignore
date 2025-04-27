@@ -1,6 +1,9 @@
 # Shell files
 *.sh
 
+# Backup files
+*.bak
+
 # Prerequisites
 *.d
 
