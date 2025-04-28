@@ -103,6 +103,7 @@ void projectile_touch(Entity *self, Entity *other) {
 	if (!data->pierce) {
 		data->is_active = 0;
 		self->body->disabled = 1;
+		self->do_draw = 0;
 	}
 }
 
@@ -116,6 +117,7 @@ void projectile_update(Entity *self) {
 	} else {
 		data->is_active = 0;
 		self->body->disabled = 1;
+		self->do_draw = 0;
 	}
 }
 
@@ -253,6 +255,7 @@ Entity *projectile_spawn(const char *name) {
 				data->is_active = 1;
 				data->timer = 0;
 				proj->body->disabled = 0;
+				proj->do_draw = 1;
 				return proj;
 			}
 		}

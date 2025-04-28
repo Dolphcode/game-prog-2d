@@ -186,7 +186,6 @@ int main(int argc, char * argv[])
 	    // Then draw entities
 	    entity_system_think_all();
 
-	    light_manager_render_overlay();
 	    if (world_get_active()) {
 	    	entity_system_presync_all();
 	    	space_update(world_get_active()->space);
@@ -201,6 +200,7 @@ int main(int argc, char * argv[])
 	    camera_update(cam);
 	    entity_system_draw_all();
 
+	    light_manager_render_overlay();
             //UI elements last
 	    if (!OPEN_LEVEL_EDITOR) player_hud_draw();
 		

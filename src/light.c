@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_image.h>
 
 #include "simple_logger.h"
 
@@ -15,9 +16,16 @@
 #include "light.h"
 #include "camera.h"
 
+#define LIGHT_IMG_PATH 	"images/core/light.png"
+#define LIGHT_IMG_S	256
+
 typedef struct {
 	SDL_Texture *mask;
+	SDL_Texture *layer;
 	SDL_Texture *map;
+
+	SDL_Texture *light_sprite;
+
 	SDL_Renderer *renderer;
 }LightManager;
 
@@ -35,8 +43,18 @@ void light_manager_init() {
 			SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_TARGET,
 			screen_res.x, screen_res.y);
+	light_manager.layer = SDL_CreateTexture(light_manager.renderer,
+			SDL_PIXELFORMAT_ARGB8888,
+			SDL_TEXTUREACCESS_TARGET,
+			screen_res.x, screen_res.y);
 
-	SDL_SetTextureBlendMode(light_manager.mask, SDL_BLENDMODE_MUL); // the mask is multiplied by the individual lights
+	SDL_SetTextureBlendMode(light_manager.mask, SDL_BLENDMODE_MUL); 	// the mask is multiplied by the individual lights
+	SDL_SetTextureBlendMode(light_manager.layer, SDL_BLENDMODE_ADD); 	// the layer is added to the map per light
+	SDL_SetTextureBlendMode(light_manager.map, SDL_BLENDMODE_BLEND); 	// the map is blended onto the screen with a given alpha mod
+	
+	SDL_Surface *sprite_surf = IMG_Load(LIGHT_IMG_PATH);
+	light_manager.light_sprite = SDL_CreateTextureFromSurface(light_manager.renderer, sprite_surf);
+	SDL_FreeSurface(sprite_surf);
 
 	atexit(light_manager_close);
 }
@@ -44,6 +62,8 @@ void light_manager_init() {
 void light_manager_close() {
 	SDL_DestroyTexture(light_manager.mask);
 	SDL_DestroyTexture(light_manager.map);
+	SDL_DestroyTexture(light_manager.layer);
+	SDL_DestroyTexture(light_manager.light_sprite);
 }
 
 /**
@@ -63,10 +83,11 @@ void light_manager_render_overlay() {
 	Camera *cam = camera_get_main();
 	GFC_Rect cam_bounds = cam->bounds;
 	// debug bounds
+	/*
 	GFC_Vector2D bpos = gfc_vector2d(cam->bounds.x, cam->bounds.y);
 	bpos = main_camera_calc_drawpos(bpos);
 	GFC_Rect r = gfc_rect(bpos.x, bpos.y, cam->bounds.w * zoom, cam->bounds.h * zoom);
-	gf2d_draw_rect(r, GFC_COLOR_WHITE);
+	gf2d_draw_rect(r, GFC_COLOR_WHITE);*/
 	
 
 	// Now we must identify which obscurers in the world are in view
@@ -81,7 +102,6 @@ void light_manager_render_overlay() {
 			world_edges[edges_in_view++] = edge;
 		}
 	}
-	slog("%d edges are in view of the camera", edges_in_view);
 
 	// Create surfaces for drawing
 	GFC_Vector2D screen_res = gf2d_graphics_get_resolution();
@@ -96,11 +116,18 @@ void light_manager_render_overlay() {
 	// Reusable components
 	SDL_Rect mask_clear = {0, 0, screen_res.x, screen_res.y};
 
+	// Clear the light map
+	SDL_SetRenderTarget(light_manager.renderer, light_manager.map);
+	SDL_RenderClear(light_manager.renderer);
+	SDL_SetRenderDrawColor(light_manager.renderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(light_manager.renderer, &mask_clear);
+
+
 	// For each entity check if it has lights, and perform the rendering if its light box overlaps at all with the camera view space
 	int count = gfc_list_get_count(world->entity_list);
 	for (int i = 0; i < ent_max; ++i) {
 		Entity *ent = ents + i;
-		if (!ent->_inuse) continue;
+		if (!ent->_inuse || !ent->do_draw) continue;
 
 		if (ent->sources) {
 			for (int j = 0; j < ent->source_count; ++j) {
@@ -111,11 +138,11 @@ void light_manager_render_overlay() {
 				GFC_Circle light_rad = gfc_circle(s.offset.x + ent->position.x, s.offset.y + ent->position.y, s.range);
 				if (!gfc_circle_rect_overlap(light_rad, cam_bounds)) continue;
 
-
+				/*
 				GFC_Vector2D drawcent;
 				gfc_vector2d_add(drawcent, ent->position, s.offset);
 				drawcent = main_camera_calc_drawpos(drawcent);
-				gf2d_draw_circle(drawcent, s.range * zoom, s.color);
+				gf2d_draw_circle(drawcent, s.range * zoom, s.color);*/
 				
 				// Begin drawing the mask
 				/*
@@ -142,12 +169,14 @@ void light_manager_render_overlay() {
 
 				// Now build quads and draw them based on each obscurer
 				for (int v = 0; v < edges_in_view; ++v) {
+					// Get the draw location of the point
+					GFC_Vector2D p_l = main_camera_calc_drawpos(gfc_vector2d(ent->position.x, ent->position.y));
+
 					if (world_edges[v].one_way && ent->position.y > world_edges[v].y1) continue; 
 
 					// Start with the three points used to calculate the quad
 					GFC_Vector2D p1 = main_camera_calc_drawpos(gfc_vector2d(world_edges[v].x1, world_edges[v].y1)),
 						     p2 = main_camera_calc_drawpos(gfc_vector2d(world_edges[v].x2, world_edges[v].y2)),
-						     p_l = main_camera_calc_drawpos(gfc_vector2d(ent->position.x, ent->position.y)),
 						     p1_proj, p2_proj;
 
 					// Project to the closest edge of the screen for p1
@@ -175,25 +204,46 @@ void light_manager_render_overlay() {
 					curr_quad[2].position = fp2_proj;
 					curr_quad[3].position = fp2;
 
-					for (int i = 0; i < 4; ++i) {
-						slog("tri %d %f %f", i, curr_quad[i].position.x, curr_quad[i].position.y);
-					}
-
 					// Draw the vertex buffer
 					SDL_RenderGeometry(light_manager.renderer, NULL, curr_quad, 4, quad_index_order, 6);
-					slog("rendering some cool points for edge %d", v);
 				}
 
-				// Debugging
-				SDL_SetRenderTarget(light_manager.renderer, NULL);
-				SDL_RenderCopy(light_manager.renderer, light_manager.mask, NULL, NULL);
+				// Now create the layer by first rendering the light, then the shadow mask on top multiplicatively
+				SDL_SetRenderTarget(light_manager.renderer, light_manager.layer);
+				SDL_RenderClear(light_manager.renderer);
+
+				SDL_SetRenderDrawColor(light_manager.renderer, 0, 0, 0, 255);
+				SDL_RenderFillRect(light_manager.renderer, &mask_clear);
+
+				SDL_SetTextureColorMod(light_manager.light_sprite, s.color.r, s.color.g, s.color.b);
+				
+				float scale = s.range / (float)LIGHT_IMG_S;
+				GFC_Vector2D corner_pos;
+				gfc_vector2d_add(corner_pos, s.offset, ent->position);
+				gfc_vector2d_sub(corner_pos, corner_pos, gfc_vector2d(s.range * 0.5, s.range * 0.5));
+				corner_pos = main_camera_calc_drawpos(corner_pos);
+				SDL_Rect dsrect = {corner_pos.x, corner_pos.y, s.range * zoom, s.range * zoom};
+				SDL_RenderCopy(light_manager.renderer,
+						light_manager.light_sprite,
+						NULL,
+						&dsrect);
+				
+				SDL_RenderCopy(light_manager.renderer,
+						light_manager.mask,
+						NULL,
+						NULL);
+
+				// And add it to the map
+				SDL_SetRenderTarget(light_manager.renderer, light_manager.map);
+				SDL_RenderCopy(light_manager.renderer, light_manager.layer, NULL, NULL);
 			}
 		}
 	}
 
 	// Return the renderer to the window
 	SDL_SetRenderTarget(light_manager.renderer, NULL);
-
+	SDL_SetTextureAlphaMod(light_manager.map, 100);
+	SDL_RenderCopy(light_manager.renderer, light_manager.map, NULL, NULL);
 	free(world_edges);
 }
 

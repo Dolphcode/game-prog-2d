@@ -310,6 +310,7 @@ void entity_configure(Entity *self, SJson *json) {
 		GFC_Vector2D sprite_offset = {0};
 		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
+		self->do_draw = 1;
 	}
 
 	sj_object_get_uint8(json, "team", &self->team);
@@ -328,14 +329,12 @@ void entity_configure(Entity *self, SJson *json) {
 	// Load the light sources
 	SJson *light_json = sj_object_get_value(json, "lights");
 	if (light_json) {
-		slog("entity has lights");
 		int count;
 		sj_object_get_int(light_json, "count", &count);
 		SJson *light_list = sj_object_get_value(light_json, "list"), *light_obj;
 		self->source_count = count;
 		self->sources = malloc(sizeof(LightSource*) * count);
 		for (int i = 0; i < count; ++i) {
-			slog("loading light %d", i + 1);
 			light_obj = sj_array_get_nth(light_list, i);
 			self->sources[i] = light_source_load(light_obj);
 		}

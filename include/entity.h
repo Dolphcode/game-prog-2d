@@ -75,6 +75,7 @@ typedef struct Entity_S
 	void		(*think)(struct Entity_S *self);	// <Called before update(), used to determine entity actions
 	void		(*update)(struct Entity_S *self);	// <Called after think(), used to update entity state
 	void		(*draw)(struct Entity_S *self);		// <Called after update(), draw the entity (along with any other necessary draw calls)
+	Uint8		do_draw;				// <Check if we should draw in the first place, default to 1
 	
 	// Contact monitoring
 	Uint8		team;								// <Used to determine if overlaps should be detected between two entities
