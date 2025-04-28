@@ -54,6 +54,7 @@ typedef struct {
 	int		entity_index;
 	int		background_index;
 	int		foreground_index;
+	int		tiledata_index;
 	char		file_path[256];
 	
 }LevelEditor;
@@ -79,8 +80,11 @@ void level_editor_inc_bg();
 void level_editor_dec_bg();
 void level_editor_inc_fg();
 void level_editor_dec_fg();
+void level_editor_inc_tiledat();
+void level_editor_dec_tiledat();
 void level_editor_tile_mode();
 void level_editor_hazard_mode();
 void level_editor_enemy_mode();
+void level_editor_reload();
 
 #endif

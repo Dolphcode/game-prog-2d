@@ -80,21 +80,47 @@ static LevelEditor editor = {0};
 
 // List of hazards and enemies
 static Entry enemy_list[256], hazard_list[256];
-static int enemy_list_count = 0, hazard_list_count = 0, background_count = 0;
+static int enemy_list_count = 0, hazard_list_count = 0, background_count = 0, tiledata_count = 0;
 static char backgrounds[100][256];
+static char tiledatapaths[100][256];
 
 static char file_path_str[256];
 
 // References
 Window *level_editor_ui = NULL, *tile_editor_ui = NULL, *hazard_editor_ui = NULL, *wave_editor_ui = NULL;
-Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL, *selected_enemy_sprite = NULL, *selected_wave_label = NULL;
+Widget *selected_tile_label = NULL, *selected_tile_sprite = NULL, *selected_hazard_sprite = NULL, *selected_enemy_sprite = NULL, 
+       *selected_wave_label = NULL, *selected_bg_label = NULL, *selected_fg_label = NULL, *selected_tiledat_label = NULL;
 
 LevelEditor *level_editor_get_reference() {
 	return &editor;
 }
 
 void init_ui_elements() {
+	// Init ui for the tile editor
+	if (editor.tile_index > editor.tile_count) editor.tile_index = 1;
+	char buffer[256];
+	sprintf(buffer, "Tile #%d", editor.tile_index);
+	w_label_set_text(selected_tile_label, buffer);
+	int frame = editor.tiledata[editor.tile_index - 1];
+	selected_tile_sprite->frame = frame - 1;
 
+	// Init ui for the hazard editor
+	if (editor.hazard_index >= hazard_list_count) editor.hazard_index = 0;
+	selected_hazard_sprite->sprite = hazard_list[editor.hazard_index].icon;
+	
+	// Init ui for the entity editor
+	editor.entity_index++;
+	selected_enemy_sprite->sprite = enemy_list[editor.entity_index].icon;	
+	sprintf(buffer, "Wave #%d", editor.wave_index + 1);
+	w_label_set_text(selected_wave_label, buffer);
+	
+	// Init ui for the level editor
+	sprintf(buffer, "%s", backgrounds[editor.background_index]);
+	w_label_set_text(selected_bg_label, buffer);
+	sprintf(buffer, "%s", backgrounds[editor.foreground_index]);
+	w_label_set_text(selected_fg_label, buffer);
+	sprintf(buffer, "%s", tiledatapaths[editor.tiledata_index]);
+	w_label_set_text(selected_tiledat_label, buffer);
 }
 
 void level_editor_reload_bgs() {
@@ -187,6 +213,16 @@ void level_editor_init(const char *file_path, int new_file) {
 	}
 	closedir(curr_dir);
 
+	curr_dir = opendir("def/tiledata");
+	while ((curr_ent = readdir(curr_dir)) != NULL) {
+		if (curr_ent->d_name[0] == '.') continue;
+		strcpy(tiledatapaths[tiledata_count], "def/tiledata/");
+		strcat(tiledatapaths[tiledata_count], curr_ent->d_name);
+		slog("loaded tiledata %s", tiledatapaths[tiledata_count]);
+		tiledata_count++;
+	}
+	closedir(curr_dir);
+
 	// Create the lists
 	editor.hazards = gfc_list_new();
 	for (int i = 0; i < WAVE_MAX; ++i) {
@@ -216,18 +252,20 @@ void level_editor_init(const char *file_path, int new_file) {
 		}
 		slog("map loaded");
 
-		// Load the tileset
-		const char *tileset_path = sj_object_get_string(obj, "tileSet");
-		slog("loading tileset %s", tileset_path);
-		editor.tileset = gf2d_sprite_load_all(
-			tileset_path,
-			FRAME_SIZE,
-			FRAME_SIZE,
-			1,
-			0);
+		const char *tiledata_path = sj_object_get_string(obj, "tileData");
+		editor.tiledata_index = 0;
+		slog("searching for tiledata %s", tiledata_path);
+		for (int i = 0; i < tiledata_count; ++i) {
+			slog("comparing against %s", tiledatapaths[i]);
+			if (strcmp(tiledata_path, tiledatapaths[i]) == 0) {
+				slog("found %s", tiledatapaths[i]);
+				editor.tiledata_index = i;
+				break;
+			}
+		}
+		tiledata_path = tiledatapaths[editor.tiledata_index];
 
 		// Load the tiledata
-		const char *tiledata_path = sj_object_get_string(obj, "tileData");
 		int tiledata_count;
 		SJson *tiledata_json = sj_load(tiledata_path), *data_list = sj_object_get_value(tiledata_json, "tileData"), *curr_tdata;
 		sj_object_get_int(tiledata_json, "tileCount", &tiledata_count);
@@ -237,6 +275,17 @@ void level_editor_init(const char *file_path, int new_file) {
 			curr_tdata = sj_array_get_nth(data_list, i);
 			sj_object_get_int(curr_tdata, "frame", &(editor.tiledata[i]));
 		}
+		
+		// Load the tileset
+		const char *tileset_path = sj_object_get_string(tiledata_json, "tileSet");
+		slog("loading tileset %s", tileset_path);
+		editor.tileset = gf2d_sprite_load_all(
+			tileset_path,
+			FRAME_SIZE,
+			FRAME_SIZE,
+			1,
+			0);
+
 		sj_free(tiledata_json);
 
 		// Load the background and foreground
@@ -350,23 +399,28 @@ void level_editor_init(const char *file_path, int new_file) {
 		editor.map_size.x = DEFAULT_MAP_W;
 		editor.map_size.y = DEFAULT_MAP_H;
 
-		// Load the default tileset
-		editor.tileset = gf2d_sprite_load_all(
-			DEFAULT_TILESET,
-			FRAME_SIZE,
-			FRAME_SIZE,
-			1,
-			0);
-
-		const char *tiledata_path = DEFAULT_TILEDATA;
-		int tiledata_count = DEFAULT_TILECOUNT;
+		const char *tiledata_path = tiledatapaths[0];
+		int tiledata_count;
 		SJson *tiledata_json = sj_load(tiledata_path), *data_list = sj_object_get_value(tiledata_json, "tileData"), *curr_tdata;
+		sj_object_get_int(tiledata_json, "tileCount", &tiledata_count);
 		editor.tile_count = tiledata_count;
 		editor.tiledata = calloc(tiledata_count, sizeof(int));
 		for (int i = 0; i < tiledata_count; ++i) {
 			curr_tdata = sj_array_get_nth(data_list, i);
 			sj_object_get_int(curr_tdata, "frame", &(editor.tiledata[i]));
 		}
+
+		// Load the tileset
+		const char *tileset_path = sj_object_get_string(tiledata_json, "tileSet");
+		slog("loading tileset %s", tileset_path);
+		editor.tileset = gf2d_sprite_load_all(
+			tileset_path,
+			FRAME_SIZE,
+			FRAME_SIZE,
+			1,
+			0);
+
+		sj_free(tiledata_json);
 
 		// Load the default background and foreground
 		editor.background_index = 0;
@@ -387,12 +441,16 @@ void level_editor_init(const char *file_path, int new_file) {
 	selected_wave_label = window_get_widget(wave_editor_ui, "wave_label");
 	selected_enemy_sprite = window_get_widget(wave_editor_ui, "enemy_sprite");
 
-	slog("got the level editor ui %p", level_editor_ui);
 	selected_tile_label = window_get_widget(tile_editor_ui, "tile_label");
 	selected_tile_sprite = window_get_widget(tile_editor_ui, "tile_sprite");
-	slog("now got the tile label");
 	w_label_set_text(selected_tile_label, "Testing this thing");
 
+	selected_bg_label = window_get_widget(level_editor_ui, "background_label");
+	selected_fg_label = window_get_widget(level_editor_ui, "foreground_label");
+	selected_tiledat_label = window_get_widget(level_editor_ui, "tiledata_label");
+
+	// Now initialize all the ui elements
+	init_ui_elements();
 
 	atexit(level_editor_close);
 }
@@ -622,16 +680,10 @@ void level_editor_save() {
 	sj_object_insert(world_obj, "foreground", foreground);
 
 	SJson *parallax_factor = sj_new_float(PARALLAX_FACTOR);
-	SJson *tile_set = sj_new_str("images/larger_tileset.png"); // temporary
-	SJson *frame_size = sj_new_int(FRAME_SIZE);
-	SJson *fpl = sj_new_int(1);
 	SJson *tile_count = sj_new_int(3); // temporary
-	SJson *tile_data = sj_new_str("def/tiledata.def");
+	SJson *tile_data = sj_new_str(tiledatapaths[editor.tiledata_index]);
 	SJson *world_size = sj_vector2d_new(editor.map_size);
 	sj_object_insert(world_obj, "parallaxFactor", parallax_factor);
-	sj_object_insert(world_obj, "tileSet", tile_set);
-	sj_object_insert(world_obj, "frameSize", frame_size);
-	sj_object_insert(world_obj, "framesPerLine", fpl);
 	sj_object_insert(world_obj, "tileCount", tile_count);
 	sj_object_insert(world_obj, "tileData", tile_data);
 	sj_object_insert(world_obj, "worldSize", world_size);
@@ -840,4 +892,100 @@ void level_editor_dec_wave() {
 	char buffer[256];
 	sprintf(buffer, "Wave #%d", editor.wave_index + 1);
 	w_label_set_text(selected_wave_label, buffer);
+}
+
+void level_editor_inc_bg() {
+	editor.background_index++;
+	if (editor.background_index >= background_count) editor.background_index = 0;
+	char buffer[256];
+	sprintf(buffer, "%s", backgrounds[editor.background_index]);
+	w_label_set_text(selected_bg_label, buffer);
+	sprintf(buffer, "%s", backgrounds[editor.foreground_index]);
+	w_label_set_text(selected_fg_label, buffer);
+}
+
+void level_editor_dec_bg() {
+	editor.background_index--;
+	if (editor.background_index < 0) editor.background_index = background_count - 1;
+	char buffer[256];
+	sprintf(buffer, "%s", backgrounds[editor.background_index]);
+	w_label_set_text(selected_bg_label, buffer);
+	sprintf(buffer, "%s", backgrounds[editor.foreground_index]);
+	w_label_set_text(selected_fg_label, buffer);
+}
+
+void level_editor_inc_fg() {
+	editor.foreground_index++;
+	if (editor.foreground_index >= background_count) editor.foreground_index = 0;
+	char buffer[256];
+	sprintf(buffer, "%s", backgrounds[editor.background_index]);
+	w_label_set_text(selected_bg_label, buffer);
+	sprintf(buffer, "%s", backgrounds[editor.foreground_index]);
+	w_label_set_text(selected_fg_label, buffer);
+}
+
+void level_editor_dec_fg() {
+	editor.foreground_index--;
+	if (editor.foreground_index < 0) editor.foreground_index = background_count - 1;
+	char buffer[256];
+	sprintf(buffer, "%s", backgrounds[editor.background_index]);
+	w_label_set_text(selected_bg_label, buffer);
+	sprintf(buffer, "%s", backgrounds[editor.foreground_index]);
+	w_label_set_text(selected_fg_label, buffer);
+}
+
+void level_editor_inc_tiledat() {
+	editor.tiledata_index++;
+	if (editor.tiledata_index >= tiledata_count) editor.tiledata_index = 0;
+	char buffer[256];
+	sprintf(buffer, "%s", tiledatapaths[editor.tiledata_index]);
+	w_label_set_text(selected_tiledat_label, buffer);
+}
+
+void level_editor_dec_tiledat() {
+	editor.tiledata_index--;
+	if (editor.tiledata_index < 0) editor.tiledata_index = tiledata_count - 1;
+	char buffer[256];
+	sprintf(buffer, "%s", tiledatapaths[editor.tiledata_index]);
+	w_label_set_text(selected_tiledat_label, buffer);
+}
+
+
+void level_editor_reload() {
+	level_editor_reload_bgs();
+		
+	const char *tiledata_path = tiledatapaths[editor.tiledata_index];
+	int tiledata_count;
+	SJson *tiledata_json = sj_load(tiledata_path), *data_list = sj_object_get_value(tiledata_json, "tileData"), *curr_tdata;
+	sj_object_get_int(tiledata_json, "tileCount", &tiledata_count);
+	editor.tile_count = tiledata_count;
+	editor.tiledata = calloc(tiledata_count, sizeof(int));
+	for (int i = 0; i < tiledata_count; ++i) {
+		curr_tdata = sj_array_get_nth(data_list, i);
+		sj_object_get_int(curr_tdata, "frame", &(editor.tiledata[i]));
+	}
+	
+	// Load the tileset (and free the original one if needed)
+	if (editor.tileset) gf2d_sprite_free(editor.tileset);
+	const char *tileset_path = sj_object_get_string(tiledata_json, "tileSet");
+	slog("loading tileset %s", tileset_path);
+	editor.tileset = gf2d_sprite_load_all(
+		tileset_path,
+		FRAME_SIZE,
+		FRAME_SIZE,
+		1,
+		0);
+
+	// Reset the selected tile if needed
+	if (editor.tile_index > tiledata_count) editor.tile_index = 1;
+	
+	// Check the map for invalid tile indeces and zero them out
+	for (int row = 0; row < editor.map_size.y; ++row) {
+		for (int col = 0; col < editor.map_size.x; ++col) {
+			if (editor.tilemap[row][col] > tiledata_count) editor.tilemap[row][col] = 0;
+		}
+	}
+
+	init_ui_elements();	
+	sj_free(tiledata_json);
 }

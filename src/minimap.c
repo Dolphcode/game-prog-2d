@@ -48,6 +48,7 @@ void w_minimap_map_config(Widget *self, World *world, Entity *player) {
 	data->target = world->player;
 
 	// Draw the tile layer sprite
+	
 }
 
 

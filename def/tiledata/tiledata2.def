@@ -1,0 +1,24 @@
+{
+	"tileSet":"images/larger_tileset.png",
+	"frameSize":64,
+	"framesPerLine":1,
+	"tileData":
+	[
+		{
+			"name":"T1",
+			"frame":3,
+			"collisionType":2,
+			"collisionBox":[32,32],
+			"tileColor":[255,0,0]
+		},
+		{
+			"name":"T3",
+			"frame":1,
+			"collisionType":1,
+			"collisionBox":[32,32],
+			"tileColor":[0,0,255]
+		}
+	],
+	"tileCount": 2
+
+}

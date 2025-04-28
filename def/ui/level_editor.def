@@ -1,7 +1,7 @@
 {
     "name":"level_editor_ui",
     "draw_layer":1,
-    "widget_count":6,
+    "widget_count":15,
     "widgets":[
         {
             "name":"top_pane",
@@ -14,23 +14,11 @@
             "type":0
         },
         {
-            "name":"title",
-            "position": [5, 5],
-            "rect":[64,64],
-            "color":[255, 255, 255],
-            "type":1,
-            "data":{
-                "font":"./fonts/typewcond_regular.otf",
-                "text":"Level Editor",
-                "font_size":70
-            }
-        },
-        {
             "name":"tile_save_button",
             "sprite":"./images/ui/editor/save_button.png",
             "spriteFPL":1,
             "spriteSize":[100,55],
-            "position": [370, 90],
+            "position": [670, 90],
             "rect":[100,55],
             "color":[255, 255, 255],
             "type":2,
@@ -39,11 +27,24 @@
             }
         },
         {
+            "name":"reload_button",
+            "sprite":"./images/ui/editor/right_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [780, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_reload"
+            }
+        },
+        {
             "name":"tile_edit_button",
             "sprite":"./images/ui/editor/tile_edit_button.png",
             "spriteFPL":1,
             "spriteSize":[100,55],
-            "position": [480, 90],
+            "position": [670, 0],
             "rect":[100,55],
             "color":[255, 255, 255],
             "type":2,
@@ -56,7 +57,7 @@
             "sprite":"./images/ui/editor/hazard_button.png",
             "spriteFPL":1,
             "spriteSize":[100,55],
-            "position": [590, 90],
+            "position": [780, 0],
             "rect":[100,55],
             "color":[255, 255, 255],
             "type":2,
@@ -69,7 +70,7 @@
             "sprite":"./images/ui/editor/enemy_edit_button.png",
             "spriteFPL":1,
             "spriteSize":[100,55],
-            "position": [700, 90],
+            "position": [670, 45],
             "rect":[100,55],
             "color":[255, 255, 255],
             "type":2,
@@ -101,6 +102,95 @@
                 "font_size":30
             }
         },
-
+        {
+            "name":"tiledata_label",
+            "position": [5, 85],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Tiledata",
+                "font_size":30
+            }
+        },
+        {
+            "name":"inc_bg_button",
+            "sprite":"./images/ui/editor/right_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [560, 0],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_inc_bg"
+            }
+        },
+        {
+            "name":"dec_bg_button",
+            "sprite":"./images/ui/editor/left_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [450, 0],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_dec_bg"
+            }
+        },
+        {
+            "name":"inc_fg_button",
+            "sprite":"./images/ui/editor/right_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [560, 45],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_inc_fg"
+            }
+        },
+        {
+            "name":"dec_fg_button",
+            "sprite":"./images/ui/editor/left_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [450, 45],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_dec_fg"
+            }
+        },
+        {
+            "name":"inc_td_button",
+            "sprite":"./images/ui/editor/right_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [560, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_inc_tiledat"
+            }
+        },
+        {
+            "name":"dec_td_button",
+            "sprite":"./images/ui/editor/left_button.png",
+            "spriteFPL":1,
+            "spriteSize":[100,55],
+            "position": [450, 90],
+            "rect":[100,55],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"level_editor_dec_tiledat"
+            }
+        }
     ]
 }

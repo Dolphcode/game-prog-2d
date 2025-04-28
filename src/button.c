@@ -42,6 +42,34 @@ static CallbackEntry callback_list[] = {
 		level_editor_save,
 		"level_editor_save"
 	},
+	{
+		level_editor_inc_bg,
+		"level_editor_inc_bg"
+	},
+	{
+		level_editor_dec_bg,
+		"level_editor_dec_bg"
+	},
+	{
+		level_editor_inc_fg,
+		"level_editor_inc_fg"
+	},
+	{
+		level_editor_dec_fg,
+		"level_editor_dec_fg"
+	},
+	{
+		level_editor_inc_tiledat,
+		"level_editor_inc_tiledat"
+	},
+	{
+		level_editor_dec_tiledat,
+		"level_editor_dec_tiledat"
+	},
+	{
+		level_editor_reload,
+		"level_editor_reload"
+	},
 	{0}
 };
 
