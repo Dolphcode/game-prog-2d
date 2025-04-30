@@ -178,28 +178,24 @@ void world_build_obscurer_map(World *world) {
 				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
 				BlockingEdge2D new_edge = {world_rect.x, world_rect.y, world_rect.x + world_rect.w, world_rect.y, one_way};
 				*(edges[edge_count++]) = new_edge;
-				slog("bottom edge");
 			}
 
 			if ((row == world->world_size.y - 1 || !tiles[index + (int)world->world_size.x]) && dat.collision_type != TCT_ONE_WAY) { // bottom side
 				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
 				BlockingEdge2D new_edge = {world_rect.x, world_rect.y + world_rect.h, world_rect.x + world_rect.w, world_rect.y + world_rect.h, one_way};
 				*(edges[edge_count++]) = new_edge;
-				slog("top edge");
 			}
 
 			if ((col == 0 || !tiles[index - 1]) && dat.collision_type != TCT_ONE_WAY) { // left side
 				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
 				BlockingEdge2D new_edge = {world_rect.x, world_rect.y, world_rect.x, world_rect.y + world_rect.h, one_way};
 				*(edges[edge_count++]) = new_edge;
-				slog("left edge");
 			}
 
 			if ((col == world->world_size.x - 1 || !tiles[index + 1]) && dat.collision_type != TCT_ONE_WAY) { // right side
 				edges[edge_count] = malloc(sizeof(BlockingEdge2D));
 				BlockingEdge2D new_edge = {world_rect.x + world_rect.w, world_rect.y, world_rect.x + world_rect.w, world_rect.y + world_rect.h, one_way};
 				*(edges[edge_count++]) = new_edge;
-				slog("right edge");
 			}
 		}
 	}
@@ -451,7 +447,6 @@ World *world_load(const char *filename) {
 			if (world->space && tile_value && world->tile_data[tile_value - 1].collision_type) {
 				space_add_static_rect(world->space, gfc_rect(col * world->tile_size, row * world->tile_size, world->tile_size, world->tile_size),
 						world->tile_data[tile_value - 1].collision_type);
-				slog("placing a tile at %d %d", col * world->tile_size, row * world->tile_size);
 			}
 		}
 	}

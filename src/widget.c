@@ -5,6 +5,7 @@
 #include "ui/widget.h"
 #include "ui/label.h"
 #include "ui/button.h"
+#include "ui/minimap.h"
 
 /*
 typedef struct Widget_S {
@@ -125,6 +126,12 @@ void widget_configure(Widget *self, SJson *json) {
 		case 2:
 			//self->draw = widget_draw_default;
 			w_button_configure(self, json);
+			break;
+		case 3:
+			break;
+		case 4:
+			w_minimap_configure(self, json);
+			self->do_draw = 1;
 			break;
 	}
 	

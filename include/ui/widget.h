@@ -11,7 +11,9 @@
 typedef enum {
 	W_SPRITE,
 	W_LABEL,
-	W_BUTTON
+	W_BUTTON,
+	W_BAR,
+	W_MINIMAP
 }WidgetType;
 
 typedef struct Widget_S {

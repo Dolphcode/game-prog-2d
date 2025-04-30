@@ -24,6 +24,7 @@
 
 #include "ui/window.h"
 #include "ui/widget.h"
+#include "ui/minimap.h"
 
 #include "editor/level_editor.h"
 
@@ -139,6 +140,10 @@ int main(int argc, char * argv[])
 	win->_active = 1;
 	win = ui_system_load_window("def/ui/hazard_editor.def");
 	win = ui_system_load_window("def/ui/wave_editor.def");
+    } else {
+	slog("loading the hud?");
+	Window *win = ui_system_load_window("def/ui/player_hud.def");
+	win->_active = 1;
     }
     
     World *world;
@@ -159,6 +164,12 @@ int main(int argc, char * argv[])
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
     cam->target = player;
+
+    if (!OPEN_LEVEL_EDITOR) {
+	Window *win = ui_system_get_window("player_hud");
+	Widget *minimap = window_get_widget(win, "minimap");
+	w_minimap_map_config(minimap, world, player);
+    }
    
     /*main game loop*/
     while(!done)
