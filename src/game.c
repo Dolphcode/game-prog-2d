@@ -21,6 +21,7 @@
 #include "spawn.h"
 #include "projectile.h"
 #include "light.h"
+#include "game_manager.h"
 
 #include "ui/window.h"
 #include "ui/widget.h"
@@ -141,7 +142,6 @@ int main(int argc, char * argv[])
 	win = ui_system_load_window("def/ui/hazard_editor.def");
 	win = ui_system_load_window("def/ui/wave_editor.def");
     } else {
-	slog("loading the hud?");
 	Window *win = ui_system_load_window("def/ui/player_hud.def");
 	win->_active = 1;
     }
@@ -185,9 +185,20 @@ int main(int argc, char * argv[])
         
         gf2d_graphics_clear_screen();// clears drawing buffers
 	
-	    ui_system_update_all();
-	// Update camera
+	ui_system_update_all();
+	
+	if (OPEN_LEVEL_EDITOR) {
+		// Run the level editor loop
+		entity_system_think_all(); // For the camera object
+		entity_system_update_all(); // For the camera object
+		camera_update(cam);
+		level_editor_update();
+		level_editor_draw();
+	} else {
+		game_manager_update();
+	}
 
+		/*
         // all drawing should happen betweem clear_screen and next_frame
 	   if(world_get_active()) {
 	    	world_draw(world_get_active());
@@ -213,7 +224,7 @@ int main(int argc, char * argv[])
 
 	    light_manager_render_overlay();
             //UI elements last
-	    if (!OPEN_LEVEL_EDITOR) player_hud_draw();
+	    if (!OPEN_LEVEL_EDITOR) player_hud_draw();*/
 		
 
 	    ui_system_draw_all();
