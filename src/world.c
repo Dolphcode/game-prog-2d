@@ -634,7 +634,6 @@ static int wave = 0;
 
 void world_update(World *world) {
 	if (!world) return;
-
 	int all_dead = 1;
 	// Check if all entities are dead
 	if (world->curr_wave >= 0) {

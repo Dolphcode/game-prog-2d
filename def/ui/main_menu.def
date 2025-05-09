@@ -1,0 +1,30 @@
+{
+    "name":"main_menu_ui",
+    "draw_layer":2,
+    "widget_count":2,
+    "widgets":[
+        {
+            "name":"background",
+            "sprite":"./images/ui/menu/main_menu_background.png",
+            "spriteFPL":4,
+            "spriteSize":[1200,720],
+            "position": [0, 0],
+            "rect":[1200, 720],
+            "color":[255, 255, 255],
+            "type":0
+        },
+        {
+            "name":"play_btn",
+            "sprite":"./images/ui/menu/play_button.png",
+            "spriteFPL":1,
+            "spriteSize":[480,70],
+            "position": [360, 400],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"load_level_1"
+            }
+        }
+    ]
+}

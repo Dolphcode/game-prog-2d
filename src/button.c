@@ -1,6 +1,7 @@
 #include "simple_json.h"
 
 #include "editor/level_editor.h"
+#include "game_manager.h"
 
 #include "ui/button.h"
 
@@ -69,6 +70,18 @@ static CallbackEntry callback_list[] = {
 	{
 		level_editor_reload,
 		"level_editor_reload"
+	},
+	{
+		load_level_1,
+		"load_level_1"
+	},
+	{
+		load_level_2,
+		"load_level_2"
+	},
+	{
+		load_level_3,
+		"load_level_3"
 	},
 	{0}
 };

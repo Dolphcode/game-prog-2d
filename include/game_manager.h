@@ -36,4 +36,9 @@ void game_manager_update();
  */
 void game_quit();
 
+// Callback functions
+void load_level_1();
+void load_level_2();
+void load_level_3();
+
 #endif

@@ -143,32 +143,22 @@ int main(int argc, char * argv[])
 	win = ui_system_load_window("def/ui/wave_editor.def");
     } else {
 	Window *win = ui_system_load_window("def/ui/player_hud.def");
+	//win->_active = 1;
+	win = ui_system_load_window("def/ui/main_menu.def");
 	win->_active = 1;
     }
-    
-    World *world;
-    // Making a simple world and player
-    if (!OPEN_LEVEL_EDITOR) {
-    	world = world_load(world_file);
-    	world_make_active(world);
-    }
 
+    // Do all the initialization
     Entity *player;
-    if (!OPEN_LEVEL_EDITOR) player = spawn_entity("player", gfc_vector2d(400, 200), weapon);
-    else player = cursor_player_spawn();
-    
-    if (!OPEN_LEVEL_EDITOR) world->player = player;
-    if (!OPEN_LEVEL_EDITOR) player_hud_init();
-
-    if (OPEN_LEVEL_EDITOR) level_editor_init(world_file, newfile);
     Camera* cam = camera_get_main();
     cam->zoom = 1.0;
-    cam->target = player;
-
     if (!OPEN_LEVEL_EDITOR) {
-	Window *win = ui_system_get_window("player_hud");
-	Widget *minimap = window_get_widget(win, "minimap");
-	w_minimap_map_config(minimap, world, player);
+	game_manager_init();
+	//game_manager_start_level("def/world.def");
+    } else {
+	player = cursor_player_spawn();
+	level_editor_init(world_file, newfile);
+	cam->target = player;
     }
    
     /*main game loop*/
@@ -198,35 +188,6 @@ int main(int argc, char * argv[])
 		game_manager_update();
 	}
 
-		/*
-        // all drawing should happen betweem clear_screen and next_frame
-	   if(world_get_active()) {
-	    	world_draw(world_get_active());
-
-	    	world_update(world_get_active());
-	   }
-	    // Then draw entities
-	    entity_system_think_all();
-
-	    if (world_get_active()) {
-	    	entity_system_presync_all();
-	    	space_update(world_get_active()->space);
-	    	entity_system_postsync_all();
-	    }
-
-	    if (OPEN_LEVEL_EDITOR) level_editor_update();
-	    if (OPEN_LEVEL_EDITOR) level_editor_draw();
-
-	    entity_system_update_all();
-	    // Update camera before drawing
-	    camera_update(cam);
-	    entity_system_draw_all();
-
-	    light_manager_render_overlay();
-            //UI elements last
-	    if (!OPEN_LEVEL_EDITOR) player_hud_draw();*/
-		
-
 	    ui_system_draw_all();
             gf2d_sprite_draw(
                 mouse,
@@ -244,7 +205,7 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
 
-    if (world_get_active()) world_free(world_get_active());
+	game_manager_quit_level();
 
     slog("---==== END ====---");
     return 0;
