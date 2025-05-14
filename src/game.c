@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
 
     // inserting code to initialize systems
     gfc_input_init("./config/input.cfg");
-    entity_system_init(2048);
+    entity_system_init(4096);
     projectile_pool_init();
 
     SDL_ShowCursor(SDL_DISABLE);
@@ -146,6 +146,9 @@ int main(int argc, char * argv[])
 	//win->_active = 1;
 	win = ui_system_load_window("def/ui/main_menu.def");
 	win->_active = 1;
+
+	win = ui_system_load_window("def/ui/pause_menu.def");
+	win = ui_system_load_window("def/ui/bind_menu.def");
     }
 
     // Do all the initialization
@@ -162,7 +165,7 @@ int main(int argc, char * argv[])
     }
    
     /*main game loop*/
-    while(!done)
+    while(running)
     {
         // Poll input
 	gfc_input_update();
@@ -185,7 +188,7 @@ int main(int argc, char * argv[])
 		level_editor_update();
 		level_editor_draw();
 	} else {
-		game_manager_update();
+		game_manager_update(keys);
 	}
 
 	    ui_system_draw_all();
@@ -201,7 +204,7 @@ int main(int argc, char * argv[])
 
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
         
-        if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
+        //if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
 

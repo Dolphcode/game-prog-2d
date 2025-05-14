@@ -1,6 +1,10 @@
 #ifndef __GAMEMANAGER_H__
 #define __GAMEMANAGER_H__
 
+#include <SDL.h>
+
+extern Uint8 running;
+
 /**
  * @brief call this to initialize the game manager
  */
@@ -29,7 +33,7 @@ void game_manager_quit_level();
 /**
  * @brief game manager loop
  */
-void game_manager_update();
+void game_manager_update(Uint8 *keystate);
 
 /**
  * @brief quits the game
@@ -40,5 +44,8 @@ void game_quit();
 void load_level_1();
 void load_level_2();
 void load_level_3();
+void open_bind_menu();
+void back_to_pause();
+void game_manager_bindkey(const char*);
 
 #endif

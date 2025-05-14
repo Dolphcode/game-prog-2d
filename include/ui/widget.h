@@ -36,6 +36,7 @@ typedef struct Widget_S {
 	Uint8			clicked;	// <Tracks whether this object is being clicked on or not
 
 	// Event Handlers
+	void			(*on_click_ref)(struct Widget_S *self);	// < A version of the onclick function which is called with a reference to the button
 	void			(*on_click)();	// <Triggered on the first frame this object is clicked on
 	void			(*on_release)();	// <Triggered on the first frame that the mouse is no longer clicking
 	void			(*on_hover_enter)();	// <Triggered on the first frame that the mouse starts hovering over this

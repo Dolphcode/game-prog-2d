@@ -92,7 +92,6 @@ void w_minimap_draw(Widget *self) {
 		(float)data->map_size / data->img_size.x + (float)(player_tile_x + data->map_size) / data->img_size.x, 
 		(float)data->map_size / data->img_size.y + (float)(player_tile_y + data->map_size) / data->img_size.y};
 	
-	slog("minimap dims %f %f %f %f", clip_rect.x, clip_rect.y, clip_rect.z, clip_rect.w);
 	
 	GFC_Vector2D draw_pos;
 	GFC_Vector2D border_offset = gfc_vector2d((data->border->frame_w - data->map_size) / 2, (data->border->frame_h - data->map_size) / 2);

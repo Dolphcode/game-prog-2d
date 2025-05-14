@@ -1,6 +1,6 @@
 {
-    "name":"main_menu_ui",
-    "draw_layer":1,
+    "name":"pause_menu_ui",
+    "draw_layer":0,
     "widget_count":3,
     "widgets":[
         {
@@ -14,7 +14,7 @@
             "type":0
         },
         {
-            "name":"play_btn",
+            "name":"bind_menu",
             "sprite":"./images/ui/menu/play_button.png",
             "spriteFPL":1,
             "spriteSize":[480,70],
@@ -23,7 +23,7 @@
             "color":[255, 255, 255],
             "type":2,
             "data":{
-                "callback":"load_level_1"
+                "callback":"open_bind_menu"
             }
         },
         {

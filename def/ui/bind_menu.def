@@ -1,0 +1,433 @@
+{
+    "name":"bind_menu_ui",
+    "draw_layer":0,
+    "widget_count":33,
+    "widgets":[
+        {
+            "name":"background",
+            "sprite":"./images/ui/menu/main_menu_background.png",
+            "spriteFPL":4,
+            "spriteSize":[1200,720],
+            "position": [0, 0],
+            "rect":[1200, 720],
+            "color":[255, 255, 255],
+            "type":0
+        },
+        {
+            "name":"title_label",
+            "position": [20, 20],
+            "rect":[64,64],
+            "color":[0, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Key Rebinding",
+                "font_size":90
+            }
+        },
+
+        {
+            "name":"label_zoom_out",
+            "position": [620, 510],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Zoom Out",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_zoom_out",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [980, 530],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"zoom_out"
+            }
+        },
+        {
+            "name":"key_label_zoom_out",
+            "position": [1000, 530],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"P",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_retract",
+            "position": [620, 410],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Retract Hook",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_retract",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [980, 430],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"retract"
+            }
+        },
+        {
+            "name":"key_label_retract",
+            "position": [1000, 430],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"S",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_boost",
+            "position": [620, 310],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Boost",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_boost",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [980, 330],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"boost"
+            }
+        },
+        {
+            "name":"key_label_boost",
+            "position": [1000, 330],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"W",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_hook_up",
+            "position": [620, 210],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Fire Hook",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_hook_up",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [980, 230],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"right"
+            }
+        },
+        {
+            "name":"key_label_hook_up",
+            "position": [1000, 230],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"D",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_dash",
+            "position": [620, 110],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Dash",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_dash",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [980, 130],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"dash"
+            }
+        },
+        {
+            "name":"key_label_dash",
+            "position": [1000, 130],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"A",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_zoom_in",
+            "position": [20, 510],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Zoom In",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_zoom_in",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [380, 530],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"zoom_in"
+            }
+        },
+        {
+            "name":"key_label_zoom_in",
+            "position": [400, 530],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"O",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_down",
+            "position": [20, 410],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Move Down",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_down",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [380, 430],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"down"
+            }
+        },
+        {
+            "name":"key_label_down",
+            "position": [400, 430],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"S",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_up",
+            "position": [20, 310],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Move Right",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_up",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [380, 330],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"up"
+            }
+        },
+        {
+            "name":"key_label_up",
+            "position": [400, 330],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"W",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_right",
+            "position": [20, 210],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Move Right",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_right",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [380, 230],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"right"
+            }
+        },
+        {
+            "name":"key_label_right",
+            "position": [400, 230],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"D",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"label_left",
+            "position": [20, 110],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"Move Left",
+                "font_size":70
+            }
+        },
+        {
+            "name":"bind_left",
+            "sprite":"./images/ui/menu/rebind_button.png",
+            "spriteFPL":1,
+            "spriteSize":[240,70],
+            "position": [380, 130],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"game_manager_bindkey",
+                "param":"left"
+            }
+        },
+        {
+            "name":"key_label_left",
+            "position": [400, 130],
+            "rect":[64,64],
+            "color":[255, 255, 255],
+            "type":1,
+            "data":{
+                "font":"./fonts/typewcond_regular.otf",
+                "text":"A",
+                "font_size":50
+            }
+        },
+
+        {
+            "name":"back_btn",
+            "sprite":"./images/ui/menu/back_button.png",
+            "spriteFPL":1,
+            "spriteSize":[480,70],
+            "position": [360, 620],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"back_to_pause"
+            }
+        }
+    ]
+}

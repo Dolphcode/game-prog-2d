@@ -5,6 +5,7 @@
 #include "ui/widget.h"
 #include "ui/label.h"
 #include "ui/button.h"
+#include "ui/strbutton.h"
 #include "ui/minimap.h"
 
 /*
@@ -132,6 +133,9 @@ void widget_configure(Widget *self, SJson *json) {
 		case 4:
 			w_minimap_configure(self, json);
 			self->do_draw = 1;
+			break;
+		case 5:
+			w_strbutton_configure(self, json);
 			break;
 	}
 	

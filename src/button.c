@@ -72,6 +72,10 @@ static CallbackEntry callback_list[] = {
 		"level_editor_reload"
 	},
 	{
+		game_quit,
+		"quit_game"
+	},
+	{
 		load_level_1,
 		"load_level_1"
 	},
@@ -82,6 +86,14 @@ static CallbackEntry callback_list[] = {
 	{
 		load_level_3,
 		"load_level_3"
+	},
+	{
+		open_bind_menu,
+		"open_bind_menu"
+	},
+	{
+		back_to_pause,
+		"back_to_pause"
 	},
 	{0}
 };

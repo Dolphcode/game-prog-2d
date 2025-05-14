@@ -52,7 +52,8 @@ int ui_system_mouse_caught() {
 }
 
 void ui_system_update_all() {
-	mouse_caught = 0;
+	//mouse_caught = 0
+	int mouse_caught_one = 0;
 
 	int count, i, widget_count, j, x, y, mouse_down = SDL_GetMouseState(&x, &y);
 	Window *curr;
@@ -60,7 +61,7 @@ void ui_system_update_all() {
 	count = gfc_list_count(ui_system);
 	for (i = 0; i < count; ++i) {
 		curr = gfc_list_get_nth(ui_system, i);
-		if (!curr->_active) continue;
+		//if (!curr->_active) continue;
 		
 		widget_count = gfc_list_count(curr->widgets);
 		for (j = 0; j < widget_count; ++j) {
@@ -74,10 +75,11 @@ void ui_system_update_all() {
 						x < curr_widget->box.x + curr_widget->box.w && 
 						y > curr_widget->box.y && 
 						y < curr_widget->box.y + curr_widget->box.h) {
-					if (mouse_down && !curr_widget->clicked) {
+					if (curr->_active && !mouse_caught && mouse_down && !curr_widget->clicked) {
 						slog("clicked");
-						mouse_caught = 1;
+						mouse_caught_one = 1;
 						curr_widget->clicked = 1;
+						if (curr_widget->on_click_ref) curr_widget->on_click_ref(curr_widget);
 						if (curr_widget->on_click) curr_widget->on_click(curr_widget);
 					}
 				} else {
@@ -86,17 +88,18 @@ void ui_system_update_all() {
 					if (curr_widget->on_hover_exit) curr_widget->on_hover_exit(curr_widget);
 				}
 			} else {
-				if (x > curr_widget->box.x && 
+				if (curr->_active && x > curr_widget->box.x && 
 						x < curr_widget->box.x + curr_widget->box.w && 
 						y > curr_widget->box.y && 
 						y < curr_widget->box.y + curr_widget->box.h) {
 					curr_widget->hovering = 1;
 					slog("hover enter");
 					if (curr_widget->on_hover_enter) curr_widget->on_hover_enter(curr_widget);
-					if (mouse_down && !curr_widget->clicked) {
+					if (!mouse_caught && mouse_down && !curr_widget->clicked) {
 						slog("clicked");
-						mouse_caught = 1;
+						mouse_caught_one = 1;
 						curr_widget->clicked = 1;
+						if (curr_widget->on_click_ref) curr_widget->on_click_ref(curr_widget);
 						if (curr_widget->on_click) curr_widget->on_click(curr_widget);
 					}
 				} 
@@ -104,11 +107,14 @@ void ui_system_update_all() {
 
 			if (curr_widget->clicked && !mouse_down) {
 				slog("released");
+				mouse_caught = 0;
 				curr_widget->clicked = 0;
 				if (curr_widget->on_release) curr_widget->on_release(curr_widget);
 			}
 		}
 	}
+
+	if (mouse_caught_one) mouse_caught = 1;
 }
 
 void ui_system_draw_all() {
@@ -265,19 +271,13 @@ void window_sort_widgets(Window *self) {
 
 Widget *window_get_widget(Window *self, const char *name) {
 	Widget *curr;
-	slog("%p", self);
-	slog("%s", name);
 	int count = gfc_list_get_count(self->widgets);
-	slog("got the count of this thing no? %d", count);
 	for (int i = 0; i < count; ++i) {
 		curr = gfc_list_get_nth(self->widgets, i);
-		slog("and got the nth widget with name %s compared to %s", curr->name, name);
 		if (!curr)continue;
 		if (strcmp(name, curr->name) == 0) {
-			slog("found widget %s", name);
 			return curr;
 		}
 	}
-	slog("failed to find widget called %s", name);
 	return NULL;
 }

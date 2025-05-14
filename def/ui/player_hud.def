@@ -1,6 +1,6 @@
 {
     "name":"player_hud",
-    "draw_layer":0,
+    "draw_layer":3,
     "widget_count":1,
     "widgets":[
         {
