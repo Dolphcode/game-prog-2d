@@ -59,6 +59,7 @@ void ui_system_update_all() {
 	Window *curr;
 	Widget *curr_widget;
 	count = gfc_list_count(ui_system);
+	slog("%d mouse caught?", mouse_caught);
 	for (i = 0; i < count; ++i) {
 		curr = gfc_list_get_nth(ui_system, i);
 		//if (!curr->_active) continue;
@@ -102,7 +103,7 @@ void ui_system_update_all() {
 			}
 
 			if (curr_widget->clicked && !mouse_down) {
-				mouse_caught = 0;
+
 				curr_widget->clicked = 0;
 				if (curr_widget->on_release) curr_widget->on_release(curr_widget);
 			}
@@ -110,6 +111,7 @@ void ui_system_update_all() {
 	}
 
 	if (mouse_caught_one) mouse_caught = 1;
+	if (!mouse_down && mouse_caught) mouse_caught = 0;
 }
 
 void ui_system_draw_all() {

@@ -95,9 +95,9 @@ void projectile_pool_clear() {
 }
 
 void projectile_touch(Entity *self, Entity *other) {
-	if (!self || !other || !other->damage || !other->alive) return;
+	if (!self || !other || !other->damage || !other->alive || self->team == other->team) return;
 	ProjectileData *data = (ProjectileData *)self->data;
-	if (!data) return;
+	if (!data || !data->is_active) return;
 
 	other->damage(other, 2.0); // Temporary, add a contact damage component
 	

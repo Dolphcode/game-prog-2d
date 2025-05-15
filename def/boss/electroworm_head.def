@@ -5,7 +5,7 @@
 	"spriteSize":[192,192],
 	"spriteOffset":[96,96],
 	"team": 2,
-	"maxHealth": 2000,
+	"maxHealth": 200,
 	"immunity": 5,
 	"icon": {
 		"sprite":"./images/entities/icons/electroworm_icon.png",

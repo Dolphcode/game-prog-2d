@@ -34,9 +34,11 @@ void w_bar_draw(Widget *self) {
 	GFC_Rect r;
 	r.x = self->position.x;
 	r.y = self->position.y;
-	r.w = data->box.x * data->value;
+	r.w = data->box.x;
 	r.h = data->box.y;
-
+	
+	gf2d_draw_rect_filled(r, GFC_COLOR_BLACK);
+	r.w = data->box.x * data->value;
 	gf2d_draw_rect_filled(r, GFC_COLOR_RED);
 }
 

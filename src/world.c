@@ -11,6 +11,7 @@
 #include "projectile.h"
 #include "world.h"
 #include "spawn.h"
+#include "game_manager.h"
 
 Uint8 DRAW_OBSCURERS = 0;
 
@@ -652,15 +653,17 @@ void world_update(World *world) {
 	}
 
 	// Advance the wave
-	if (world->curr_wave < 0 || all_dead) {
+	if (world->curr_wave >= world->wave_count) {
+		game_manager_quit_level();
+	} else if (world->curr_wave < 0 || all_dead) {
 		world->curr_wave += 1;
-		slog("loading wave %d", world->curr_wave);
+		//slog("loading wave %d", world->curr_wave);
 		Wave *wave_ptr = &(world->waves[world->curr_wave]);
 		WaveSpawn spawndata;
 		for (int i = 0; i < wave_ptr->spawn_count; ++i) {
 			// Spawn every enemy
 			spawndata = wave_ptr->spawns[i];
-			slog("spawning a %s %f %f", wave_ptr->spawns[i].id, wave_ptr->spawns[i].pos.x, wave_ptr->spawns[i].pos.y);
+			//slog("spawning a %s %f %f", wave_ptr->spawns[i].id, wave_ptr->spawns[i].pos.x, wave_ptr->spawns[i].pos.y);
 			wave_ptr->ents[i] = spawn_entity_default(spawndata.id, spawndata.pos);
 			gfc_list_append(world->entity_list, wave_ptr->ents[i]);
 		}	
