@@ -120,6 +120,42 @@ void w_minimap_draw(Widget *self) {
 			&clip_rect,
 			0);
 
+	// Draw enemy locations
+	GFC_List *ents = data->world->entity_list;
+	int c = gfc_list_count(ents);
+	for (int i = 0; i < c; i++) {
+		Entity *ent = gfc_list_get_nth(ents, i);
+		if (!ent) continue;
+		if (!ent->alive) continue;
+		
+		// Compute the relative position to the player
+		GFC_Vector2D ent_offset;
+		gfc_vector2d_sub(ent_offset, ent->position, data->target->position);
+		ent_offset.x = (int)(ent_offset.x / data->world->tile_size * data->tile_size);
+		ent_offset.y = (int)(ent_offset.y / data->world->tile_size * data->tile_size);
+		slog("%f %f", ent_offset.x, ent_offset.y);
+		if (ent_offset.x < -data->map_size / 2 || ent_offset.x > data->map_size / 2 ||
+				ent_offset.y < -data->map_size / 2 || ent_offset.y > data->map_size / 2) continue;
+
+		ent_offset.x += self->position.x + data->map_size / 2;
+		ent_offset.y += self->position.y + data->map_size / 2;
+		
+		if (ent->icon_sprite) {
+			gf2d_sprite_draw(
+				ent->icon_sprite,
+				ent_offset,
+				NULL,
+				&ent->icon_offset,
+				NULL,
+				NULL,
+				NULL,
+				0);
+		} else {
+			gf2d_draw_circle(ent_offset, 10, GFC_COLOR_ORANGE);
+		}
+		
+	}
+
 
 
 
@@ -151,6 +187,11 @@ void w_minimap_map_config(Widget *self, World *world, Entity *player) {
 			SDL_TEXTUREACCESS_TARGET,
 			data->img_size.x, data->img_size.y);
 	SDL_SetRenderTarget(renderer, minimap);
+
+	// Draw the background
+	SDL_Rect bg_rect = {0, 0, data->img_size.x, data->img_size.y};
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(renderer, &bg_rect);
 
 	// Begin drawing the minimap
 	for (int row = 0; row < data->map_dims.y; ++row) {

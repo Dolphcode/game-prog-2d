@@ -175,6 +175,7 @@ void entity_free(Entity *ent) {
 
 	// Free the sprite if need be
 	if (ent->sprite) gf2d_sprite_free(ent->sprite);
+	if (ent->icon_sprite) gf2d_sprite_free(ent->icon_sprite);
 
 	// Free the physics body if we have one
 	if (ent->body) {
@@ -311,6 +312,26 @@ void entity_configure(Entity *self, SJson *json) {
 		sj_object_get_vector2d(json, "spriteOffset", &sprite_offset);
 		self->sprite_offset = sprite_offset;
 		self->do_draw = 1;
+	}
+
+	SJson *icon_obj = sj_object_get_value(json, "icon");
+	if (icon_obj) {
+		const char *sprite_icon = NULL;
+		sprite_icon = sj_object_get_string(icon_obj, "sprite");
+		GFC_Vector2D icon_frame_size = {0};
+		Uint32 icon_fpl = 0;
+		sj_object_get_vector2d(icon_obj, "spriteSize", &icon_frame_size);
+		sj_object_get_uint32(icon_obj, "spriteFPL", &icon_fpl);
+		self->icon_sprite = gf2d_sprite_load_all(
+				sprite_icon,
+				(Uint32)icon_frame_size.x,
+				(Uint32)icon_frame_size.y,
+				icon_fpl,
+				0);
+
+		GFC_Vector2D icon_sprite_offset = {0};
+		sj_object_get_vector2d(icon_obj, "spriteOffset", &icon_sprite_offset);
+		self->icon_offset = icon_sprite_offset;
 	}
 
 	sj_object_get_uint8(json, "team", &self->team);

@@ -659,6 +659,7 @@ void world_update(World *world) {
 			spawndata = wave_ptr->spawns[i];
 			slog("spawning a %s %f %f", wave_ptr->spawns[i].id, wave_ptr->spawns[i].pos.x, wave_ptr->spawns[i].pos.y);
 			wave_ptr->ents[i] = spawn_entity_default(spawndata.id, spawndata.pos);
+			gfc_list_append(world->entity_list, wave_ptr->ents[i]);
 		}	
 	}
 	/*

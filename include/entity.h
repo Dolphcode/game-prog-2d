@@ -63,6 +63,9 @@ typedef struct Entity_S
 	Sprite		*sprite;	// <The entity's corresponding sprite/graphical representation
 	GFC_Vector2D	sprite_offset;	// <Where the entity point is relative to the top left corner of the sprite
 	float		frame;		// <The current frame of the entity's sprite animation
+	
+	Sprite		*icon_sprite;
+	GFC_Vector2D	icon_offset;
 
 	// Physics Quantities
 	GFC_Vector2D	position;	// <The entity's position in global space

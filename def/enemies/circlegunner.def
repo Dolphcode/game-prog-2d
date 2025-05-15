@@ -7,6 +7,12 @@
 	"team": 2,
 	"maxHealth": 10,
 	"immunity": 5,
+	"icon": {
+		"sprite":"./images/entities/icons/bug_circle_icon.png",
+		"spriteFPL":1,
+		"spriteSize":[20,20],
+		"spriteOffset":[10,10],
+	},
 	"collider": {
 		"colliderOffset":[-32,-32],
 		"colliderSize":[64,64],
