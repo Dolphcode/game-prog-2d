@@ -6,11 +6,14 @@
 #include "gf2d_graphics.h"
 #include "gf2d_draw.h"
 
+#include "entity.h"
+
 #include "ui/bar.h"
 
 typedef struct {
 	GFC_Vector2D	box;	// <Slider box
 	float 		value;	// <Slider value between 0 and 1
+	Entity		*target;
 }BarData;
 
 void w_bar_configure(Widget *self, SJson *json) {
