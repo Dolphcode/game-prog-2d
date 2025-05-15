@@ -72,6 +72,10 @@ static CallbackEntry callback_list[] = {
 		"level_editor_reload"
 	},
 	{
+		game_manager_quit_level,
+		"game_manager_quit_level"	
+	},
+	{
 		game_quit,
 		"quit_game"
 	},

@@ -87,9 +87,11 @@ void world_free(World *world) {
 
 	// Clear the projectile pool
 	projectile_pool_clear();
+	entity_system_free_all();
 
 	// Free the world
 	free(world);
+	active_world = NULL;
 	slog("freed the world object");
 }
 

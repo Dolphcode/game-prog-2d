@@ -93,6 +93,9 @@ void game_manager_start_level(const char *world_file) {
 void game_manager_quit_level() {
 	if (!level_loaded) return;
 	player_hud->_active = 0;
+	main_menu->_active = 1;
+	paused = 0;
+	active_menu = 0;
 
 	World *world = world_get_active();
 	world_free(world);
