@@ -1,7 +1,7 @@
 {
     "name":"player_hud",
     "draw_layer":3,
-    "widget_count":1,
+    "widget_count":2,
     "widgets":[
         {
             "name":"minimap",
@@ -16,6 +16,16 @@
                 "borderSpriteSize":[216,216]
             },
             "type":4
+        },
+        {
+            "name":"boss_bar",
+            "position": [300, 500],
+            "rect":[400,20],
+            "color":[255, 255, 255],
+            "data":{
+                "box":[400, 20]
+            },
+            "type":3
         }
     ]
 }

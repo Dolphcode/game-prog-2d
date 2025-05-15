@@ -82,12 +82,13 @@ void projectile_pool_clear() {
 
 	for (i = count - 1; i >= 0; --i) {
 		curr = gfc_list_get_nth(projectile_pool, i);
-
 		// Free this projectile if it is still in use
+		/*
 		if (curr && curr->_inuse) {
 			entity_free(curr);
+			slog("alright feeling like freeing");
 		}
-
+		slog("trying to delete this thing");*/
 		// Delete this list element
 		gfc_list_delete_nth(projectile_pool, i);
 	}
@@ -162,7 +163,6 @@ void projectile_speed_up_think(Entity *self) {
 	GFC_Vector2D force;
 	gfc_vector2d_copy(force, self->velocity);
 	gfc_vector2d_normalize(&force);
-	slog("rocket dir %f %f", force.x, force.y);
 	gfc_vector2d_scale_by(force, force, gfc_vector2d(100, 100));
 	gfc_vector2d_add(self->acceleration, self->acceleration, force);
 }
@@ -241,7 +241,6 @@ Entity *projectile_spawn(const char *name) {
 	Entity *proj;
 	ProjectileData *data;
 	int i, count = gfc_list_count(projectile_pool);
-
 	// Check the projectile pool for an inactive matching projectile
 	for (i = 0; i < count; ++i) {
 		proj = gfc_list_get_nth(projectile_pool, i);

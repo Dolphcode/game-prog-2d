@@ -10,6 +10,10 @@
 #include "camera.h"
 #include "boss.h"
 
+#include "ui/window.h"
+#include "ui/widget.h"
+#include "ui/bar.h"
+
 #define WORM_FRAME_DELAY 10
 
 typedef struct WormSegment_S {
@@ -18,6 +22,9 @@ typedef struct WormSegment_S {
 	GFC_Vector2D		actions[WORM_FRAME_DELAY];
 	struct WormSegment_S	*next;	// <The next segment to pass actions to
 	float	time;		// <timer for some behavior
+	Entity	*head;		// <A reference to the head
+	Entity	*self;		// <A reference to the entity itself
+	Widget 	*bossbar;	// <A reference to the bossbar (only head needs it)
 }WormSegmentData;
 
 void electroworm_segment_pass_action(WormSegmentData *self, GFC_Vector2D action) {
@@ -29,6 +36,35 @@ void electroworm_segment_pass_action(WormSegmentData *self, GFC_Vector2D action)
        	if (self->next != NULL) {
 		electroworm_segment_pass_action(self->next, self->current_action);
        	}	       
+}
+
+void electroworm_head_damage(Entity *self, float damage) {
+	if (!self || self->i_time > 0) return;
+	WormSegmentData *data = (WormSegmentData *)self->data;
+	if (!data) return;
+	self->i_time = self->immunity;
+	self->health -= damage;
+	//slog("hit!");
+	if (self->health <= 0) {
+		data->bossbar->do_draw = 0;
+		self->alive = 0;
+		self->body->disabled = 1;
+		data = data->next;
+		while (data != NULL) {
+			data->self->alive = 0;
+			data->self->body->disabled = 1;
+			data = data->next;
+		}
+	}
+}
+
+void electroworm_body_damage(Entity *self, float damage) {
+	if (!self) return;
+	WormSegmentData *data = (WormSegmentData *)self->data;
+	if (!data) return;
+	if (data->head) {
+		data->head->damage(data->head, damage * 0.5);
+	}
 }
 
 void electroworm_body_update(Entity *self) {
@@ -62,7 +98,8 @@ void electroworm_head_update(Entity *self) {
 	if (!self) return;
 	WormSegmentData *data = (WormSegmentData *)self->data;
 	if (!data) return;	
-	
+	self->i_time -= 1;	
+	w_bar_set_value(data->bossbar, self->health / self->max_health);
 
 	electroworm_segment_pass_action(data->next, data->actions[data->index]);	
 	data->actions[data->index] = data->current_action;
@@ -137,10 +174,13 @@ Entity* electroworm_spawn(GFC_Vector2D position, const char *config) {
 	curr_segment->data = curr_data;
 	curr_segment->think = electroworm_body_think;
 	curr_segment->draw = electroworm_draw;
+	curr_segment->damage = electroworm_body_damage;
 	curr_segment->update = electroworm_body_update;
 	curr_data->time = 10;
 	curr_segment->can_grapple = 1;
 	curr_segment->frame = 2;
+	curr_segment->alive = 1;
+	curr_data->self = curr_segment;
 	gfc_vector2d_copy(curr_segment->position, position);
 	
 	// Now spawn the segments
@@ -156,12 +196,14 @@ Entity* electroworm_spawn(GFC_Vector2D position, const char *config) {
 			next_segment->data = next_data;
 			next_segment->think = electroworm_body_think;
 			next_segment->draw = electroworm_draw;
+			next_segment->damage = electroworm_body_damage;
 			next_segment->update = electroworm_body_update;
+			next_segment->alive = 1;
 			next_data->time = 10;
 			gfc_vector2d_copy(next_segment->position, position);
 
 			next_segment->frame = 1;
-
+			next_data->self = next_segment;
 			next_data->next = curr_data;
 
 			curr_data = next_data;
@@ -181,12 +223,25 @@ Entity* electroworm_spawn(GFC_Vector2D position, const char *config) {
 	next_segment->think = electroworm_head_think;
 	next_segment->update = electroworm_head_update;
 	next_segment->draw = electroworm_draw;
+	next_segment->damage = electroworm_head_damage;
 	next_segment->alive = 1;
 
+	// Get the bossbar
+	Window *win = ui_system_get_window("player_hud");
+	Widget *boss_bar = window_get_widget(win, "boss_bar");
+	next_data->bossbar = boss_bar;
+	next_data->bossbar->do_draw = 1;
 
 	gfc_vector2d_copy(next_segment->position, position);
 	
 	next_data->next = curr_data;
+
+	// Set the head
+	WormSegmentData *curr_parse_data = next_data;
+	while (curr_parse_data != NULL) {
+		curr_parse_data->head = next_segment;
+		curr_parse_data = curr_parse_data->next;
+	}
 
 	curr_segment = next_segment;
 	curr_data = next_data;

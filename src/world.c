@@ -72,7 +72,12 @@ void world_free(World *world) {
 		slog("freeing entity list");
 		entity_system_free_list(world->entity_list);
 		gfc_list_delete(world->entity_list);
-	}
+	}	
+	// Clear the projectile pool
+	projectile_pool_clear();
+	slog("cleared the projectile pool");
+	entity_system_free_all();
+	slog("cleared all entities");
 
 	// Free the space
 	if (world->space) {
@@ -85,9 +90,7 @@ void world_free(World *world) {
 		free(world->obscurers);
 	}
 
-	// Clear the projectile pool
-	projectile_pool_clear();
-	entity_system_free_all();
+
 
 	// Free the world
 	free(world);

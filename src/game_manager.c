@@ -326,7 +326,8 @@ void game_quit() {
 }
 
 void load_level_1() {
-	game_manager_start_level("def/world.def");
+	game_manager_start_level("def/bosstest.def");
+	//game_manager_start_level("def/testworld.def");
 }
 void load_level_2() {
 	game_manager_start_level("def/world.def");

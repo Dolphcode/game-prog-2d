@@ -7,6 +7,7 @@
 #include "ui/button.h"
 #include "ui/strbutton.h"
 #include "ui/minimap.h"
+#include "ui/bar.h"
 
 /*
 typedef struct Widget_S {
@@ -129,6 +130,7 @@ void widget_configure(Widget *self, SJson *json) {
 			w_button_configure(self, json);
 			break;
 		case 3:
+			w_bar_configure(self, json);
 			break;
 		case 4:
 			w_minimap_configure(self, json);

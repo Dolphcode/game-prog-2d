@@ -79,9 +79,10 @@ void entity_system_free_list(GFC_List *entity_list) {
 	int i, c = gfc_list_count(entity_list);
 
 	// Mark entities in this list as no longer in use
-	for (i = 0; i < c; i++) {
+	for (i = c - 1; i >= 0; i--) {
 		if (((Entity*)gfc_list_get_nth(entity_list, i))->_inuse) {
 			entity_free((Entity*)gfc_list_get_nth(entity_list, i));
+			gfc_list_delete_nth(entity_list, i);
 		}
 	}
 }
@@ -174,9 +175,14 @@ void entity_free(Entity *ent) {
 	if (!ent) return;
 
 	// Free the sprite if need be
-	if (ent->sprite) gf2d_sprite_free(ent->sprite);
-	if (ent->icon_sprite) gf2d_sprite_free(ent->icon_sprite);
-
+	if (ent->sprite) {
+		gf2d_sprite_free(ent->sprite);
+		ent->sprite = NULL;
+	}
+	if (ent->icon_sprite) {
+		gf2d_sprite_free(ent->icon_sprite);
+		ent->icon_sprite = NULL;
+	}
 	// Free the physics body if we have one
 	if (ent->body) {
 		if (world_get_active()) space_remove_entity(world_get_active()->space, ent);

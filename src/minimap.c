@@ -51,7 +51,6 @@ void w_minimap_configure(Widget *self, SJson *json) {
 
 	// Get the border
 	char *sprite = sj_object_get_string(data_obj, "borderSprite");
-	slog("Testing");
 	if (sprite) {
 		char sprite_path[256];
 		strcpy(sprite_path, sprite);
@@ -59,7 +58,6 @@ void w_minimap_configure(Widget *self, SJson *json) {
 		Uint32 fpl = 0;
 		sj_object_get_vector2d(data_obj, "borderSpriteSize", &frame_size);
 		sj_object_get_uint32(data_obj, "borderSpriteFPL", &fpl);
-		slog("test");
 		data->border = gf2d_sprite_load_all(
 			sprite,
 			(Uint32)frame_size.x,
@@ -133,7 +131,6 @@ void w_minimap_draw(Widget *self) {
 		gfc_vector2d_sub(ent_offset, ent->position, data->target->position);
 		ent_offset.x = (int)(ent_offset.x / data->world->tile_size * data->tile_size);
 		ent_offset.y = (int)(ent_offset.y / data->world->tile_size * data->tile_size);
-		slog("%f %f", ent_offset.x, ent_offset.y);
 		if (ent_offset.x < -data->map_size / 2 || ent_offset.x > data->map_size / 2 ||
 				ent_offset.y < -data->map_size / 2 || ent_offset.y > data->map_size / 2) continue;
 
@@ -150,9 +147,9 @@ void w_minimap_draw(Widget *self) {
 				NULL,
 				NULL,
 				0);
-		} else {
+		} /*else {
 			gf2d_draw_circle(ent_offset, 10, GFC_COLOR_ORANGE);
-		}
+		}*/
 		
 	}
 
