@@ -99,6 +99,10 @@ static CallbackEntry callback_list[] = {
 		back_to_pause,
 		"back_to_pause"
 	},
+	{
+		reset_binds,
+		"reset_binds"
+	},
 	{0}
 };
 

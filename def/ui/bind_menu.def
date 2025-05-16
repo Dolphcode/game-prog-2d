@@ -1,7 +1,7 @@
 {
     "name":"bind_menu_ui",
     "draw_layer":0,
-    "widget_count":33,
+    "widget_count":34,
     "widgets":[
         {
             "name":"background",
@@ -73,7 +73,7 @@
             "type":1,
             "data":{
                 "font":"./fonts/typewcond_regular.otf",
-                "text":"Retract Hook",
+                "text":"Retract",
                 "font_size":70
             }
         },
@@ -307,7 +307,7 @@
             "type":1,
             "data":{
                 "font":"./fonts/typewcond_regular.otf",
-                "text":"Move Right",
+                "text":"Move Up",
                 "font_size":70
             }
         },
@@ -421,12 +421,25 @@
             "sprite":"./images/ui/menu/back_button.png",
             "spriteFPL":1,
             "spriteSize":[480,70],
-            "position": [360, 620],
+            "position": [60, 620],
             "rect":[480,70],
             "color":[255, 255, 255],
             "type":2,
             "data":{
                 "callback":"back_to_pause"
+            }
+        },
+        {
+            "name":"back_btn",
+            "sprite":"./images/ui/menu/control_reset_button.png",
+            "spriteFPL":1,
+            "spriteSize":[480,70],
+            "position": [660, 620],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":2,
+            "data":{
+                "callback":"reset_binds"
             }
         }
     ]

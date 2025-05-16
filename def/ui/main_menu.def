@@ -21,9 +21,10 @@
             "position": [360, 400],
             "rect":[480,70],
             "color":[255, 255, 255],
-            "type":2,
+            "type":5,
             "data":{
-                "callback":"load_level_1"
+                "callback":"load_level_param",
+                "param":"def/bosstest.def"
             }
         },
         {

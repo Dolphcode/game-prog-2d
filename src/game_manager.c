@@ -112,7 +112,6 @@ void game_manager_update(Uint8 *keystate) {
 		for (int i = SDL_SCANCODE_A; i < SDL_SCANCODE_NUMLOCKCLEAR; i++) {
 			if (keystate[i] && game_manager_bind_convert(newkey, i)) {
 				// Bind
-				slog("Bound %s", newkey);
 				binding = 0;
 
 				// Now perform the bind
@@ -132,13 +131,9 @@ void game_manager_update(Uint8 *keystate) {
 
 				// Perform the write and update
 				sj_save(controls, "config/input.cfg");
-				slog("saved");
 				gfc_input_commands_purge();
-				slog("purged");
 				gfc_input_commands_load("./config/input.cfg");
-				slog("loaded");
 				game_manager_update_binds();
-				slog("bound");
 				break;
 			}
 		}	
@@ -321,13 +316,32 @@ Uint8 game_manager_bind_convert(char *buf, SDL_Scancode k) {
 /**
  * @brief quits the game
  */
+void reset_binds() {
+	FILE *default_config, *config;
+	default_config = fopen("config/default_input.cfg", "r");
+	config = fopen("config/input.cfg", "w");
+	char c;
+	while ((c = fgetc(default_config)) != EOF) {
+		fputc(c, config);
+	}
+	fclose(config);
+	fclose(default_config);
+	sj_free(controls);
+	controls = sj_load("config/input.cfg");
+	gfc_input_commands_purge();
+	gfc_input_commands_load("./config/input.cfg");
+	game_manager_update_binds();
+
+}
 void game_quit() {
 	running = 0;
 }
-
+void load_level_param(const char* level) {
+	game_manager_start_level(level);
+}
 void load_level_1() {
-	game_manager_start_level("def/bosstest.def");
-	//game_manager_start_level("def/testworld.def");
+	//game_manager_start_level("def/bosstest.def");
+	game_manager_start_level("def/world.def");
 }
 void load_level_2() {
 	game_manager_start_level("def/world.def");

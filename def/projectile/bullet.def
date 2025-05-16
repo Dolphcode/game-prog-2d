@@ -17,5 +17,15 @@
 	},
 	"projectile": {
         "lifetime": 30
+	},
+	"lights": {
+		"count":1,
+		"list":[
+			{
+				"offset":[0,0],
+				"radius":100,
+				"color":[100, 255, 100]
+			}
+		]
 	}
 }

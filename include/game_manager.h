@@ -41,6 +41,8 @@ void game_manager_update(Uint8 *keystate);
 void game_quit();
 
 // Callback functions
+void reset_binds();
+void load_level_param(const char*);
 void load_level_1();
 void load_level_2();
 void load_level_3();

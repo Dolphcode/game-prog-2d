@@ -60,13 +60,11 @@ void world_free(World *world) {
 	// Free the background
 	if (world->background) gf2d_sprite_free(world->background);
 	if (world->foreground) gf2d_sprite_free(world->foreground);
-	slog("freed images");
 	
 	// Free the tileset, tile data, and tile map
 	if (world->tile_set) gf2d_sprite_free(world->tile_set);
 	if (world->tile_data) free(world->tile_data);
 	if (world->tile_map) free(world->tile_map);
-	slog("freed tilestuff");
 
 	// Free the entity list
 	if (world->entity_list) {
@@ -76,18 +74,14 @@ void world_free(World *world) {
 	}	
 	// Clear the projectile pool
 	projectile_pool_clear();
-	slog("cleared the projectile pool");
 	entity_system_free_all();
-	slog("cleared all entities");
 
 	// Free the space
 	if (world->space) {
-		slog("freeing this world's space");
 		space_free(world->space);
 	}
 
 	if (world->obscurers) {
-		slog("freed all obscurers");
 		free(world->obscurers);
 	}
 
@@ -96,7 +90,6 @@ void world_free(World *world) {
 	// Free the world
 	free(world);
 	active_world = NULL;
-	slog("freed the world object");
 }
 
 /**
@@ -141,7 +134,6 @@ void world_build_obscurer_map(World *world) {
 	// Start by copying the tilemap to a new Uint32 array
 	Uint32 *tiles = malloc(sizeof(Uint32) * world->world_size.x * world->world_size.y);
 	memcpy(tiles, world->tile_map, sizeof(Uint32) * world->world_size.x * world->world_size.y);
-	slog("copied the tiles");
 
 	// Create the list of edges with the maximum possible number of edges
 
@@ -156,7 +148,6 @@ void world_build_obscurer_map(World *world) {
 			}
 		}
 	}
-	slog("removed noncolliding tiles");
 
 	// Iterate through tiles to create exposed edges
 	int edge_count = 0;
@@ -205,7 +196,6 @@ void world_build_obscurer_map(World *world) {
 			}
 		}
 	}
-	slog("identified exposed edges, %d", edge_count);
 
 	// Now build the obscurers list by merging adjacent edges
 	int final_edge_count = 0;
@@ -237,7 +227,6 @@ void world_build_obscurer_map(World *world) {
 	obscurers = realloc(obscurers, sizeof(BlockingEdge2D) * final_edge_count);
 	world->obscurers = obscurers;
 	world->obscurer_count = final_edge_count;
-	slog("World has %d edges", final_edge_count);
 
 	// Reallocate memory for the obscurer list for efficiency and free the tiles
 	free(edges);
@@ -270,7 +259,6 @@ void world_build_tile_layer(World *world) {
 		0  // No A mask
 	);*/
 	world->tile_layer->surface = gf2d_graphics_create_surface(world->world_size.x * world->tile_size, world->world_size.y * world->tile_size);
-	slog("printing the world size %f %f %i", world->world_size.x, world->world_size.y, world->tile_size);
 	if (!world->tile_layer->surface) {
 		slog("failed to create surface");
 		return;
@@ -357,7 +345,6 @@ World *world_load(const char *filename) {
 	Uint32 tile_count = 0;
 	GFC_Vector2D world_size = {0};
 	sj_object_get_uint32(tile_json, "tileCount", &tile_count);
-	slog("creating for tilecount %i", tile_count);
 	sj_object_get_vector2d(world_json, "worldSize", &world_size);
 	World* world = world_new(world_size.x, world_size.y, tile_count);
 	if (!world) {
@@ -483,7 +470,6 @@ World *world_load(const char *filename) {
 		if (!hazard_list) {
 			slog("invalid hazard list, no hazards will be spawned");
 		} else {
-			slog("reading the hazard list");
 			for (hazard_count -= 1; hazard_count >= 0; hazard_count--) {
 				hazard_obj = sj_array_get_nth(hazard_list, hazard_count);
 				if (!hazard_obj) continue;
@@ -494,7 +480,6 @@ World *world_load(const char *filename) {
 				Entity *ent = spawn_entity_default(hazard_name, hazard_pos);
 				gfc_list_append(world->entity_list, ent);
 				space_add_entity(world->space, ent);
-				slog("spawning a hazard at %f %f", hazard_pos.x, hazard_pos.y);
 			}
 		}
 	}
@@ -540,7 +525,6 @@ World *world_load(const char *filename) {
 			WaveSpawn *spawn_ptr = &(wave_ptr->spawns[spawn_count]);
 			const char *spawn_id = sj_object_get_string(spawn_obj, "id");
 			strcpy(spawn_ptr->id, spawn_id);
-			slog("loading %s", spawn_ptr->id);
 			sj_object_get_vector2d(spawn_obj, "position", &(spawn_ptr->pos));
 		}
 	}
@@ -627,7 +611,6 @@ void world_draw(World *world) {
 		for (int n = 0; n < world->obscurer_count; ++n) {
 			GFC_Vector2D p1 = gfc_vector2d(world->obscurers[n].x1, world->obscurers[n].y1);
 			GFC_Vector2D p2 = gfc_vector2d(world->obscurers[n].x2, world->obscurers[n].y2);
-			slog("Drawing a line %d from %f %f to %f %f", n, p1.x, p1.y, p2.x, p2.y);
 			p1 = main_camera_calc_drawpos(p1);
 			p2 = main_camera_calc_drawpos(p2);
 			gf2d_draw_line(p1, p2, GFC_COLOR_BROWN);
@@ -657,13 +640,11 @@ void world_update(World *world) {
 		game_manager_quit_level();
 	} else if (world->curr_wave < 0 || all_dead) {
 		world->curr_wave += 1;
-		//slog("loading wave %d", world->curr_wave);
 		Wave *wave_ptr = &(world->waves[world->curr_wave]);
 		WaveSpawn spawndata;
 		for (int i = 0; i < wave_ptr->spawn_count; ++i) {
 			// Spawn every enemy
 			spawndata = wave_ptr->spawns[i];
-			//slog("spawning a %s %f %f", wave_ptr->spawns[i].id, wave_ptr->spawns[i].pos.x, wave_ptr->spawns[i].pos.y);
 			wave_ptr->ents[i] = spawn_entity_default(spawndata.id, spawndata.pos);
 			gfc_list_append(world->entity_list, wave_ptr->ents[i]);
 		}	

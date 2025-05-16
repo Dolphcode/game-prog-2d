@@ -59,7 +59,6 @@ void ui_system_update_all() {
 	Window *curr;
 	Widget *curr_widget;
 	count = gfc_list_count(ui_system);
-	slog("%d mouse caught?", mouse_caught);
 	for (i = 0; i < count; ++i) {
 		curr = gfc_list_get_nth(ui_system, i);
 		//if (!curr->_active) continue;
@@ -216,7 +215,6 @@ Window *ui_system_get_window(const char *name) {
 		curr = gfc_list_get_nth(ui_system, i);
 		if (!curr)continue;
 		if (strcmp(name, curr->name) == 0) {
-			slog("found %s", name);
 			return curr;
 		}
 	}

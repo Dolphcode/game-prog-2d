@@ -19,6 +19,10 @@ static CallbackEntry callback_list[] = {
 		"game_manager_bindkey"
 	},
 	{
+		load_level_param,
+		"load_level_param"
+	},
+	{
 		w_strbutton_print,
 		"strbutton_print"
 	},
