@@ -24,7 +24,7 @@
             "type":5,
             "data":{
                 "callback":"load_level_param",
-                "param":"def/bosstest.def"
+                "param":"def/world.def"
             }
         },
         {

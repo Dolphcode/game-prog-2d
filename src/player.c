@@ -110,7 +110,7 @@ typedef struct {
 void player_hook_static_touch(Entity *self) {
 	if (!self) return;
 	PlayerHookData *hook_data = (PlayerHookData*)self->data;
-	if (!hook_data || hook_data->grappled) return;
+	if (!hook_data || hook_data->grappled || !hook_data->grapple_out) return;
 	self->body->velocity = gfc_vector2d(0, 0);
 	hook_data->grappled = 1;
 	hook_data->grapple_length = gfc_vector2d_magnitude_between(self->body->position, player->body->position);
