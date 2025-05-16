@@ -1,7 +1,7 @@
 {
     "name":"main_menu_ui",
     "draw_layer":1,
-    "widget_count":3,
+    "widget_count":4,
     "widgets":[
         {
             "name":"background",
@@ -19,6 +19,20 @@
             "spriteFPL":1,
             "spriteSize":[480,70],
             "position": [360, 400],
+            "rect":[480,70],
+            "color":[255, 255, 255],
+            "type":5,
+            "data":{
+                "callback":"load_level_param",
+                "param":"def/bosstest.def"
+            }
+        },
+        {
+            "name":"demo_btn",
+            "sprite":"./images/ui/menu/demo_button.png",
+            "spriteFPL":1,
+            "spriteSize":[480,70],
+            "position": [360, 500],
             "rect":[480,70],
             "color":[255, 255, 255],
             "type":5,
